@@ -5,7 +5,7 @@ import { JWT_SECRET, JWT_SIGN_OPTS as SIGN_OPTS } from "../config/jwtConfig.js";
 const COOKIE_OPTS = {
   httpOnly: true,
   secure: process.env.NODE_ENV === "production",
-  sameSite: "lax",
+  sameSite: "none",
   path: "/",
   maxAge: 7 * 24 * 60 * 60 * 1000,
 };

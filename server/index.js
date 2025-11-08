@@ -11,8 +11,14 @@ const app = express();
 
 const PORT = process.env.PORT || 5000;
 
+// Support multiple origins via comma-separated env (CORS_ORIGINS or CORS_ORIGIN)
+const ALLOWED_ORIGINS = (process.env.CORS_ORIGINS || process.env.CORS_ORIGIN || "http://localhost:3000")
+  .split(",")
+  .map((s) => s.trim())
+  .filter(Boolean);
+
 const corsOptions = {
-  origin: process.env.CORS_ORIGIN || "http://localhost:3000",
+  origin: ALLOWED_ORIGINS,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
@@ -20,6 +26,8 @@ const corsOptions = {
 }
 
 app.use(cors(corsOptions));
+// Explicitly handle preflight for all routes
+app.options('*', cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
