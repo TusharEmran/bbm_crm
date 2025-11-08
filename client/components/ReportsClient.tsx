@@ -3,9 +3,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 import { Download, Calendar, Plus, X, Edit2, Trash2 } from 'lucide-react';
-import * as XLSX from 'xlsx';
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
 import Toast from '@/components/Toast';
 
 interface ReportItem {
@@ -227,6 +224,8 @@ export default function ReportsClient() {
     return Object.entries(categoryData).map(([name, value]) => ({ name, value: value as number }));
   }, [filteredData, categories]);
 
+  const pieColors = useMemo(() => generateColors(chartData.length), [chartData.length]);
+
   const showroomMap = useMemo(() => {
     const map: Record<string, ReportItem> = {};
     filteredData.forEach(item => { if (!map[item.showroom]) map[item.showroom] = item; });
@@ -283,20 +282,27 @@ export default function ReportsClient() {
 
   const handleExcelExport = () => {
     const worksheetData = tableData.map((item) => ({ 'Showroom Name': item.showroom, 'Customer Count': item.customerCount, 'Feedback Count': item.feedbackCount, 'Performance %': item.avgPerformance }));
-    const worksheet = XLSX.utils.json_to_sheet(worksheetData); const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Reports');
-    worksheet['!cols'] = [{ wch: 20 }, { wch: 15 }, { wch: 15 }, { wch: 15 }];
-    XLSX.writeFile(workbook, 'reports.xlsx');
+    import('xlsx').then((XLSX) => {
+      const worksheet = XLSX.utils.json_to_sheet(worksheetData);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Reports');
+      (worksheet as any)['!cols'] = [{ wch: 20 }, { wch: 15 }, { wch: 15 }, { wch: 15 }];
+      XLSX.writeFile(workbook as any, 'reports.xlsx');
+    }).catch(() => { /* no-op */ });
   };
 
   const handlePdfExport = () => {
-    const pdf = new jsPDF(); const pageWidth = pdf.internal.pageSize.getWidth();
-    pdf.setFontSize(16); pdf.text('Report Summary', 14, 15);
-    pdf.setFontSize(10); pdf.text(`Filters: Date Range - ${dateRange}, Showroom - ${selectedShowroom}, Category - ${selectedCategory}`, 14, 25);
-    const tableColumn = ['Showroom Name', 'Customer Count', 'Feedback Count', 'Performance %'];
-    const tableRows = tableData.map((item) => [item.showroom, item.customerCount, item.feedbackCount, `${item.avgPerformance}%`]);
-    autoTable(pdf, { head: [tableColumn], body: tableRows, startY: 35, headStyles: { fillColor: [59, 130, 246], textColor: 255 }, bodyStyles: { textColor: 50 }, margin: { left: 14, right: 14 } });
-    pdf.save('reports.pdf');
+    Promise.all([import('jspdf'), import('jspdf-autotable')]).then(([jsPDFmod, autoTableMod]) => {
+      const jsPDF = (jsPDFmod as any).default || (jsPDFmod as any).jsPDF || jsPDFmod;
+      const autoTable = (autoTableMod as any).default || (autoTableMod as any);
+      const pdf = new jsPDF();
+      pdf.setFontSize(16); pdf.text('Report Summary', 14, 15);
+      pdf.setFontSize(10); pdf.text(`Filters: Date Range - ${dateRange}, Showroom - ${selectedShowroom}, Category - ${selectedCategory}`, 14, 25);
+      const tableColumn = ['Showroom Name', 'Customer Count', 'Feedback Count', 'Performance %'];
+      const tableRows = tableData.map((item) => [item.showroom, item.customerCount, item.feedbackCount, `${item.avgPerformance}%`]);
+      autoTable(pdf, { head: [tableColumn], body: tableRows, startY: 35, headStyles: { fillColor: [59, 130, 246], textColor: 255 }, bodyStyles: { textColor: 50 }, margin: { left: 14, right: 14 } });
+      pdf.save('reports.pdf');
+    }).catch(() => { /* no-op */ });
   };
 
   return (
@@ -420,8 +426,19 @@ export default function ReportsClient() {
               <div className="w-full z-20 h-96 flex items-center justify-center">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
-                    <Pie data={chartData} cx="50%" cy="50%" labelLine={true} label={({ name, percent }) => `${name} ${(((percent as unknown as number) || 0) * 100).toFixed(0)}%`} outerRadius={80} fill="#8884d8" dataKey="value">
-                      {chartData.map((entry, index) => { const colors = generateColors(chartData.length); return (<Cell key={`cell-${index}`} fill={colors[index]} />); })}
+                    <Pie
+                      data={chartData}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={true}
+                      label={({ name, percent }) => `${name} ${(((percent as unknown as number) || 0) * 100).toFixed(0)}%`}
+                      outerRadius={80}
+                      fill="#8884d8"
+                      dataKey="value"
+                    >
+                      {chartData.map((_, index) => (
+                        <Cell key={`cell-${index}`} fill={pieColors[index]} />
+                      ))}
                     </Pie>
                     <Tooltip formatter={(value: number) => `${value} customers`} />
                     <Legend wrapperStyle={{ paddingTop: '20px' }} />

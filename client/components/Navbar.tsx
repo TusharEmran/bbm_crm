@@ -9,7 +9,7 @@ interface NavbarProps {
   subtitle?: string
 }
 export default function Navbar({
-  userName = 'John',
+  userName = 'BBM Bangladesh',
   subtitle = 'Explore information and activity about your property',
 }: NavbarProps) {
   const [searchQuery, setSearchQuery] = useState('')
@@ -19,7 +19,6 @@ export default function Navbar({
     e.preventDefault()
     console.log('Search query:', searchQuery)
   }
-
 
   return (
     <div className="bg-[#F7F7F7] border-gray-200 px-4 sm:px-6 py-4 sm:py-6">
@@ -38,7 +37,7 @@ export default function Navbar({
           </button>
           <div>
             <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
-              Hello, {userName}!
+              Hello BBM Bangladesh
             </h1>
             <p className="text-gray-600 text-sm mt-1 max-w-xs sm:max-w-none mx-auto sm:mx-0">
               {subtitle}

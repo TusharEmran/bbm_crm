@@ -1,7 +1,10 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
-import DashboardChartsClient, { ActivityPoint, InterestPoint } from "@/components/DashboardChartsClient";
+import dynamic from "next/dynamic";
+import type { ActivityPoint, InterestPoint } from "@/components/DashboardChartsClient";
+
+const DashboardChartsClient = dynamic(() => import("@/components/DashboardChartsClient"), { ssr: false });
 
 const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
@@ -106,10 +109,11 @@ export default function AdminDashboardBodyClient() {
       return d;
     });
     const counts = days.map((d) => ({ key: d.getTime(), day: formatDayLabel(d), visitors: 0 }));
+    const indexByKey = new Map(counts.map((c, i) => [c.key, i] as const));
     customers.forEach((c) => {
       const created = startOfDay(new Date(c.createdAt)).getTime();
-      const idx = counts.findIndex((p) => p.key === created);
-      if (idx >= 0) counts[idx].visitors += 1;
+      const idx = indexByKey.get(created);
+      if (idx !== undefined) counts[idx].visitors += 1;
     });
     const activity: ActivityPoint[] = counts.map(({ day, visitors }) => ({ day, visitors }));
 

@@ -1,7 +1,12 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
-import OfficeDashboardChartsClient, { VisitorTrendData } from "@/components/OfficeDashboardChartsClient";
+import dynamic from "next/dynamic";
+
+// Define the type locally to allow dynamic import code-splitting
+export interface VisitorTrendData { day: string; visitors: number; accuracy: number }
+
+const OfficeDashboardChartsClient = dynamic(() => import("@/components/OfficeDashboardChartsClient"), { ssr: false });
 
 const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
@@ -62,10 +67,6 @@ export default function OfficeDashboardClient() {
   }, []);
 
   const { totalVisitors, avgAccuracy, avgPerformance, visitorTrendData } = useMemo(() => {
-    // Total visitors today (count of customers created today)
-    const today = startOfDay(new Date()).getTime();
-    const todayVisitors = customers.filter(c => startOfDay(new Date(c.createdAt)).getTime() === today).length;
-
     // Build last 7 days visitor trend
     const base = startOfDay(new Date());
     const days: Date[] = Array.from({ length: 7 }, (_, i) => {
@@ -74,6 +75,7 @@ export default function OfficeDashboardClient() {
       return d;
     });
     const counts = days.map(d => ({ ts: d.getTime(), day: formatDayLabel(d), visitors: 0, custPhones: new Set<string>(), fbPhones: new Set<string>() }));
+    const indexByTs = new Map(counts.map((c, i) => [c.ts, i] as const));
 
     const normalize = (p: string) => {
       const digits = (p || '').replace(/\D+/g, '');
@@ -82,8 +84,8 @@ export default function OfficeDashboardClient() {
 
     customers.forEach(c => {
       const ts = startOfDay(new Date(c.createdAt)).getTime();
-      const idx = counts.findIndex(p => p.ts === ts);
-      if (idx >= 0) {
+      const idx = indexByTs.get(ts);
+      if (idx !== undefined) {
         counts[idx].visitors += 1;
         const phone = normalize((c as any).phoneNumber || '');
         if (phone) counts[idx].custPhones.add(phone);
@@ -92,8 +94,8 @@ export default function OfficeDashboardClient() {
 
     feedbacks.forEach(f => {
       const ts = startOfDay(new Date((f as any).createdAt || (f as any).date || 0)).getTime();
-      const idx = counts.findIndex(p => p.ts === ts);
-      if (idx >= 0) {
+      const idx = indexByTs.get(ts);
+      if (idx !== undefined) {
         const phone = normalize((f as any).phone || '');
         if (phone) counts[idx].fbPhones.add(phone);
       }
@@ -105,6 +107,9 @@ export default function OfficeDashboardClient() {
       const acc = cust > 0 ? Math.round((fbs / cust) * 100) : 0;
       return { day: c.day, visitors: c.visitors, accuracy: acc };
     });
+
+    // Today's visitors can be read from the last element in counts (today)
+    const todayVisitors = counts[counts.length - 1]?.visitors || 0;
 
     const accuracyVals = trend.map(t => t.accuracy);
     const avgAccClient = accuracyVals.length ? (accuracyVals.reduce((a,b)=>a+b,0)/accuracyVals.length) : 0;

@@ -9,16 +9,9 @@ interface NavbarProps {
   subtitle?: string
 }
 
-interface Notification {
-  id: string
-  type: 'edit' | 'delete'
-  userName: string
-  action: string
-  timestamp: string
-}
 
 export default function ShowroomNavbar({
-  userName = 'John',
+  userName = 'BBM Bangladesh',
   subtitle = 'Explore information and activity about your property',
 }: NavbarProps) {
   const [searchQuery, setSearchQuery] = useState('')
@@ -48,7 +41,7 @@ export default function ShowroomNavbar({
           </button>
           <div>
             <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
-              Hello, {userName}!
+              Hello BBM Bangladesh
             </h1>
             <p className="text-gray-600 text-sm mt-1 max-w-xs sm:max-w-none mx-auto sm:mx-0">
               {subtitle}
