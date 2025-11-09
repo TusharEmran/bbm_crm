@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { ShowroomCustomer } from "../models/showroomCustomerModel.js";
 import { Feedback } from "../models/feedbackModel.js";
 import { Showroom } from "../models/showroomModel.js";
@@ -20,8 +21,20 @@ const parseRange = (q) => {
   // Support both 'from/to' and 'start/end' query params
   const endDate = q?.end || q?.to;
   const startDate = q?.start || q?.from;
+
+  // Default to last 30 days if no dates provided
   const end = endDate ? new Date(endDate) : addDays(startOfDay(now), 1);
   const start = startDate ? new Date(startDate) : addDays(startOfDay(now), -29);
+
+  // Log the date range being used
+  console.log('Date range calculation:', {
+    providedStart: startDate,
+    providedEnd: endDate,
+    calculatedStart: start,
+    calculatedEnd: end,
+    now: now
+  });
+
   return { start, end };
 };
 
@@ -84,10 +97,11 @@ export const showroomSummary = async (req, res) => {
     }
 
     // Filter against active showrooms (exclude deleted/disabled)
-    const activeShowrooms = await Showroom.find({}).select("name status");
+    // Consider either status === 'Active' OR active === true as active
+    const activeShowrooms = await Showroom.find({}).select("name status active");
     const activeSet = new Set(
       activeShowrooms
-        .filter((s) => !s.status || s.status === "Active")
+        .filter((s) => (s?.active === true) || !s?.status || s?.status === "Active")
         .map((s) => (s.name || "").toString())
     );
 
@@ -115,36 +129,46 @@ export const showroomSummary = async (req, res) => {
 
 export const showroomReport = async (req, res) => {
   try {
+
     const { start, end } = parseRange(req.query);
+
     const showroomFilter = (req.query.showroom || "").toString().trim();
     const categoryFilter = (req.query.category || "").toString().trim();
 
     const matchCust = { createdAt: { $gte: start, $lt: end } };
-    if (showroomFilter) matchCust.showroomBranch = showroomFilter;
+    if (showroomFilter) matchCust.showroomBranch = { $regex: `^${escapeRegex(showroomFilter)}$`, $options: "i" };
     if (categoryFilter) matchCust.category = { $regex: `^${escapeRegex(categoryFilter)}$`, $options: "i" };
 
     const custGroupId = categoryFilter ? "$showroomBranch" : { showroom: "$showroomBranch", category: "$category" };
+
+
     const custAgg = await ShowroomCustomer.aggregate([
-      { $match: matchCust },
+      {
+        $match: matchCust
+      },
       {
         $group: {
           _id: custGroupId,
           uniquePhones: { $addToSet: "$phoneNumber" },
+          showroomName: { $first: "$showroomBranch" },
+          categoryName: { $first: "$category" }
         },
       },
       {
         $project: {
           _id: 0,
-          showroom: categoryFilter ? "$_id" : "$_id.showroom",
-          category: categoryFilter ? (categoryFilter || "") : { $ifNull: ["$_id.category", ""] },
+          showroom: categoryFilter ? "$showroomName" : "$_id.showroom",
+          category: categoryFilter ? "$categoryName" : { $ifNull: ["$_id.category", ""] },
           customerCount: { $size: "$uniquePhones" },
         },
       },
     ]);
 
+
     const matchFb = { createdAt: { $gte: start, $lt: end } };
-    if (showroomFilter) matchFb.showroom = showroomFilter;
+    if (showroomFilter) matchFb.showroom = { $regex: `^${escapeRegex(showroomFilter)}$`, $options: "i" };
     if (categoryFilter) matchFb.category = { $regex: `^${escapeRegex(categoryFilter)}$`, $options: "i" };
+
 
     const fbGroupId = categoryFilter ? "$showroom" : { showroom: "$showroom", category: "$category" };
     const fbAgg = await Feedback.aggregate([
@@ -170,27 +194,33 @@ export const showroomReport = async (req, res) => {
       const key = `${c.showroom}||${c.category || ""}`;
       byKey.set(key, { showroom: c.showroom || "", category: c.category || "", customers: c.customerCount || 0, feedbacks: 0 });
     }
-    for (const f of fbAgg) {
-      const key = `${f.showroom}||${f.category || ""}`;
-      const prev = byKey.get(key) || { showroom: f.showroom || "", category: f.category || "", customers: 0, feedbacks: 0 };
-      prev.feedbacks = f.feedbackCount || 0;
-      byKey.set(key, prev);
-    }
 
-    // Filter out rows for deleted/inactive showrooms
-    const activeShowrooms = await Showroom.find({}).select("name status");
+    const activeShowrooms = await Showroom.find({}).select("name status active");
     const activeSet = new Set(
       activeShowrooms
-        .filter((s) => !s.status || s.status === "Active")
+        .filter((s) => (s?.active === true) || !s?.status || s?.status === "Active")
         .map((s) => (s.name || "").toString())
     );
 
+    for (const f of fbAgg) {
+      const prev = byKey.get(`${f.showroom}||${f.category || ""}`) || {
+        showroom: f.showroom || "",
+        category: f.category || "",
+        customers: 0,
+        feedbacks: 0,
+      };
+      prev.feedbacks = f.feedbackCount || 0;
+      byKey.set(`${f.showroom}||${f.category || ""}`, prev);
+    }
+
     const rows = Array.from(byKey.values()).filter((r) => activeSet.size === 0 || activeSet.has(r.showroom || ""));
+
 
     res.set("Cache-Control", "private, max-age=30");
     return res.status(200).json({ rows, from: start, to: end });
   } catch (e) {
-    return res.status(500).json({ message: "Server error" });
+    console.error('Analytics Error:', e);
+    return res.status(500).json({ message: "Server error", details: e.message });
   }
 };
 
@@ -198,7 +228,7 @@ export const showroomDaily = async (req, res) => {
   try {
     const { start, end } = parseRange(req.query);
     const showroomFilter = (req.query.showroom || "").toString().trim();
-    
+
     const matchRange = { createdAt: { $gte: start, $lt: end } };
     if (showroomFilter) {
       matchRange.showroomBranch = showroomFilter;

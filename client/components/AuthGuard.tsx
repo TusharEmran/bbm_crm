@@ -21,11 +21,11 @@ const isTokenExpired = (token: string): boolean => {
   try {
     const parts = token.split('.');
     if (parts.length !== 3) return true;
-    
+
     // Decode payload (base64url)
     const payload = parts[1];
     const decoded = JSON.parse(atob(payload.replace(/-/g, '+').replace(/_/g, '/')));
-    
+
     // Check expiration
     if (decoded.exp) {
       const expTime = decoded.exp * 1000; // Convert to milliseconds
@@ -51,20 +51,20 @@ export default function AuthGuard({ children, allowedRoles }: AuthGuardProps) {
     const checkAuth = async () => {
       // Prevent multiple simultaneous checks
       if (checkingRef.current) return;
-      
+
       // Skip if we're already on login page
       if (pathname === "/login" || pathname === "/") {
         setChecking(false);
         return;
       }
-      
+
       // Skip if we've already determined token is invalid
       if (invalidTokenRef.current) {
         router.replace("/login");
         setChecking(false);
         return;
       }
-      
+
       // Check sessionStorage for recent auth failure to avoid unnecessary requests
       if (typeof window !== "undefined") {
         const recentFailure = sessionStorage.getItem("auth_failed");
@@ -85,12 +85,12 @@ export default function AuthGuard({ children, allowedRoles }: AuthGuardProps) {
           return;
         }
       }
-      
+
       checkingRef.current = true;
 
       try {
         const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
-        
+
         // If no token, skip request entirely
         if (!token) {
           invalidTokenRef.current = true;
@@ -106,7 +106,7 @@ export default function AuthGuard({ children, allowedRoles }: AuthGuardProps) {
           checkingRef.current = false;
           return;
         }
-        
+
         // If token format is invalid, skip request entirely
         if (!isValidTokenFormat(token)) {
           invalidTokenRef.current = true;
@@ -122,7 +122,7 @@ export default function AuthGuard({ children, allowedRoles }: AuthGuardProps) {
           checkingRef.current = false;
           return;
         }
-        
+
         // If token is expired, skip request entirely
         if (isTokenExpired(token)) {
           invalidTokenRef.current = true;
@@ -138,23 +138,23 @@ export default function AuthGuard({ children, allowedRoles }: AuthGuardProps) {
           checkingRef.current = false;
           return;
         }
-        
+
         // Prevent making multiple requests - if we've already made one and it failed, don't retry
         if (hasMadeRequestRef.current) {
           setChecking(false);
           checkingRef.current = false;
           return;
         }
-        
+
         hasMadeRequestRef.current = true;
 
         // Only make request if token passes all client-side checks
         const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
-        
+
         // Use AbortController to allow cancellation if needed
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
-        
+
         const res = await fetch(`${baseUrl}/api/user/me`, {
           headers: { Authorization: `Bearer ${token}` },
           cache: "no-store",
@@ -167,7 +167,7 @@ export default function AuthGuard({ children, allowedRoles }: AuthGuardProps) {
           }
           return null;
         });
-        
+
         clearTimeout(timeoutId);
 
         if (!res || !res.ok) {
@@ -186,7 +186,7 @@ export default function AuthGuard({ children, allowedRoles }: AuthGuardProps) {
           checkingRef.current = false;
           return;
         }
-        
+
         // Reset request flag on success
         hasMadeRequestRef.current = false;
 
@@ -240,14 +240,23 @@ export default function AuthGuard({ children, allowedRoles }: AuthGuardProps) {
 
   if (checking) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
-          <p className="text-sm text-gray-600">Verifying access...</p>
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
+        <div className="flex flex-col items-center gap-6 p-8 bg-white rounded-2xl shadow-xl border border-gray-100">
+          {/* Smooth spinning circle */}
+          <div className="w-16 h-16 border-4 border-t-blue-500 border-blue-200 rounded-full animate-spin"></div>
+
+          <h2 className="text-xl font-semibold text-gray-800">Please wait loading</h2>
+
+          <div className="flex items-center gap-2 mt-2 text-blue-500">
+            <Shield className="w-5 h-5 animate-pulse" />
+            <span className="text-sm font-medium">Securely verifying your session</span>
+          </div>
         </div>
       </div>
     );
-  }
+  };
+
+
 
   if (!authorized) return null;
 

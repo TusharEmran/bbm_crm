@@ -30,6 +30,7 @@ interface ChartDatum {
 }
 
 const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+console.log('Frontend configured with API URL:', baseUrl);
 
 interface AdminShowroomItem { id: string; name: string }
 
@@ -69,6 +70,7 @@ export default function ReportsClient() {
     setIsGenerating(true);
     try {
       const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+      console.log('Auth state:', { hasToken: !!token });
       if (!token) throw new Error('Not authenticated');
       const now = new Date();
       let from: Date; let to: Date = new Date();
@@ -82,16 +84,31 @@ export default function ReportsClient() {
       }
       const params = new URLSearchParams();
       params.set('from', from.toISOString().split('T')[0]);
-      params.set('to', to.toISOString().split('T')[0]);
+      const endExclusive = new Date(to);
+      endExclusive.setDate(endExclusive.getDate() + 1);
+      params.set('to', endExclusive.toISOString().split('T')[0]);
       if (selectedShowroom !== 'all') params.set('showroom', selectedShowroom);
       if (selectedCategory !== 'all') params.set('category', selectedCategory);
       params.set('ts', String(Date.now()));
+      console.log('Sending request:', {
+        url: `${baseUrl}/api/user/analytics/showroom-report?${params.toString()}`,
+        headers: { Authorization: 'Bearer [REDACTED]' }
+      });
       const res = await fetch(`${baseUrl}/api/user/analytics/showroom-report?` + params.toString(), {
         headers: { Authorization: `Bearer ${token}` },
         cache: 'no-store',
       });
-      if (!res.ok) throw new Error('Failed to generate report');
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.error('API Error:', {
+          status: res.status,
+          statusText: res.statusText,
+          body: errorText
+        });
+        throw new Error(`Failed to generate report: ${res.status} ${res.statusText}`);
+      }
       const data = await res.json();
+      console.log('API Response:', { data });
       if (!data || !Array.isArray(data.rows)) {
         console.error('Unexpected API response format:', data);
         throw new Error('Invalid data format received from server');
@@ -173,8 +190,22 @@ export default function ReportsClient() {
   useEffect(() => {
     const initializeData = async () => {
       try {
+        // First verify we have auth
+        const token = localStorage.getItem('token');
+        if (!token) {
+          setToastMessage('Please log in again');
+          setShowToast(true);
+          return;
+        }
+
+        // Verify the base URL is correct
+        console.log('API URL:', baseUrl);
+
         setIsGenerating(true);
+
+        // Load initial data
         await handleGenerateReport();
+
       } catch (error: any) {
         console.error('Failed to initialize reports:', error);
         setToastMessage(error?.message || 'Failed to load initial report data');

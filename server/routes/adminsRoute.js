@@ -8,6 +8,29 @@ import { listCategories, createCategory, updateCategory, deleteCategory } from "
 import { createFeedback, listFeedbacks, updateFeedbackStatus, deleteFeedback } from "../controllers/feedbackControllers.js";
 import { createShowroomCustomer, listShowroomCustomers, updateShowroomCustomer, deleteShowroomCustomer, listShowrooms, listShowroomsPublic, createShowroom, updateShowroom, deleteShowroom, getShowroomCustomer } from "../controllers/showroomControllers.js";
 import { showroomSummary, showroomReport, showroomDaily } from "../controllers/analyticsControllers.js";
+
+// Test route for analytics
+const testAnalytics = async (req, res) => {
+  try {
+    const customers = await ShowroomCustomer.find().limit(5);
+    const feedbacks = await Feedback.find().limit(5);
+    const showrooms = await Showroom.find().limit(5);
+
+    return res.json({
+      customerCount: await ShowroomCustomer.countDocuments(),
+      feedbackCount: await Feedback.countDocuments(),
+      showroomCount: await Showroom.countDocuments(),
+      sampleData: {
+        customers,
+        feedbacks,
+        showrooms
+      }
+    });
+  } catch (e) {
+    console.error('Test analytics error:', e);
+    return res.status(500).json({ error: e.message });
+  }
+};
 import { getMessageSettings, updateMessageSettings } from "../controllers/settingsControllers.js";
 import { createSale, listSales } from "../controllers/salesControllers.js";
 
@@ -46,6 +69,9 @@ export const requireAuth = async (req, res, next) => {
 
 
 router.get("/me", requireAuth, me);
+
+// Test route to verify data
+router.get("/analytics/test", requireAuth, testAnalytics);
 
 // Analytics routes
 router.get("/analytics/showroom-summary", requireAuth, showroomSummary);
