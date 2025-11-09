@@ -195,15 +195,28 @@ export default function ReportsClient() {
   }, [adminShowrooms]);
 
   const tableData = useMemo<TableRow[]>(() => {
+    // normalized name -> display name
+    const nameMap: Record<string, string> = {};
+    adminShowrooms.forEach((s) => { nameMap[s.name.trim().toLowerCase()] = s.name; });
+
+    // Initialize aggregation by normalized key
     const aggregated: Record<string, Omit<TableRow, 'avgPerformance'>> = {};
-    adminShowrooms.forEach((item) => { aggregated[item.name] = { showroom: item.name, customerCount: 0, feedbackCount: 0, performancePercentages: [] }; });
-    filteredData.forEach((item) => {
-      // Only aggregate for managed (known) showrooms; skip unknown names from raw analytics
-      if (!aggregated[item.showroom]) return;
-      aggregated[item.showroom].customerCount += item.customerCount;
-      aggregated[item.showroom].feedbackCount += item.feedbackCount;
-      aggregated[item.showroom].performancePercentages.push(item.prevMonthPerformance);
+    adminShowrooms.forEach((item) => {
+      const key = item.name.trim().toLowerCase();
+      const display = nameMap[key] || item.name;
+      aggregated[key] = { showroom: display, customerCount: 0, feedbackCount: 0, performancePercentages: [] };
     });
+
+    // Accumulate using normalized showroom names from analytics data
+    filteredData.forEach((item) => {
+      const key = (item.showroom || '').trim().toLowerCase();
+      const target = aggregated[key];
+      if (!target) return; // skip unmanaged/unknown
+      target.customerCount += item.customerCount;
+      target.feedbackCount += item.feedbackCount;
+      target.performancePercentages.push(item.prevMonthPerformance);
+    });
+
     return Object.values(aggregated).map((item) => ({
       showroom: item.showroom,
       customerCount: item.customerCount,
@@ -214,14 +227,21 @@ export default function ReportsClient() {
   }, [filteredData, adminShowrooms]);
 
   const chartData = useMemo<ChartDatum[]>(() => {
-    const categoryData: Record<string, number> = {};
+    // Build normalization map from available categories
+    const catDisplayByKey: Record<string, string> = {};
+    categories.forEach((c) => { catDisplayByKey[c.trim().toLowerCase()] = c; });
+
+    const categoryTotals: Record<string, number> = {};
     filteredData.forEach((item) => {
-      // Skip categories that no longer exist in the current categories list
-      if (!categories.includes(item.category)) return;
-      if (!categoryData[item.category]) categoryData[item.category] = 0;
-      categoryData[item.category] += item.customerCount;
+      const key = (item.category || '').trim().toLowerCase();
+      // Only include if the category exists in the current list (normalized)
+      if (!catDisplayByKey[key]) return;
+      const display = catDisplayByKey[key];
+      if (!categoryTotals[display]) categoryTotals[display] = 0;
+      categoryTotals[display] += item.customerCount;
     });
-    return Object.entries(categoryData).map(([name, value]) => ({ name, value: value as number }));
+
+    return Object.entries(categoryTotals).map(([name, value]) => ({ name, value }));
   }, [filteredData, categories]);
 
   const pieColors = useMemo(() => generateColors(chartData.length), [chartData.length]);
