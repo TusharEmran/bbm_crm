@@ -1,6 +1,6 @@
-import AuthGuard from "@/components/AuthGuard";
-import AdminOverviewCards from "@/components/AdminOverviewCards";
-import AdminDashboardBodyClient from "@/components/AdminDashboardBodyClient";
+﻿import AuthGuard from "@/components/AuthGuard";
+import AdminOverviewCards from "@/components/admin/AdminOverviewCards";
+import AdminDashboardBodyClient from "@/components/admin/AdminDashboardBodyClient";
 
 export default function AdminPage() {
     return (
@@ -21,3 +21,5 @@ export default function AdminPage() {
         </AuthGuard>
     );
 }
+
+

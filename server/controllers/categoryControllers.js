@@ -1,4 +1,4 @@
-import { Category } from "../models/categoryModel.js";
+﻿import { Category } from "../models/categoryModel.js";
 
 export const listCategories = async (req, res) => {
   try {
@@ -79,3 +79,4 @@ export const deleteCategory = async (req, res) => {
     return res.status(500).json({ message: "Server error" });
   }
 };
+

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { MessageSquare, Calendar, Phone, Search } from 'lucide-react';
@@ -97,15 +97,15 @@ export default function FeedbackSummaryPage() {
   return (
     <div className="min-h-screen p-8 bg-white">
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
+        {}
         <div className="mb-10">
           <h1 className="text-4xl font-bold text-slate-900 mb-2">Feedback Summary</h1>
           <p className="text-slate-600 text-lg">View and analyze customer feedback and reviews</p>
         </div>
 
-        {/* Statistics Cards */}
+        {}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
-          {/* Total Feedback */}
+          {}
           <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-8 hover:shadow-md transition-shadow duration-300">
             <div className="flex items-start justify-between">
               <div>
@@ -120,11 +120,11 @@ export default function FeedbackSummaryPage() {
           </div>
         </div>
 
-        {/* Filters Section */}
+        {}
         <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-8 mb-10">
           <h2 className="text-xl font-bold text-slate-900 mb-6">Filters</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Date Filter */}
+            {}
             <div>
               <label className="block text-sm font-bold text-slate-900 mb-3">
                 <Calendar size={16} className="inline mr-2" />
@@ -149,7 +149,7 @@ export default function FeedbackSummaryPage() {
               </select>
             </div>
 
-            {/* Phone Search */}
+            {}
             <div>
               <label className="block text-sm font-bold text-slate-900 mb-3">
                 <Phone size={16} className="inline mr-2" />
@@ -167,7 +167,7 @@ export default function FeedbackSummaryPage() {
               </div>
             </div>
 
-            {/* Clear Filters Button */}
+            {}
             <div className="flex items-end">
               <button
                 onClick={handleClearFilters}
@@ -179,16 +179,16 @@ export default function FeedbackSummaryPage() {
           </div>
         </div>
 
-        {/* Feedback Table */}
+        {}
         <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
-          {/* Table Header */}
+          {}
           <div className="p-8 border-b border-slate-100">
             <h2 className="text-xl font-bold text-slate-900">
               Customer Feedback ({stats.total})
             </h2>
           </div>
 
-          {/* Table */}
+          {}
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
@@ -208,24 +208,24 @@ export default function FeedbackSummaryPage() {
                         idx === filteredFeedback.length - 1 ? 'border-b-0' : ''
                       }`}
                     >
-                      {/* Name */}
+                      {}
                       <td className="px-8 py-5 text-sm font-semibold text-slate-900">
                         {feedback.customerName}
                       </td>
 
-                      {/* Phone */}
+                      {}
                       <td className="px-8 py-5 text-sm text-slate-600 font-medium">
                         {feedback.phone}
                       </td>
 
-                      {/* Feedback */}
+                      {}
                       <td className="px-8 py-5 text-sm text-slate-600 max-w-xs">
                         <div className="truncate hover:text-clip" title={feedback.message}>
                           {feedback.message}
                         </div>
                       </td>
 
-                      {/* Date */}
+                      {}
                       <td className="px-8 py-5 text-sm text-slate-600 font-medium">
                         {new Date(feedback.date).toLocaleDateString('en-US', {
                           year: 'numeric',
@@ -247,7 +247,7 @@ export default function FeedbackSummaryPage() {
             </table>
           </div>
 
-          {/* Table Footer */}
+          {}
           {filteredFeedback.length > 0 && (
             <div className="p-6 bg-slate-50 border-t border-slate-100 flex items-center justify-between gap-4">
               <div className="text-sm text-slate-600 font-medium">
@@ -275,7 +275,7 @@ export default function FeedbackSummaryPage() {
         </div>
       </div>
 
-      {/* Toast */}
+      {}
       <Toast
         message={toastMessage}
         show={showToast}
@@ -285,3 +285,4 @@ export default function FeedbackSummaryPage() {
     </div>
   );
 }
+

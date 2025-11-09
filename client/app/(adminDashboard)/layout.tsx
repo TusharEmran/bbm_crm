@@ -1,4 +1,4 @@
-import Menu from "@/components/Menu";
+﻿import Menu from "@/components/Menu";
 import Navbar from "@/components/Navbar";
 import { MenuProvider } from "@/components/MenuContext";
 import Image from "next/image";
@@ -30,3 +30,4 @@ export default function DashboardLayout({
     </MenuProvider>
   );
 }
+

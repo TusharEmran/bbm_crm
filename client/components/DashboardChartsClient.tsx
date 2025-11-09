@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React from "react";
 import {
@@ -83,3 +83,5 @@ export default function DashboardChartsClient({ activityData, interestData }: Da
     </>
   );
 }
+
+

@@ -91,7 +91,7 @@ export default function AdminDashboardBodyClient() {
         setCustomers(Array.isArray(custData.customers) ? custData.customers : []);
         setFeedbacks(Array.isArray(fbData.feedbacks) ? fbData.feedbacks : []);
       } catch (e: any) {
-        // Silently handle errors to avoid console spam
+
         if (e?.message && !e.message.includes("401")) {
           setError(e?.message || "Failed to load dashboard data");
         }
@@ -101,7 +101,7 @@ export default function AdminDashboardBodyClient() {
   }, []);
 
   const { activityData, interestData, recentActivities, feedbackList } = useMemo(() => {
-    // Activity: last 7 days visitors from customers
+
     const today = startOfDay(new Date());
     const days: Date[] = Array.from({ length: 7 }, (_, i) => {
       const d = new Date(today);
@@ -117,7 +117,6 @@ export default function AdminDashboardBodyClient() {
     });
     const activity: ActivityPoint[] = counts.map(({ day, visitors }) => ({ day, visitors }));
 
-    // Interest: category distribution from customers (percentage)
     const totals: Record<string, number> = {};
     customers.forEach((c) => {
       const cat = c.category || "Unknown";
@@ -129,7 +128,6 @@ export default function AdminDashboardBodyClient() {
       .slice(0, 9)
       .map(([name, value], idx) => ({ name, value: Math.round((value / totalCount) * 100), color: COLORS[idx % COLORS.length] }));
 
-    // Recent activities: latest showroom customer entries
     const activities = [...customers]
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
       .slice(0, 4)
@@ -137,10 +135,9 @@ export default function AdminDashboardBodyClient() {
         id: i + 1,
         event: `New customer visit at ${c.showroomBranch || "Showroom"}`,
         time: new Date(c.createdAt).toLocaleString("en-US", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }),
-        icon: "👥",
+        icon: "\uD83D\uDC65",
       }));
 
-    // Feedback overview: latest feedbacks
     const fbList = [...feedbacks]
       .sort((a, b) => new Date((b as any).createdAt || (b as any).date || 0).getTime() - new Date((a as any).createdAt || (a as any).date || 0).getTime())
       .slice(0, 4)
@@ -203,3 +200,5 @@ export default function AdminDashboardBodyClient() {
     </>
   );
 }
+
+

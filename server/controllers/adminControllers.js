@@ -1,4 +1,4 @@
-import { Admin } from "../models/adminModels.js";
+﻿import { Admin } from "../models/adminModels.js";
 import bcrypt from "bcryptjs";
 
 export const listAdmins = async (req, res) => {
@@ -82,3 +82,4 @@ export const deleteAdmin = async (req, res) => {
     return res.status(500).json({ message: "Server error" });
   }
 };
+

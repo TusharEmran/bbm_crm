@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { Edit2, Trash2, X, Save, Calendar } from 'lucide-react';
@@ -124,7 +124,7 @@ export default function EditEntriesPage() {
 
   useEffect(() => {
     loadCustomers();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, []);
 
   useEffect(() => {
@@ -140,7 +140,6 @@ export default function EditEntriesPage() {
     loadCategories();
   }, [baseUrl]);
 
-  // Filter customers based on search
   const filteredCustomers = useMemo(() => {
     return customers.filter((customer) =>
       customer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -218,14 +217,14 @@ export default function EditEntriesPage() {
   return (
     <div className="min-h-screen p-8 bg-white">
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
+        {}
         <div className="mb-10">
  
           <h1 className="text-4xl font-bold text-slate-900 mb-2">Edit Today's Entries</h1>
           <p className="text-slate-600 text-lg">Manage and update customer information for today's visits</p>
         </div>
 
-        {/* Search Bar */}
+        {}
         <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6 mb-10">
           <div className="relative">
             <svg className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -241,9 +240,9 @@ export default function EditEntriesPage() {
           </div>
         </div>
 
-        {/* Entries Table */}
+        {}
         <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
-          {/* Table Header */}
+          {}
           <div className="p-8 border-b border-slate-100">
             <div className="flex items-center gap-3">
               <Calendar className="w-6 h-6 text-slate-900" />
@@ -254,7 +253,7 @@ export default function EditEntriesPage() {
             </div>
           </div>
 
-          {/* Table */}
+          {}
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
@@ -276,7 +275,7 @@ export default function EditEntriesPage() {
                         idx === filteredCustomers.length - 1 ? 'border-b-0' : ''
                       }`}
                     >
-                      {/* Name */}
+                      {}
                       <td className="px-8 py-5 text-sm">
                         {editingId === customer.id && editingData ? (
                           <input
@@ -290,7 +289,7 @@ export default function EditEntriesPage() {
                         )}
                       </td>
 
-                      {/* Phone */}
+                      {}
                       <td className="px-8 py-5 text-sm">
                         {editingId === customer.id && editingData ? (
                           <input
@@ -304,7 +303,7 @@ export default function EditEntriesPage() {
                         )}
                       </td>
 
-                      {/* Category */}
+                      {}
                       <td className="px-8 py-5 text-sm">
                         {editingId === customer.id && editingData ? (
                           <select
@@ -325,19 +324,19 @@ export default function EditEntriesPage() {
                         )}
                       </td>
 
-                      {/* Visit Time */}
+                      {}
                       <td className="px-8 py-5 text-sm text-slate-600 font-medium">
                         {customer.visitDate}
                       </td>
 
-                      {/* Feedback Status */}
+                      {}
                       <td className="px-8 py-5 text-sm">
                         <span className={`px-3 py-1.5 rounded-lg text-xs font-bold ${getFeedbackStatusColor(customer.feedbackStatus)}`}>
                           {customer.feedbackStatus}
                         </span>
                       </td>
 
-                      {/* Actions */}
+                      {}
                       <td className="px-8 py-5 text-sm">
                         <div className="flex items-center justify-center gap-2">
                           {editingId === customer.id ? (
@@ -377,7 +376,7 @@ export default function EditEntriesPage() {
                                   <Trash2 size={18} />
                                 </button>
 
-                                {/* Delete Confirmation Popup */}
+                                {}
                                 {deleteConfirmId === customer.id && (
                                   <div className="absolute right-0 top-full mt-2 bg-white border border-slate-200 rounded-lg shadow-lg p-3 z-10 whitespace-nowrap">
                                     <p className="text-sm font-medium text-slate-900 mb-3">Delete this entry?</p>
@@ -416,7 +415,7 @@ export default function EditEntriesPage() {
             </table>
           </div>
 
-          {/* Table Footer */}
+          {}
           {filteredCustomers.length > 0 && (
             <div className="p-6 bg-slate-50 border-t border-slate-100 text-center">
               <p className="text-sm text-slate-600 font-medium">
@@ -427,16 +426,16 @@ export default function EditEntriesPage() {
           )}
         </div>
 
-        {/* Info Card */}
+        {}
         <div className="mt-10 bg-blue-50 border border-blue-200 rounded-xl p-6">
-          <h3 className="text-sm font-bold text-blue-900 mb-2">💡 Tips for Editing</h3>
+          <h3 className="text-sm font-bold text-blue-900 mb-2">ðŸ’¡ Tips for Editing</h3>
           <p className="text-sm text-blue-800">
             Click the edit icon to modify customer information. Changes are saved immediately. Use the delete button to remove entries you no longer need.
           </p>
         </div>
       </div>
 
-      {/* Toast */}
+      {}
       <Toast
         message={toastMessage}
         show={showToast}
@@ -446,3 +445,4 @@ export default function EditEntriesPage() {
     </div>
   );
 }
+

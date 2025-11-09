@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { createContext, useCallback, useContext, useState, type ReactNode } from "react";
 
@@ -30,3 +30,5 @@ export function useMenu() {
   if (!ctx) throw new Error("useMenu must be used within MenuProvider");
   return ctx;
 }
+
+

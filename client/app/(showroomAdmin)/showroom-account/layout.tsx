@@ -1,7 +1,7 @@
-import Navbar from "@/components/Navbar";
-import ShowroomMenu from "@/components/ShowroomMenu";
-import ShowroomNavbar from "@/components/ShowroomNavbar";
-import { MenuProvider as ShowroomMenuProvider } from "@/components/ShowroomMenuContext";
+﻿import Navbar from "@/components/Navbar";
+import ShowroomMenu from "@/components/showroomAdmin/ShowroomMenu";
+import ShowroomNavbar from "@/components/showroomAdmin/ShowroomNavbar";
+import { MenuProvider as ShowroomMenuProvider } from "@/components/showroomAdmin/ShowroomMenuContext";
 import { MenuProvider as AdminMenuProvider } from "@/components/MenuContext";
 import AuthGuard from "@/components/AuthGuard";
 
@@ -33,3 +33,5 @@ export default function DashboardLayout({
       </AuthGuard>
   );
 }
+
+

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, ChangeEvent, FormEvent, useEffect } from "react";
 import { Edit2, Trash2, Plus, X } from "lucide-react";
@@ -133,7 +133,7 @@ export default function UsersClient({ initialUsers = [] }: UsersClientProps) {
 
   useEffect(() => {
     fetchUsers();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, []);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -146,7 +146,7 @@ export default function UsersClient({ initialUsers = [] }: UsersClientProps) {
       if (editingUser) {
         const payload: any = { name: formData.name, email: formData.email, role: formData.role };
         if (formData.password) payload.password = formData.password;
-        // map role for backend
+
         payload.role = mapDisplayToBackendRole(payload.role);
         const res = await fetch(`${baseUrl}/api/user/admins/${editingUser.id}`, {
           method: 'PUT',
@@ -235,7 +235,7 @@ export default function UsersClient({ initialUsers = [] }: UsersClientProps) {
         onClose={closeToast}
       />
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
+
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900">User Management</h1>
           <button
@@ -248,7 +248,6 @@ export default function UsersClient({ initialUsers = [] }: UsersClientProps) {
 
         </div>
 
-        {/* Table */}
         <div className="bg-white rounded-lg shadow overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
@@ -326,7 +325,6 @@ export default function UsersClient({ initialUsers = [] }: UsersClientProps) {
           )}
         </div>
 
-        {/* Edit/Create Modal */}
         {isModalOpen && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
             <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full transform transition-all duration-300 scale-100">
@@ -343,7 +341,7 @@ export default function UsersClient({ initialUsers = [] }: UsersClientProps) {
               </div>
 
               <form onSubmit={handleSubmit} className="p-6 space-y-5">
-                {/* Name */}
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Name
@@ -359,7 +357,6 @@ export default function UsersClient({ initialUsers = [] }: UsersClientProps) {
                   />
                 </div>
 
-                {/* Email */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Email
@@ -375,7 +372,6 @@ export default function UsersClient({ initialUsers = [] }: UsersClientProps) {
                   />
                 </div>
 
-                {/* Password */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Password{" "}
@@ -396,7 +392,6 @@ export default function UsersClient({ initialUsers = [] }: UsersClientProps) {
                   />
                 </div>
 
-                {/* Role */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Role
@@ -415,7 +410,6 @@ export default function UsersClient({ initialUsers = [] }: UsersClientProps) {
                   </select>
                 </div>
 
-                {/* Status */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Status
@@ -434,7 +428,6 @@ export default function UsersClient({ initialUsers = [] }: UsersClientProps) {
                   </select>
                 </div>
 
-                {/* Buttons */}
                 <div className="flex gap-3 pt-4">
                   <button
                     type="button"
@@ -455,7 +448,6 @@ export default function UsersClient({ initialUsers = [] }: UsersClientProps) {
           </div>
         )}
 
-        {/* Delete Confirmation Modal */}
         {deleteConfirmUser && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
             <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full transform transition-all duration-300 scale-100">
@@ -488,3 +480,5 @@ export default function UsersClient({ initialUsers = [] }: UsersClientProps) {
     </div>
   );
 }
+
+

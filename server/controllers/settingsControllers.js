@@ -1,4 +1,4 @@
-import { Settings } from "../models/settingsModel.js";
+﻿import { Settings } from "../models/settingsModel.js";
 
 export const getMessageSettings = async (req, res) => {
   try {
@@ -58,3 +58,4 @@ export const updateMessageSettings = async (req, res) => {
     return res.status(500).json({ message: "Server error" });
   }
 };
+

@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import React, { useState } from 'react'
 import { Search, Bell, X } from 'lucide-react'
@@ -23,7 +23,7 @@ export default function Navbar({
   return (
     <div className="bg-[#F7F7F7] border-gray-200 px-4 sm:px-6 py-4 sm:py-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-0">
-        {/* Left Section - Greeting */}
+
         <div className="text-center sm:text-left w-full sm:w-auto flex items-center gap-3">
           <button
             type="button"
@@ -45,7 +45,6 @@ export default function Navbar({
           </div>
         </div>
 
-        {/* Right Section - Search & Notifications */}
         <div className="flex items-center justify-center sm:justify-end gap-2 w-full sm:w-auto">
           <form
             onSubmit={handleSearch}
@@ -64,3 +63,5 @@ export default function Navbar({
     </div>
   )
 }
+
+

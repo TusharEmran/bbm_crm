@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useEffect, useState } from 'react';
 
@@ -23,7 +23,6 @@ interface CategoryOption { id: string; name: string }
 const categoriesStatic: string[] = [];
 const initialShowrooms: string[] = [];
 
-// Get today's date in YYYY-MM-DD format
 const getTodayDate = (): string => {
   const today = new Date();
   return today.toISOString().split('T')[0];
@@ -55,7 +54,7 @@ export default function AddCustomerPage() {
       ...prev,
       [name]: value,
     }));
-    // Clear error when user starts typing
+
     if (formErrors[name as keyof FormData]) {
       setFormErrors((prev) => ({
         ...prev,
@@ -182,20 +181,20 @@ export default function AddCustomerPage() {
   return (
     <div className="min-h-screen p-8 bg-white">
       <div className="max-w-5xl mx-auto">
-        {/* Header */}
+        {}
         <div className="mb-10">
           <h1 className="text-4xl font-bold text-slate-900 mb-2">Add New Customer</h1>
           <p className="text-slate-600 text-lg">Enter customer information to create a new entry</p>
         </div>
 
-        {/* Form Card */}
+        {}
         <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-10">
           <form onSubmit={handleSubmit} className="space-y-7">
-            {/* Two Column Grid for Name and Phone */}
+            {}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Customer Name */}
+              {}
               <div>
-                <label className="block text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
+                <label className=" text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
                   <User size={18} className="text-blue-600" />
                   Customer Name
                 </label>
@@ -221,9 +220,9 @@ export default function AddCustomerPage() {
                 )}
               </div>
 
-              {/* Phone Number */}
+              {}
               <div>
-                <label className="block text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
+                <label className=" text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
                   <Phone size={18} className="text-emerald-600" />
                   Phone Number
                 </label>
@@ -250,11 +249,11 @@ export default function AddCustomerPage() {
               </div>
             </div>
 
-            {/* Two Column Grid for Category and Date */}
+            {}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Category */}
+              {}
               <div>
-                <label className="block text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
+                <label className=" text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
                   <Package size={18} className="text-purple-600" />
                   Category / Product Interest
                 </label>
@@ -283,9 +282,9 @@ export default function AddCustomerPage() {
                 )}
               </div>
 
-              {/* Visit Date */}
+              {}
               <div>
-                <label className="block text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
+                <label className=" text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
                   <Calendar size={18} className="text-amber-600" />
                   Visit Date
                 </label>
@@ -311,9 +310,9 @@ export default function AddCustomerPage() {
               </div>
             </div>
 
-            {/* Showroom Branch - Full Width */}
+            {}
             <div>
-              <label className="block text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
+              <label className=" text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
                 <Building2 size={18} className="text-cyan-600" />
                 Showroom Branch
               </label>
@@ -344,22 +343,22 @@ export default function AddCustomerPage() {
               )}
             </div>
 
-            {/* Divider */}
+            {}
             <div className="border-t border-slate-200 pt-8"></div>
 
-            {/* Submit Button */}
+            {}
             <div className="flex items-center justify-center">
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="px-6 py-4 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 disabled:from-blue-400 disabled:to-blue-400 text-white rounded-xl font-bold transition shadow-lg flex items-center justify-center gap-2"
+                className="px-6 py-4 bg-linear-0-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 disabled:from-blue-400 disabled:to-blue-400 text-white rounded-xl font-bold transition shadow-lg flex items-center justify-center gap-2"
               >
                 <Send size={20} />
                 {isSubmitting ? 'Submitting...' : 'Submit & Send SMS'}
               </button>
             </div>
 
-            {/* Info Text */}
+            {}
             <p className="text-xs text-slate-500 text-center mt-4">
               By submitting, an SMS will be sent to the customer with their entry confirmation.
             </p>
@@ -367,11 +366,11 @@ export default function AddCustomerPage() {
         </div>
       </div>
 
-      {/* Success Confirmation Modal */}
+      {}
       {showConfirmation && submittedData && (
         <div className="fixed inset-0 z-50 flex items-center justify-center ">
           <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 animate-in fade-in zoom-in-95 duration-300">
-            {/* Close Button */}
+            {}
             <button
               onClick={handleCloseConfirmation}
               className="absolute top-4 right-4 p-2 hover:bg-slate-100 rounded-lg transition"
@@ -379,9 +378,9 @@ export default function AddCustomerPage() {
               <X size={24} className="text-slate-400" />
             </button>
 
-            {/* Success Content */}
+            {}
             <div className="p-10 text-center">
-              {/* Success Icon */}
+              {}
               <div className="flex justify-center mb-6">
                 <div className="relative">
                   <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center animate-pulse">
@@ -390,15 +389,15 @@ export default function AddCustomerPage() {
                 </div>
               </div>
 
-              {/* Success Title */}
+              {}
               <h2 className="text-2xl font-bold text-slate-900 mb-2">Customer Added Successfully!</h2>
 
-              {/* Success Message */}
+              {}
               <p className="text-slate-600 mb-6">
                 The customer entry has been created and an SMS confirmation has been sent.
               </p>
 
-              {/* Customer Details */}
+              {}
               <div className="bg-slate-50 rounded-lg p-6 mb-8 text-left space-y-3">
                 <div className="flex justify-between items-start">
                   <span className="text-sm font-semibold text-slate-600">Name:</span>
@@ -429,7 +428,7 @@ export default function AddCustomerPage() {
                 </div>
               </div>
 
-              {/* Action Buttons */}
+              {}
               <div className="flex gap-3">
                 <Link
                   href="/showroom-account"
@@ -458,7 +457,7 @@ export default function AddCustomerPage() {
         </div>
       )}
 
-      {/* Toast */}
+      {}
       <Toast
         message={toastMessage}
         show={showToast}
@@ -468,3 +467,4 @@ export default function AddCustomerPage() {
     </div>
   );
 }
+

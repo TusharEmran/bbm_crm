@@ -1,4 +1,4 @@
-export async function sendSMS(to, message, config = {}) {
+﻿export async function sendSMS(to, message, config = {}) {
   const provider = (config.provider || process.env.SMS_PROVIDER || "greenweb").toLowerCase();
   if (!to || !message) throw new Error("to and message are required");
 
@@ -53,3 +53,4 @@ async function sendViaSMSNetBD(to, message, config = {}) {
   const data = await res.json().catch(() => ({}));
   return { provider: "smsnetbd", result: data };
 }
+

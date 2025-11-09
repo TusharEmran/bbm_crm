@@ -1,4 +1,4 @@
-import bcrypt from "bcryptjs";
+﻿import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { Admin } from "../models/adminModels.js";
 import { JWT_SECRET, JWT_SIGN_OPTS as SIGN_OPTS } from "../config/jwtConfig.js";
@@ -24,7 +24,6 @@ export const login = async (req, res) => {
       });
     }
 
-    // Block suspended accounts
     if (user.status === "Suspend") return res.status(403).json({ message: "Account suspended" });
 
     let ok = false;
@@ -32,7 +31,7 @@ export const login = async (req, res) => {
       ok = await bcrypt.compare(password, user.password || "");
     } catch { }
     if (!ok) {
-      // Migration fallback: stored password may be plaintext from older versions
+
       if ((user.password || "") === password) {
         const newHash = await bcrypt.hash(password, 10);
         try { await Admin.findByIdAndUpdate(user._id, { password: newHash }); } catch { }
@@ -44,7 +43,6 @@ export const login = async (req, res) => {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    // Normalize role to allowed values (case-insensitive, strip non-letters)
     const canonical = (v) => (v || "").toString().replace(/[^a-z]/gi, "").toLowerCase();
     const roleKey = canonical(user.role);
     const roleMap = { admin: "admin", officeAdmin: "officeAdmin", showroom: "showroom", customer: "showroom", office: "officeAdmin" };
@@ -82,4 +80,5 @@ export const me = async (req, res) => {
     return res.status(500).json({ message: "Server error" });
   }
 };
+
 

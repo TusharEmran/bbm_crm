@@ -1,5 +1,5 @@
-import AuthGuard from "@/components/AuthGuard";
-import MessageSettingsClient from "@/components/MessageSettingsClient";
+﻿import AuthGuard from "@/components/AuthGuard";
+import MessageSettingsClient from "@/components/admin/MessageSettingsClient";
 
 export default function Page() {
   return (
@@ -8,3 +8,4 @@ export default function Page() {
     </AuthGuard>
   );
 }
+

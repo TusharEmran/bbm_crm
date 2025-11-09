@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useEffect } from "react";
 import { CheckCircle, XCircle, X } from "lucide-react";
@@ -38,7 +38,7 @@ const Toast: React.FC<ToastProps> = ({
             : "bg-red-500/90 border-red-400 text-white"
         }`}
       >
-        {/* Icon */}
+
         <div className="shrink-0">
           {type === "success" ? (
             <CheckCircle className="w-5 h-5" />
@@ -47,10 +47,8 @@ const Toast: React.FC<ToastProps> = ({
           )}
         </div>
 
-        {/* Message */}
         <div className="font-medium text-sm md:text-base">{message}</div>
 
-        {/* Close button */}
         <button
           onClick={onClose}
           className="absolute top-2 right-2 text-white/80 hover:text-white"
@@ -58,7 +56,6 @@ const Toast: React.FC<ToastProps> = ({
           <X className="w-4 h-4" />
         </button>
 
-        {/* Progress bar */}
         <div
           className={`absolute bottom-0 left-0 h-1 rounded-b-xl ${
             type === "success" ? "bg-green-300" : "bg-red-300"
@@ -70,3 +67,5 @@ const Toast: React.FC<ToastProps> = ({
 };
 
 export default Toast;
+
+

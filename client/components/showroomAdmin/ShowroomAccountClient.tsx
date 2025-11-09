@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useMemo, useState } from "react";
 import Link from "next/link";
@@ -83,7 +83,7 @@ export default function ShowroomAccountClient({ initialTodayEntries }: ShowroomA
           fetch(`${baseUrl}/api/user/feedbacks?page=1&limit=500`, { headers: { Authorization: `Bearer ${token}` } }),
         ]);
         if (fbRes.status === 401 || custRes.status === 401) {
-          // Soft fail: do not clear token; let AuthGuard handle redirects
+
           return;
         }
         if (!custRes.ok) throw new Error('Failed to load entries');
@@ -110,7 +110,7 @@ export default function ShowroomAccountClient({ initialTodayEntries }: ShowroomA
       }
     };
     load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, []);
 
   const stats = useMemo(() => {
@@ -123,7 +123,7 @@ export default function ShowroomAccountClient({ initialTodayEntries }: ShowroomA
   return (
     <div className="min-h-screen p-8 bg-white">
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
+
         <div className="mb-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
             <h1 className="text-3xl md:text-4xl font-bold text-slate-900 mb-1 md:mb-2">Welcome Back!</h1>
@@ -146,9 +146,8 @@ export default function ShowroomAccountClient({ initialTodayEntries }: ShowroomA
           </Link>
         </div>
 
-        {/* Overview Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-          {/* Today's Entries */}
+
           <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-8 hover:shadow-md transition-shadow duration-300">
             <div className="flex items-start justify-between">
               <div className="flex-1">
@@ -165,7 +164,6 @@ export default function ShowroomAccountClient({ initialTodayEntries }: ShowroomA
             </div>
           </div>
 
-          {/* Feedback Received */}
           <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-8 hover:shadow-md transition-shadow duration-300">
             <div className="flex items-start justify-between">
               <div className="flex-1">
@@ -184,7 +182,6 @@ export default function ShowroomAccountClient({ initialTodayEntries }: ShowroomA
             </div>
           </div>
 
-          {/* Performance % */}
           <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-8 hover:shadow-md transition-shadow duration-300">
             <div className="flex items-start justify-between">
               <div className="flex-1">
@@ -204,7 +201,6 @@ export default function ShowroomAccountClient({ initialTodayEntries }: ShowroomA
           </div>
         </div>
 
-        {/* Today's Customer Entries Table */}
         <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
           <div className="p-8 border-b border-slate-100">
             <div className="flex items-center gap-3">
@@ -246,8 +242,9 @@ export default function ShowroomAccountClient({ initialTodayEntries }: ShowroomA
         </div>
       </div>
 
-      {/* Toast */}
       <Toast message={toastMessage} show={showToast} onClose={() => setShowToast(false)} duration={3000} />
     </div>
   );
 }
+
+

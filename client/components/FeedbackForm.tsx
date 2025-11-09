@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useEffect, useState } from 'react';
 
@@ -150,9 +150,9 @@ export default function FeedbackFormPage() {
   return (
     <div className="min-h-screen p-4 md:p-8 bg-white">
       <div className="max-w-2xl mx-auto">
-        {/* Feedback Card */}
+
         <div className="bg-white rounded-2xl shadow-lg p-6 md:p-8">
-          {/* Header */}
+
           <div className="flex items-start gap-4 mb-6 md:mb-8">
             <div className="shrink-0 w-12 h-12 md:w-16 md:h-16 bg-blue-100 rounded-2xl flex items-center justify-center">
               <MessageCircle className="w-6 h-6 md:w-8 md:h-8 text-blue-600" />
@@ -167,9 +167,8 @@ export default function FeedbackFormPage() {
             </div>
           </div>
 
-          {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-5 md:space-y-6">
-            {/* Name and Email */}
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
               <div>
                 <label htmlFor="name" className="block text-sm md:text-base font-semibold text-gray-900 mb-2">
@@ -212,7 +211,6 @@ export default function FeedbackFormPage() {
               </div>
             </div>
 
-            {/* Phone */}
             <div>
               <label htmlFor="phone" className="block text-sm md:text-base font-semibold text-gray-900 mb-2">
                 Phone Number
@@ -233,7 +231,6 @@ export default function FeedbackFormPage() {
               )}
             </div>
 
-            {/* Category */}
             <div>
               <label htmlFor="category" className="block text-sm md:text-base font-semibold text-gray-900 mb-2">
                 Category
@@ -259,7 +256,6 @@ export default function FeedbackFormPage() {
               )}
             </div>
 
-            {/* Showroom */}
             <div>
               <label htmlFor="showroom" className="block text-sm md:text-base font-semibold text-gray-900 mb-2">
                 Showroom
@@ -285,7 +281,6 @@ export default function FeedbackFormPage() {
               )}
             </div>
 
-            {/* Message */}
             <div>
               <label htmlFor="message" className="block text-sm md:text-base font-semibold text-gray-900 mb-2">
                 Your Message
@@ -309,7 +304,6 @@ export default function FeedbackFormPage() {
               </p>
             </div>
 
-            {/* Submit Button with Loader */}
             <button
               type="submit"
               disabled={isLoading}
@@ -358,3 +352,5 @@ export default function FeedbackFormPage() {
     </div>
   );
 }
+
+

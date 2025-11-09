@@ -1,4 +1,4 @@
-import { Sale } from "../models/salesModel.js";
+﻿import { Sale } from "../models/salesModel.js";
 
 const startOfDay = (d) => { const x = new Date(d); x.setHours(0,0,0,0); return x; };
 
@@ -12,7 +12,7 @@ export const createSale = async (req, res) => {
     if (date) {
       const when = new Date(date);
       if (!isNaN(when.getTime())) {
-        // normalize to start of day to align with analytics bucketing
+
         doc.createdAt = startOfDay(when);
       }
     }
@@ -39,3 +39,4 @@ export const listSales = async (req, res) => {
     return res.status(500).json({ message: 'Server error' });
   }
 };
+

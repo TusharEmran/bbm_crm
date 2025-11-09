@@ -18,22 +18,12 @@ const addDays = (d, n) => {
 
 const parseRange = (q) => {
   const now = new Date();
-  // Support both 'from/to' and 'start/end' query params
+
   const endDate = q?.end || q?.to;
   const startDate = q?.start || q?.from;
 
-  // Default to last 30 days if no dates provided
   const end = endDate ? new Date(endDate) : addDays(startOfDay(now), 1);
   const start = startDate ? new Date(startDate) : addDays(startOfDay(now), -29);
-
-  // Log the date range being used
-  console.log('Date range calculation:', {
-    providedStart: startDate,
-    providedEnd: endDate,
-    calculatedStart: start,
-    calculatedEnd: end,
-    now: now
-  });
 
   return { start, end };
 };
@@ -75,7 +65,6 @@ export const showroomSummary = async (req, res) => {
       { $project: { showroom: "$_id", uniqueFeedbacks: { $size: "$uniquePhones" }, _id: 0 } },
     ]);
 
-    // Build map by showroom name
     const byShowroom = new Map();
     for (const c of customerAgg) {
       byShowroom.set(c.showroom || "", {
@@ -96,8 +85,7 @@ export const showroomSummary = async (req, res) => {
       byShowroom.set(f.showroom || "", prev);
     }
 
-    // Filter against active showrooms (exclude deleted/disabled)
-    // Consider either status === 'Active' OR active === true as active
+
     const activeShowrooms = await Showroom.find({}).select("name status active");
     const activeSet = new Set(
       activeShowrooms
@@ -111,7 +99,7 @@ export const showroomSummary = async (req, res) => {
       .map((r) => {
         const acc = r.uniqueCustomers > 0 ? Math.round((r.uniqueFeedbacks / r.uniqueCustomers) * 100) : 0;
         const status = r.lastActivity && nowMs - new Date(r.lastActivity).getTime() < 24 * 3600 * 1000 ? "Active" : "Inactive";
-        const performance = acc; // align performance with accuracy for now
+        const performance = acc; 
         return { ...r, accuracy: acc, performance, status };
       });
 
@@ -234,7 +222,6 @@ export const showroomDaily = async (req, res) => {
       matchRange.showroomBranch = showroomFilter;
     }
 
-    // Unique visitor count by day from ShowroomCustomer
     const dailyCust = await ShowroomCustomer.aggregate([
       { $match: matchRange },
       {
@@ -247,7 +234,6 @@ export const showroomDaily = async (req, res) => {
       { $sort: { day: 1 } },
     ]);
 
-    // Get feedbacks for accuracy/performance calculation
     const matchFb = { createdAt: { $gte: start, $lt: end } };
     if (showroomFilter) {
       matchFb.showroom = showroomFilter;
@@ -281,7 +267,6 @@ export const showroomDaily = async (req, res) => {
       { $sort: { day: 1 } },
     ]);
 
-    // Build map of day -> visitors and feedbacks
     const dayMap = new Map();
     dailyCust.forEach((d) => {
       dayMap.set(d.day, { day: d.day, visitors: d.visitors || 0, feedbacks: 0, accuracy: 0, performance: 0, sales: 0 });
@@ -297,10 +282,9 @@ export const showroomDaily = async (req, res) => {
       dayMap.set(d.day, existing);
     });
 
-    // Calculate accuracy and performance for each day
     const days = Array.from(dayMap.values()).map((d) => {
       const accuracy = d.visitors > 0 ? Math.round((d.feedbacks / d.visitors) * 100) : 0;
-      const performance = accuracy; // Use accuracy as performance for now
+      const performance = accuracy; 
       return {
         day: d.day,
         visitors: d.visitors,
@@ -310,7 +294,6 @@ export const showroomDaily = async (req, res) => {
       };
     });
 
-    // Calculate totals and averages
     const totalVisitors = days.reduce((sum, d) => sum + d.visitors, 0);
     const accVals = days.map((d) => d.accuracy).filter((v) => v > 0);
     const perfVals = days.map((d) => d.performance).filter((v) => v > 0);
@@ -331,4 +314,5 @@ export const showroomDaily = async (req, res) => {
     return res.status(500).json({ message: "Server error" });
   }
 };
+
 

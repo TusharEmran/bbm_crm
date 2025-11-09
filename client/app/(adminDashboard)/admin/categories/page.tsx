@@ -1,5 +1,5 @@
-import AuthGuard from "@/components/AuthGuard";
-import CategoryManagementClient from "@/components/CategoryManagementClient";
+﻿import AuthGuard from "@/components/AuthGuard";
+import CategoryManagementClient from "@/components/admin/CategoryManagementClient";
 
 interface Category {
   id: string;
@@ -14,3 +14,4 @@ export default function Page() {
     </AuthGuard>
   );
 }
+

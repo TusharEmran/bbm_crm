@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useEffect, useState } from 'react';
 import { Save, Send, Eye, EyeOff } from 'lucide-react';
@@ -226,3 +226,5 @@ export default function MessageSettingsClient() {
     </div>
   );
 }
+
+

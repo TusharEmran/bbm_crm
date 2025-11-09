@@ -1,33 +1,30 @@
-"use client"
+﻿"use client"
 
 import React, { useState } from 'react'
 import { Search, Bell, X } from 'lucide-react'
-import { useMenu } from '@/components/ShowroomMenuContext'
+import { useMenu } from '@/components/officeAdmin/OfficeMenuContext'
 
 interface NavbarProps {
   userName?: string
   subtitle?: string
 }
 
-
-export default function ShowroomNavbar({
+export default function OfficeNavbar({
   userName = 'BBM Bangladesh',
   subtitle = 'Explore information and activity about your property',
 }: NavbarProps) {
   const [searchQuery, setSearchQuery] = useState('')
   const { toggle } = useMenu()
 
-
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
     console.log('Search query:', searchQuery)
   }
 
-
   return (
     <div className="bg-[#F7F7F7] border-gray-200 px-4 sm:px-6 py-4 sm:py-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-0">
-        {/* Left Section - Greeting */}
+
         <div className="text-center sm:text-left w-full sm:w-auto flex items-center gap-3">
           <button
             type="button"
@@ -41,7 +38,7 @@ export default function ShowroomNavbar({
           </button>
           <div>
             <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
-              Hello BBM Bangladesh
+              Hello, {userName}!
             </h1>
             <p className="text-gray-600 text-sm mt-1 max-w-xs sm:max-w-none mx-auto sm:mx-0">
               {subtitle}
@@ -49,7 +46,6 @@ export default function ShowroomNavbar({
           </div>
         </div>
 
-        {/* Right Section - Search & Notifications */}
         <div className="flex items-center justify-center sm:justify-end gap-2 w-full sm:w-auto">
           <form
             onSubmit={handleSearch}
@@ -69,10 +65,11 @@ export default function ShowroomNavbar({
               <Search className="w-5 h-5" />
             </button>
           </form>
-          <div />
-          <div />
+
         </div>
       </div>
     </div>
   )
 }
+
+

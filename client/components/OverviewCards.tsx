@@ -5,6 +5,7 @@ export interface OverviewStat {
   value: string;
   change: string;
   lastMonth: string;
+  icon?: React.ReactNode;
 }
 
 interface OverviewCardsProps {
@@ -24,7 +25,7 @@ export default function OverviewCards({ stats }: OverviewCardsProps) {
               <p className="text-gray-600 text-sm mb-2">{stat.title}</p>
               <h3 className="text-3xl font-bold text-gray-900">{stat.value}</h3>
             </div>
-            <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-lg">⋮</div>
+            <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-lg">{stat.icon ?? "\u2197"}</div>
           </div>
           <div className="flex items-center gap-2 text-xs">
             <span
@@ -39,3 +40,5 @@ export default function OverviewCards({ stats }: OverviewCardsProps) {
     </section>
   );
 }
+
+

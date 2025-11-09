@@ -1,4 +1,4 @@
-import AuthGuard from "@/components/AuthGuard";
+﻿import AuthGuard from "@/components/AuthGuard";
 import FeedbacksClient from "@/components/FeedbacksClient";
 
 export default function Page() {
@@ -8,3 +8,4 @@ export default function Page() {
     </AuthGuard>
   );
 }
+

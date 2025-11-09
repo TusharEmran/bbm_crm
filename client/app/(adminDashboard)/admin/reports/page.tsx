@@ -1,5 +1,5 @@
-import AuthGuard from "@/components/AuthGuard";
-import ReportsClient from "@/components/ReportsClient";
+﻿import AuthGuard from "@/components/AuthGuard";
+import ReportsClient from "@/components/admin/ReportsClient";
 
 export default function Page() {
   return (
@@ -8,3 +8,4 @@ export default function Page() {
     </AuthGuard>
   );
 }
+

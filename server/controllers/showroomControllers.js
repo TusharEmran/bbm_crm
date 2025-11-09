@@ -1,4 +1,4 @@
-import { sendSMS } from "../services/smsService.js";
+﻿import { sendSMS } from "../services/smsService.js";
 import mongoose from "mongoose";
 import { Settings } from "../models/settingsModel.js";
 import { ShowroomCustomer } from "../models/showroomCustomerModel.js";
@@ -21,7 +21,6 @@ export const createShowroomCustomer = async (req, res) => {
       return res.status(400).json({ message: "customerName, phoneNumber, category, showroomBranch are required" });
     }
 
-    // Load message settings from DB (with environment fallbacks)
     const s = (await Settings.findOne({})) || {};
     const feedbackBase = s.feedbackUrl || process.env.FEEDBACK_URL || "http://localhost:3000/user/feedback";
     const provider = s.smsProvider || process.env.SMS_PROVIDER;
@@ -33,13 +32,12 @@ export const createShowroomCustomer = async (req, res) => {
     const to = normalizeBdPhone(phoneNumber);
     const smsResult = await sendSMS(to, msg, { provider, apiKey, senderId });
 
-    // Persist the customer entry
     const saved = await ShowroomCustomer.create({
       customerName,
       phoneNumber,
       category,
       showroomBranch,
-      // status and notes will use schema defaults if not provided
+
     });
 
     return res.status(201).json({
@@ -68,7 +66,7 @@ export const listShowroomCustomers = async (req, res) => {
     const q = {};
     if (showroom) q.showroomBranch = String(showroom);
     if (date) {
-      // date expected as YYYY-MM-DD; filter by that day in createdAt
+
       const start = new Date(String(date));
       const end = new Date(start);
       end.setDate(start.getDate() + 1);
@@ -244,3 +242,4 @@ export const deleteShowroom = async (req, res) => {
     return res.status(500).json({ message: "Server error" });
   }
 };
+

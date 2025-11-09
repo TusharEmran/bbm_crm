@@ -1,7 +1,7 @@
-import Navbar from "@/components/Navbar";
-import OfficeMenu from "@/components/OfficeMenu";
-import OfficeNavbar from "@/components/OfficeNavbar";
-import { MenuProvider as OfficeMenuProvider } from "@/components/OfficeMenuContext";
+﻿import Navbar from "@/components/Navbar";
+import OfficeMenu from "@/components/officeAdmin/OfficeMenu";
+import OfficeNavbar from "@/components/officeAdmin/OfficeNavbar";
+import { MenuProvider as OfficeMenuProvider } from "@/components/officeAdmin/OfficeMenuContext";
 import { MenuProvider as AdminMenuProvider } from "@/components/MenuContext";
 import AuthGuard from "@/components/AuthGuard";
 import Image from "next/image";
@@ -37,3 +37,4 @@ export default function DashboardLayout({
     </AuthGuard>
   );
 }
+

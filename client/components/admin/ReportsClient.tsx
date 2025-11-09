@@ -3,7 +3,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 import { Download, Calendar, Plus, X, Edit2, Trash2 } from 'lucide-react';
-import Toast from './Toast';
+import Toast from '@/components/Toast';
 
 interface ReportItem {
   id: number;

@@ -1,15 +1,15 @@
-"use client";
+﻿"use client";
 
 import { createContext, useCallback, useContext, useState, type ReactNode } from "react";
 
-interface OfficeMenuContextValue {
+export interface ShowroomMenuContextValue {
   isOpen: boolean;
   open: () => void;
   close: () => void;
   toggle: () => void;
 }
 
-const OfficeMenuContext = createContext<OfficeMenuContextValue | undefined>(undefined);
+export const ShowroomMenuContext = createContext<ShowroomMenuContextValue | undefined>(undefined);
 
 export function MenuProvider({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -19,14 +19,16 @@ export function MenuProvider({ children }: { children: ReactNode }) {
   const toggle = useCallback(() => setIsOpen((v) => !v), []);
 
   return (
-    <OfficeMenuContext.Provider value={{ isOpen, open, close, toggle }}>
+    <ShowroomMenuContext.Provider value={{ isOpen, open, close, toggle }}>
       {children}
-    </OfficeMenuContext.Provider>
+    </ShowroomMenuContext.Provider>
   );
 }
 
 export function useMenu() {
-  const ctx = useContext(OfficeMenuContext);
+  const ctx = useContext(ShowroomMenuContext);
   if (!ctx) throw new Error("useMenu must be used within MenuProvider");
   return ctx;
 }
+
+

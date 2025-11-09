@@ -1,4 +1,4 @@
-import { Feedback } from "../models/feedbackModel.js";
+﻿import { Feedback } from "../models/feedbackModel.js";
 
 export const createFeedback = async (req, res) => {
   try {
@@ -117,3 +117,4 @@ export const deleteFeedback = async (req, res) => {
     return res.status(500).json({ message: "Server error" });
   }
 };
+

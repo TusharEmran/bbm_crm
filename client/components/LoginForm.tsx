@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -53,7 +53,7 @@ export default function LoginForm() {
         if (response.ok) {
           const data = await response.json()
           if (typeof window !== 'undefined' && data?.token) {
-            // Clear auth failure flag FIRST before saving token
+
             try { sessionStorage.removeItem('auth_failed'); } catch { }
             localStorage.setItem('token', data.token)
             if (data?.user) {
@@ -61,7 +61,7 @@ export default function LoginForm() {
             }
           }
           const role = data?.user?.role
-          // Use replace instead of push to avoid navigation issues and ensure clean redirect
+
           if (role === 'admin') {
             router.replace('/admin')
           } else if (role === 'officeAdmin') {
@@ -130,7 +130,7 @@ export default function LoginForm() {
               setPassword(e.target.value)
               if (errors.password) setErrors({ ...errors, password: undefined })
             }}
-            placeholder="••••••••"
+            placeholder="**********"
             className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 transition ${errors.password ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-indigo-500'
               }`}
           />
@@ -166,3 +166,5 @@ export default function LoginForm() {
     </div>
   )
 }
+
+

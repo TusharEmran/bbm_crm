@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useMemo } from 'react';
 import { Calendar, Users, TrendingUp, Eye, X } from 'lucide-react';
@@ -19,7 +19,7 @@ export interface ShowroomActivity {
   visitorCount: number;
   accuracy: number;
   performance: number;
-  date: string; // ISO string for serialization across the boundary
+  date: string; 
   status: 'Active' | 'Inactive';
   customers: Customer[];
 }
@@ -49,7 +49,6 @@ export default function OfficeShowroomActivityClient({ initialActivityData }: Pr
       : 'bg-slate-50 text-slate-700 border border-slate-200';
   };
 
-  // Get unique showrooms and dates
   const showrooms = useMemo(() => {
     return Array.from(new Set(activityData.map((a) => a.showroomName))).sort();
   }, [activityData]);
@@ -58,7 +57,6 @@ export default function OfficeShowroomActivityClient({ initialActivityData }: Pr
     return Array.from(new Set(activityData.map((a) => a.date.split('T')[0]))).sort().reverse();
   }, [activityData]);
 
-  // Filter data
   const filteredData = useMemo(() => {
     return activityData.filter((activity) => {
       const activityDate = activity.date.split('T')[0];
@@ -68,7 +66,6 @@ export default function OfficeShowroomActivityClient({ initialActivityData }: Pr
     });
   }, [activityData, selectedDate, selectedShowroom]);
 
-  // Calculate statistics
   const stats = useMemo(() => {
     const totalVisitors = filteredData.reduce((sum, a) => sum + a.visitorCount, 0);
     const avgAccuracy = filteredData.length > 0
@@ -306,3 +303,5 @@ export default function OfficeShowroomActivityClient({ initialActivityData }: Pr
     </div>
   );
 }
+
+

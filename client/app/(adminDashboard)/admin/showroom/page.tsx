@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { Activity, TrendingUp, Users, Clock } from 'lucide-react';
@@ -73,7 +73,6 @@ export default function ShowroomActivityPage() {
     load();
   }, []);
 
-  // Filter and sort data
   const filteredAndSortedData = useMemo(() => {
     let filtered = showroomData.filter((showroom) =>
       showroom.showroomName.toLowerCase().includes(searchQuery.toLowerCase())
@@ -94,7 +93,6 @@ export default function ShowroomActivityPage() {
     return filtered;
   }, [showroomData, searchQuery, sortBy]);
 
-  // Calculate statistics
   const stats = useMemo(() => {
     const totalVisitors = showroomData.reduce((sum, s) => sum + s.dailyVisitors, 0);
     const avgAccuracy = (
@@ -121,15 +119,15 @@ export default function ShowroomActivityPage() {
   return (
     <div className="min-h-screen p-8 bg-white">
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
+        {}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Showroom Activity</h1>
           <p className="text-gray-600">Monitor showroom performance and visitor metrics</p>
         </div>
 
-        {/* Statistics Cards */}
+        {}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          {/* Total Visitors */}
+          {}
           <div className="bg-white rounded-lg shadow p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -142,7 +140,7 @@ export default function ShowroomActivityPage() {
             </div>
           </div>
 
-          {/* Average Accuracy */}
+          {}
           <div className="bg-white rounded-lg shadow p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -155,7 +153,7 @@ export default function ShowroomActivityPage() {
             </div>
           </div>
 
-          {/* Active Showrooms */}
+          {}
           <div className="bg-white rounded-lg shadow p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -171,10 +169,10 @@ export default function ShowroomActivityPage() {
           </div>
         </div>
 
-        {/* Search and Sort */}
+        {}
         <div className="bg-white rounded-lg shadow p-6 mb-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Search */}
+            {}
             <div>
               <input
                 type="text"
@@ -185,7 +183,7 @@ export default function ShowroomActivityPage() {
               />
             </div>
 
-            {/* Sort */}
+            {}
             <div>
               <select
                 value={sortBy}
@@ -200,16 +198,16 @@ export default function ShowroomActivityPage() {
           </div>
         </div>
 
-        {/* Activity Table */}
+        {}
         <div className="bg-white rounded-lg shadow overflow-hidden">
-          {/* Table Header */}
+          {}
           <div className="p-6 border-b border-gray-200">
             <h2 className="text-xl font-bold text-gray-900">
               Showroom Performance ({filteredAndSortedData.length})
             </h2>
           </div>
 
-          {/* Table */}
+          {}
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
@@ -295,9 +293,9 @@ export default function ShowroomActivityPage() {
           </div>
         </div>
 
-        {/* Performance Summary */}
+        {}
         <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Highest Accuracy */}
+          {}
           <div className="bg-white rounded-lg shadow p-6">
             <h3 className="text-sm font-semibold text-gray-700 mb-4">Highest Accuracy</h3>
             {showroomData.length > 0 && (
@@ -312,7 +310,7 @@ export default function ShowroomActivityPage() {
             )}
           </div>
 
-          {/* Most Visitors */}
+          {}
           <div className="bg-white rounded-lg shadow p-6">
             <h3 className="text-sm font-semibold text-gray-700 mb-4">Most Visitors</h3>
             {showroomData.length > 0 && (
@@ -329,7 +327,7 @@ export default function ShowroomActivityPage() {
         </div>
       </div>
 
-      {/* Toast */}
+      {}
       <Toast
         message={toastMessage}
         show={showToast}
@@ -339,3 +337,4 @@ export default function ShowroomActivityPage() {
     </div>
   );
 }
+

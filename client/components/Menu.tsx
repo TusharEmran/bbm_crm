@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useMenu } from "@/components/MenuContext";
+import { X } from "lucide-react";
 
 const menuItems = [
   { icon: "/home.png", href: "/admin", label: "Home" },
@@ -49,9 +50,9 @@ const Menu = () => {
 
   return (
     <>
-      {/* Desktop Sidebar*/}
+
       <div className="hidden md:flex flex-col justify-between items-center h-screen w-[90px] bg-[#F7F7F70] py-4">
-        {/* Logo */}
+
         <div className="flex flex-col items-center gap-2">
           <div />
           <Image
@@ -64,7 +65,6 @@ const Menu = () => {
           />
         </div>
 
-        {/* Menu Icons */}
         <div className="flex flex-col items-center bg-white rounded-full py-6 px-2 gap-5 shadow-sm">
           {menuItems.map((item, index) => (
             <Link
@@ -80,7 +80,6 @@ const Menu = () => {
           ))}
         </div>
 
-        {/* Bottom */}
         <div className="flex flex-col items-center gap-4">
           <button onClick={handleLogout}>
             <Image
@@ -101,7 +100,6 @@ const Menu = () => {
         </div>
       </div>
 
-      {/* Mobile Overlay */}
       {isOpen && (
         <div
           className="md:hidden fixed inset-0 bg-white/30 backdrop-blur-md z-40"
@@ -109,12 +107,11 @@ const Menu = () => {
         ></div>
       )}
 
-      {/* Mobile Sidebar  */}
       <div
         className={`md:hidden fixed left-0 top-0 h-screen w-64 bg-[#D3DDD7] z-50 transform transition-transform duration-300 ease-in-out flex flex-col ${isOpen ? "translate-x-0" : "-translate-x-full"
           }`}
       >
-        {/* Header */}
+
         <div className="p-6 flex items-center justify-between border-b border-gray-300">
           <Image
             src="/logo.jpeg"
@@ -127,11 +124,10 @@ const Menu = () => {
             onClick={close}
             className="text-2xl font-bold text-[#3E4C3A]"
           >
-            ✕
+            <X className="w-6 h-6" />
           </button>
         </div>
 
-        {/* Menu Items */}
         <div className="flex flex-col py-6 px-4 gap-2">
           {menuItems.map((item, index) => (
             <Link
@@ -149,7 +145,6 @@ const Menu = () => {
           ))}
         </div>
 
-        {/* Bottom Section */}
         <div className="mt-auto p-6 border-t border-gray-300 flex flex-col gap-4">
           <button
             onClick={() => { close(); handleLogout(); }}
@@ -175,3 +170,5 @@ const Menu = () => {
 };
 
 export default Menu;
+
+

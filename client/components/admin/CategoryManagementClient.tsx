@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { Plus, X, Edit2, Trash2 } from 'lucide-react';
@@ -55,7 +55,7 @@ export default function CategoryManagementClient() {
 
   useEffect(() => {
     fetchCategories();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, []);
 
   const filteredCategories = useMemo(() => {
@@ -95,7 +95,7 @@ export default function CategoryManagementClient() {
         }
         const data = await res.json().catch(() => ({} as any));
         const updated = (data?.category as any) || { id: editingId, name };
-        // Optimistic local update
+
         setCategories((prev) => prev.map((c) => (c.id === updated.id ? { ...c, name: updated.name, createdAt: (updated as any).createdAt || c.createdAt } : c)));
         show(`Category "${name}" updated successfully!`);
         setEditingId(null);
@@ -111,7 +111,7 @@ export default function CategoryManagementClient() {
         }
         const data = await res.json().catch(() => ({} as any));
         const created = (data?.category as any) || null;
-        // Optimistic local add
+
         if (created) {
           setCategories((prev) => [{ id: created.id, name: created.name, createdAt: created.createdAt }, ...prev]);
         }
@@ -120,7 +120,7 @@ export default function CategoryManagementClient() {
 
       setFormData({ name: '' });
       setIsModalOpen(false);
-      // Background refresh to ensure consistency
+
       fetchCategories();
     } catch (err: any) {
       try {
@@ -146,11 +146,11 @@ export default function CategoryManagementClient() {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) throw new Error(`Failed to delete category (status ${res.status})`);
-      // Optimistic local remove
+
       setCategories((prev) => prev.filter((c) => c.id !== id));
       setDeleteConfirmId(null);
       show('Category deleted successfully!');
-      // Background refresh
+
       fetchCategories();
     } catch (e: any) {
       show(e.message || 'Error deleting category');
@@ -324,3 +324,5 @@ export default function CategoryManagementClient() {
     </div>
   );
 }
+
+

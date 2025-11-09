@@ -2,6 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import OverviewCards, { OverviewStat } from "@/components/OverviewCards";
+import { Users, Building2, UserCheck, TrendingUp } from "lucide-react";
 
 interface ShowroomCustomer {
   id: string;
@@ -85,7 +86,7 @@ export default function AdminOverviewCards() {
         setFeedbacks(Array.isArray(fbData.feedbacks) ? fbData.feedbacks : []);
         setShowrooms(Array.isArray(shData) ? shData : (Array.isArray(shData?.showrooms) ? shData.showrooms : []));
       } catch (e: any) {
-        // Silently handle errors to avoid console spam
+
         if (e?.message && !e.message.includes("401")) {
           setError(e?.message || "Failed to load");
         }
@@ -111,12 +112,14 @@ export default function AdminOverviewCards() {
       .filter((p) => p && todayCustomerPhones.has(p)).length;
     const performancePct = todaysVisitors > 0 ? Math.round((todaysFeedbackMatches / todaysVisitors) * 100) : 0;
     return [
-      { title: "Total Customers", value: String(totalCustomers), change: "+0%", lastMonth: "All time" },
-      { title: "Total Showrooms", value: String(totalShowrooms ?? '-'), change: "+0%", lastMonth: "Active" },
-      { title: "Today’s Visitors", value: String(todaysVisitors), change: "+0%", lastMonth: "Today" },
-      { title: "Overall Performance", value: `${performancePct}%`, change: "+0%", lastMonth: "Feedback/Visits" },
+      { title: "Total Customers", value: String(totalCustomers), change: "+0%", lastMonth: "All time", icon: <Users className="w-5 h-5 text-gray-700" /> },
+      { title: "Total Showrooms", value: String(totalShowrooms ?? '-'), change: "+0%", lastMonth: "Active", icon: <Building2 className="w-5 h-5 text-gray-700" /> },
+      { title: "Today's Visitors", value: String(todaysVisitors), change: "+0%", lastMonth: "Today", icon: <UserCheck className="w-5 h-5 text-gray-700" /> },
+      { title: "Overall Performance", value: `${performancePct}%`, change: "+0%", lastMonth: "Feedback/Visits", icon: <TrendingUp className="w-5 h-5 text-gray-700" /> },
     ];
   }, [customers, feedbacks, showrooms]);
 
   return <OverviewCards stats={stats} />;
 }
+
+

@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+﻿import mongoose from "mongoose";
 
 const settingsSchema = new mongoose.Schema(
   {
@@ -11,3 +11,4 @@ const settingsSchema = new mongoose.Schema(
 );
 
 export const Settings = mongoose.model("Settings", settingsSchema);
+

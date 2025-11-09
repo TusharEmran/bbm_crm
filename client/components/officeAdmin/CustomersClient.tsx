@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useEffect, useMemo, useState } from 'react';
 import { Users, Search, Save, X, FileText } from 'lucide-react';
@@ -160,9 +160,9 @@ export default function CustomersClient() {
 
   const handleOpenNotesModal = async (customer: Customer) => {
     setNotesModalId(customer.id);
-    // Prefill with cached value immediately
+
     setNotesModalContent(editingNotes[customer.id] !== undefined ? editingNotes[customer.id] : customer.notes);
-    // Then fetch fresh from backend to avoid stale/missing notes
+
     try {
       const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
       if (!token) return;
@@ -175,7 +175,7 @@ export default function CustomersClient() {
       const data = await res.json();
       const freshNotes = (data?.customer?.notes as string) ?? '';
       setNotesModalContent(freshNotes);
-      // also update local list to reflect freshest notes
+
       setCustomers((prev) => prev.map(c => c.id === customer.id ? { ...c, notes: freshNotes } : c));
     } catch {}
   };
@@ -396,3 +396,5 @@ export default function CustomersClient() {
     </div>
   );
 }
+
+

@@ -2,11 +2,11 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
+import { Users, BarChart3, LineChart } from "lucide-react";
 
-// Define the type locally to allow dynamic import code-splitting
 export interface VisitorTrendData { day: string; visitors: number; accuracy: number }
 
-const OfficeDashboardChartsClient = dynamic(() => import("@/components/OfficeDashboardChartsClient"), { ssr: false });
+const OfficeDashboardChartsClient = dynamic(() => import("@/components/officeAdmin/OfficeDashboardChartsClient"), { ssr: false });
 
 const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
@@ -47,7 +47,7 @@ export default function OfficeDashboardClient() {
           fetch(`${baseUrl}/api/user/analytics/showroom-summary?ts=${ts}`, { headers: { Authorization: `Bearer ${token}` }, cache: 'no-store' }),
         ]);
         if (custRes.status === 401 || fbRes.status === 401 || sumRes.status === 401) {
-          // Soft fail: do not clear token; let AuthGuard handle redirects
+
           return;
         }
         const [custData, fbData, sData] = await Promise.all([
@@ -67,7 +67,7 @@ export default function OfficeDashboardClient() {
   }, []);
 
   const { totalVisitors, avgAccuracy, avgPerformance, visitorTrendData } = useMemo(() => {
-    // Build last 7 days visitor trend
+
     const base = startOfDay(new Date());
     const days: Date[] = Array.from({ length: 7 }, (_, i) => {
       const d = new Date(base);
@@ -108,7 +108,6 @@ export default function OfficeDashboardClient() {
       return { day: c.day, visitors: c.visitors, accuracy: acc };
     });
 
-    // Today's visitors can be read from the last element in counts (today)
     const todayVisitors = counts[counts.length - 1]?.visitors || 0;
 
     const accuracyVals = trend.map(t => t.accuracy);
@@ -116,7 +115,7 @@ export default function OfficeDashboardClient() {
     const avgPerfClient = trend.length ? Math.round(trend.reduce((sum, pt)=> sum + Math.min(100, 60 + tAccuracyToPerf(pt.accuracy)), 0) / trend.length) : 0;
 
     function tAccuracyToPerf(acc: number) {
-      // simple mapping: performance leans with accuracy
+
       return Math.max(0, Math.min(40, Math.round((acc - 60) * 0.8)));
     }
 
@@ -147,7 +146,7 @@ export default function OfficeDashboardClient() {
                 <p className="text-xs text-slate-400 mt-3">based on showroom entries</p>
               </div>
               <div className="p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl">
-                <span className="w-8 h-8 inline-block">👥</span>
+                <Users className="w-8 h-8 text-blue-600" />
               </div>
             </div>
           </div>
@@ -162,7 +161,7 @@ export default function OfficeDashboardClient() {
                 <p className="text-xs text-slate-400 mt-3">system wide average</p>
               </div>
               <div className="p-4 bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-xl">
-                <span className="w-8 h-8 inline-block">📈</span>
+                <BarChart3 className="w-8 h-8 text-emerald-600" />
               </div>
             </div>
           </div>
@@ -177,7 +176,7 @@ export default function OfficeDashboardClient() {
                 <p className="text-xs text-slate-400 mt-3">per showroom</p>
               </div>
               <div className="p-4 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl">
-                <span className="w-8 h-8 inline-block">📊</span>
+                <LineChart className="w-8 h-8 text-purple-600" />
               </div>
             </div>
           </div>
@@ -185,7 +184,6 @@ export default function OfficeDashboardClient() {
 
         <OfficeDashboardChartsClient visitorTrendData={visitorTrendData} />
 
-        {/* Showroom Performance Summary */}
         <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden mt-8">
           <div className="p-8 border-b border-slate-100">
             <h2 className="text-xl font-bold text-slate-900">Showroom Performance Summary</h2>
@@ -209,13 +207,13 @@ export default function OfficeDashboardClient() {
                   const status = (it.status === 'Active' ? 'Active' : 'Active');
                   const performance = typeof it.performance === 'number'
                     ? Math.max(0, Math.min(100, Number(it.performance)))
-                    : Math.min(100, Math.round(60 + (accuracy % 40))); // fallback if not provided
+                    : Math.min(100, Math.round(60 + (accuracy % 40))); 
                   return (
                     <tr key={`${showroomName}-${idx}`} className={`border-b border-slate-100 hover:bg-slate-50 transition ${idx === summary.length - 1 ? 'border-b-0' : ''}`}>
                       <td className="px-8 py-5 text-sm font-semibold text-slate-900">{showroomName}</td>
                       <td className="px-8 py-5 text-sm">
                         <div className="flex items-center gap-2">
-                          <span className="text-blue-600">👥</span>
+                          <Users className="w-4 h-4 text-blue-600" />
                           <span className="font-semibold text-slate-900">{visitors}</span>
                         </div>
                       </td>
@@ -244,3 +242,5 @@ export default function OfficeDashboardClient() {
     </div>
   );
 }
+
+
