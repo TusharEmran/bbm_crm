@@ -1,6 +1,7 @@
 {
   "name": "server",
   "version": "1.0.0",
+  "packageManager": "npm@9.8.1",
   "description": "",
   "main": "index.js",
   "scripts": {
