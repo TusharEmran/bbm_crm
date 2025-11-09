@@ -17,7 +17,16 @@ const ALLOWED_ORIGINS = (process.env.CORS_ORIGINS || process.env.CORS_ORIGIN || 
 
 const corsOptions = {
   origin: function (origin, callback) {
+    // Allow non-browser requests (no origin header)
     if (!origin) return callback(null, true);
+
+    // If no allowed origins configured, default to allowing any origin.
+    // This helps avoid accidental CORS failures when env var is missing.
+    if (ALLOWED_ORIGINS.length === 0) {
+      console.log("⚠️  No ALLOWED_ORIGINS configured - allowing any origin for CORS");
+      return callback(null, true);
+    }
+
     if (ALLOWED_ORIGINS.includes(origin)) {
       return callback(null, true);
     } else {
@@ -33,6 +42,22 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 app.options("*", cors(corsOptions));
+
+
+app.use((req, res, next) => {
+  if (req.method === "OPTIONS") {
+    const origin = req.headers.origin;
+    if (origin && (ALLOWED_ORIGINS.length === 0 || ALLOWED_ORIGINS.includes(origin))) {
+      res.header("Access-Control-Allow-Origin", origin);
+      res.header("Access-Control-Allow-Credentials", "true");
+      res.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
+      res.header("Access-Control-Allow-Headers", "Content-Type,Authorization");
+      return res.sendStatus(200);
+    }
+    return res.sendStatus(403);
+  }
+  next();
+});
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
