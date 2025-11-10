@@ -1,5 +1,4 @@
 ﻿import OfficeReportsClient from '@/components/officeAdmin/OfficeReportsClient';
-import AuthGuard from '@/components/AuthGuard';
 
 const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 

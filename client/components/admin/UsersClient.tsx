@@ -96,7 +96,7 @@ export default function UsersClient({ initialUsers = [] }: UsersClientProps) {
   };
 
   const mapDisplayToBackendRole = (r: string) => {
-    const map: Record<string, string> = { "Admin": "admin", "Office Admin": "officeAdmin", "Showroom": "showroom",  };
+    const map: Record<string, string> = { "Admin": "admin", "Office Admin": "officeAdmin", "Showroom": "showroom", };
     return map[r] || r;
   };
 
@@ -184,7 +184,7 @@ export default function UsersClient({ initialUsers = [] }: UsersClientProps) {
 
   const handleDeleteConfirm = async () => {
     if (!deleteConfirmUser) return;
-    
+
     try {
       const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
       if (!token) return showToast('Not authenticated', 'error');
@@ -411,7 +411,7 @@ export default function UsersClient({ initialUsers = [] }: UsersClientProps) {
                   </select>
                 </div>
 
-                
+
 
                 <div className="flex gap-3 pt-4">
                   <button
