@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useState, useMemo, useEffect, useId } from 'react';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
@@ -166,8 +166,8 @@ export default function OfficeReportsClient({ initialShowrooms, initialSelectedS
       if (selectedShowroom) params.set('showroom', selectedShowroom);
       params.set('ts', String(Date.now()));
 
-      const [dailyRes, repRes] = await Promise.all([
-        fetch(`${baseUrl}/api/user/analytics/showroom-daily?${p.toString()}`, {
+      const [oaDailyRes, repRes, salesRes] = await Promise.all([
+        fetch(`${baseUrl}/api/user/office-admin/daily-stats?from=${start.toISOString().split('T')[0]}&to=${endExclusive.toISOString().split('T')[0]}`, {
           headers: { Authorization: `Bearer ${token}` },
           cache: 'no-store',
         }),
@@ -175,22 +175,43 @@ export default function OfficeReportsClient({ initialShowrooms, initialSelectedS
           headers: { Authorization: `Bearer ${token}` },
           cache: 'no-store',
         }),
+        fetch(`${baseUrl}/api/user/sales?from=${start.toISOString().split('T')[0]}&to=${endExclusive.toISOString().split('T')[0]}&showroom=${encodeURIComponent(selectedShowroom)}`, {
+          headers: { Authorization: `Bearer ${token}` },
+          cache: 'no-store',
+        }),
       ]);
 
-      if (!dailyRes.ok) throw new Error('Failed to fetch daily analytics');
-      const dailyJson = await dailyRes.json();
-      const daysPayload: ChartData[] = Array.isArray(dailyJson.days) ? dailyJson.days.map((d: any) => ({
-        day: String(d.day),
-        visitors: Number(d.visitors || 0),
-        accuracy: Number(d.accuracy || 0),
-        performance: Number(d.performance || 0),
-        sales: Number(d.sales || 0),
+      if (!oaDailyRes.ok) throw new Error('Failed to fetch office-admin daily stats');
+      const oaJson = await oaDailyRes.json();
+      const daysPayload: ChartData[] = Array.isArray(oaJson.days) ? oaJson.days.map((d: any) => ({
+        day: String(d.date),
+        visitors: Number(d.showroom || 0),
+        accuracy: Number(d.ratioPercent || 0),
+        performance: Number(d.ratioPercent || 0),
+        sales: 0,
       })) : [];
+
+      // Merge sales totals per day
+      if (salesRes.ok) {
+        const salesJson = await salesRes.json();
+        const byDate: Record<string, number> = {};
+        const items: any[] = Array.isArray(salesJson.items) ? salesJson.items : [];
+        for (const it of items) {
+          const createdAt = it.createdAt || it.date;
+          if (!createdAt) continue;
+          const key = new Date(createdAt).toISOString().slice(0, 10);
+          const amt = Number(it.amount || 0);
+          byDate[key] = (byDate[key] || 0) + (isFinite(amt) ? amt : 0);
+        }
+        for (const row of daysPayload) {
+          row.sales = Number(byDate[row.day] || 0);
+        }
+      }
       setData(daysPayload);
       setBackendStats({
-        totalVisitors: Number(dailyJson.totalVisitors || 0),
-        avgAccuracy: Number(dailyJson.avgAccuracy || 0),
-        avgPerformance: Number(dailyJson.avgPerformance || 0),
+        totalVisitors: Number(oaJson.totalShowroom || 0),
+        avgAccuracy: daysPayload.length ? Math.round(daysPayload.reduce((s, x) => s + (Number(x.accuracy) || 0), 0) / daysPayload.length) : 0,
+        avgPerformance: daysPayload.length ? Math.round(daysPayload.reduce((s, x) => s + (Number(x.performance) || 0), 0) / daysPayload.length) : 0,
       });
 
       if (!repRes.ok) {

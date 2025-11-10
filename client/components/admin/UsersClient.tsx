@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, ChangeEvent, FormEvent, useEffect } from "react";
 import { Edit2, Trash2, Plus, X } from "lucide-react";
@@ -96,7 +96,7 @@ export default function UsersClient({ initialUsers = [] }: UsersClientProps) {
   };
 
   const mapDisplayToBackendRole = (r: string) => {
-    const map: Record<string, string> = { "Admin": "admin", "Office Admin": "officeAdmin", "Showroom": "showroom", "Customer": "showroom" };
+    const map: Record<string, string> = { "Admin": "admin", "Office Admin": "officeAdmin", "Showroom": "showroom",  };
     return map[r] || r;
   };
 
@@ -161,6 +161,7 @@ export default function UsersClient({ initialUsers = [] }: UsersClientProps) {
           email: formData.email,
           password: formData.password,
           role: mapDisplayToBackendRole(formData.role),
+          status: 'Active',
         };
         const res = await fetch(`${baseUrl}/api/user/admins`, {
           method: 'POST',
@@ -410,23 +411,7 @@ export default function UsersClient({ initialUsers = [] }: UsersClientProps) {
                   </select>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Status
-                  </label>
-                  <select
-                    name="status"
-                    value={formData.status}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-                  >
-                    {statuses.map((status) => (
-                      <option key={status} value={status}>
-                        {status}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                
 
                 <div className="flex gap-3 pt-4">
                   <button

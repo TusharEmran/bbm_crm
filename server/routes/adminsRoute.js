@@ -1,4 +1,4 @@
-﻿import { Router } from "express";
+import { Router } from "express";
 import jwt from "jsonwebtoken";
 import { Admin } from "../models/adminModels.js";
 import { login, logout, me } from "../controllers/authControllers.js";
@@ -32,6 +32,7 @@ const testAnalytics = async (req, res) => {
 };
 import { getMessageSettings, updateMessageSettings } from "../controllers/settingsControllers.js";
 import { createSale, listSales } from "../controllers/salesControllers.js";
+import { getOfficeAdminDaily, upsertOfficeAdminDaily, getOfficeAdminTodayStats, getOfficeAdminDailyStats } from "../controllers/officeAdminControllers.js";
 
 const router = Router();
 
@@ -83,6 +84,11 @@ const requireShowroomOrAdmin = (req, res, next) => {
   const role = req.user?.role;
   if (role === "admin" || role === "showroom") return next();
   return res.status(403).json({ message: "Forbidden" });
+};
+
+const requireOfficeAdmin = (req, res, next) => {
+  if (req.user?.role !== "officeAdmin") return res.status(403).json({ message: "Forbidden" });
+  next();
 };
 
 const requireFeedbackAccess = (req, res, next) => {
@@ -143,5 +149,9 @@ router.put("/message-settings", requireAuth, requireAdmin, updateMessageSettings
 router.post("/sales", requireAuth, requireFeedbackAccess, createSale);
 router.get("/sales", requireAuth, requireFeedbackAccess, setPrivateShortCache, listSales);
 
-export default router;
+router.get("/office-admin/daily-count", requireAuth, requireOfficeAdmin, getOfficeAdminDaily);
+router.put("/office-admin/daily-count", requireAuth, requireOfficeAdmin, upsertOfficeAdminDaily);
+router.get("/office-admin/today-stats", requireAuth, requireOfficeAdmin, getOfficeAdminTodayStats);
+router.get("/office-admin/daily-stats", requireAuth, requireOfficeAdmin, getOfficeAdminDailyStats);
 
+export default router;

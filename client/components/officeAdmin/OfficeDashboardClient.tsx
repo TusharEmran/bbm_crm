@@ -34,6 +34,11 @@ export default function OfficeDashboardClient() {
   const [summary, setSummary] = useState<any[]>([]);
   const [avgAccBackend, setAvgAccBackend] = useState<number | null>(null);
   const [avgPerfBackend, setAvgPerfBackend] = useState<number | null>(null);
+  const [adminToday, setAdminToday] = useState<number>(0);
+  const [ratioPercent, setRatioPercent] = useState<number>(0);
+  const [openAdminCountModal, setOpenAdminCountModal] = useState(false);
+  const [pendingCount, setPendingCount] = useState<string>("");
+  const [savingCount, setSavingCount] = useState<boolean>(false);
 
   useEffect(() => {
     const load = async () => {
@@ -41,19 +46,21 @@ export default function OfficeDashboardClient() {
         const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
         if (!token) return;
         const ts = Date.now();
-        const [custRes, fbRes, sumRes] = await Promise.all([
+        const [custRes, fbRes, sumRes, todayStatsRes] = await Promise.all([
           fetch(`${baseUrl}/api/user/showroom/customers?limit=10000&ts=${ts}`, { headers: { Authorization: `Bearer ${token}` }, cache: 'no-store' }),
           fetch(`${baseUrl}/api/user/feedbacks?page=1&limit=10000&ts=${ts}`, { headers: { Authorization: `Bearer ${token}` }, cache: 'no-store' }),
           fetch(`${baseUrl}/api/user/analytics/showroom-summary?ts=${ts}`, { headers: { Authorization: `Bearer ${token}` }, cache: 'no-store' }),
+          fetch(`${baseUrl}/api/user/office-admin/today-stats?ts=${ts}`, { headers: { Authorization: `Bearer ${token}` }, cache: 'no-store' })
         ]);
-        if (custRes.status === 401 || fbRes.status === 401 || sumRes.status === 401) {
+        if (custRes.status === 401 || fbRes.status === 401 || sumRes.status === 401 || todayStatsRes.status === 401) {
 
           return;
         }
-        const [custData, fbData, sData] = await Promise.all([
+        const [custData, fbData, sData, todayStats] = await Promise.all([
           custRes.json(),
           fbRes.ok ? fbRes.json() : Promise.resolve({ feedbacks: [] }),
           sumRes.ok ? sumRes.json() : Promise.resolve({ items: [] }),
+          todayStatsRes.ok ? todayStatsRes.json() : Promise.resolve({ showroomToday: 0, adminToday: 0, ratioPercent: 0 }),
         ]);
         setCustomers(Array.isArray(custData.customers) ? custData.customers : []);
         setFeedbacks(Array.isArray(fbData.feedbacks) ? fbData.feedbacks : []);
@@ -61,7 +68,9 @@ export default function OfficeDashboardClient() {
         setSummary(items);
         if (typeof sData.avgAccuracy === 'number') setAvgAccBackend(sData.avgAccuracy);
         if (typeof sData.avgPerformance === 'number') setAvgPerfBackend(sData.avgPerformance);
-      } catch {}
+        setAdminToday(Number(todayStats.adminToday || 0));
+        setRatioPercent(Number(todayStats.ratioPercent || 0));
+      } catch { }
     };
     load();
   }, []);
@@ -111,8 +120,8 @@ export default function OfficeDashboardClient() {
     const todayVisitors = counts[counts.length - 1]?.visitors || 0;
 
     const accuracyVals = trend.map(t => t.accuracy);
-    const avgAccClient = accuracyVals.length ? (accuracyVals.reduce((a,b)=>a+b,0)/accuracyVals.length) : 0;
-    const avgPerfClient = trend.length ? Math.round(trend.reduce((sum, pt)=> sum + Math.min(100, 60 + tAccuracyToPerf(pt.accuracy)), 0) / trend.length) : 0;
+    const avgAccClient = accuracyVals.length ? (accuracyVals.reduce((a, b) => a + b, 0) / accuracyVals.length) : 0;
+    const avgPerfClient = trend.length ? Math.round(trend.reduce((sum, pt) => sum + Math.min(100, 60 + tAccuracyToPerf(pt.accuracy)), 0) / trend.length) : 0;
 
     function tAccuracyToPerf(acc: number) {
 
@@ -127,12 +136,27 @@ export default function OfficeDashboardClient() {
   return (
     <div className="min-h-screen p-8 bg-white">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-10">
-          <h1 className="text-4xl font-bold text-slate-900 mb-2">Dashboard</h1>
-          <p className="text-slate-600 text-lg">Welcome back! Here's your business performance overview.</p>
-        </div>
+<div className="flex flex-col md:flex-row md:items-center md:justify-between mb-10">
+  <div>
+    <h1 className="text-4xl font-bold text-slate-900 mb-2">Dashboard</h1>
+    <p className="text-slate-600 text-lg">
+      Welcome back! Here's your business performance overview.
+    </p>
+  </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+  <button
+    onClick={() => {
+      setPendingCount(String(adminToday || ""));
+      setOpenAdminCountModal(true);
+    }}
+    className="mt-4 md:mt-0 px-4 py-2 text-sm font-semibold rounded-lg bg-black text-white transition-all duration-200 shadow-sm"
+  >
+    Todays Customer Entries
+  </button>
+</div>
+
+
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
           <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-8 hover:shadow-md transition-shadow duration-300">
             <div className="flex items-start justify-between">
               <div className="flex-1">
@@ -154,11 +178,25 @@ export default function OfficeDashboardClient() {
           <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-8 hover:shadow-md transition-shadow duration-300">
             <div className="flex items-start justify-between">
               <div className="flex-1">
+                <p className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4">Admin Customers Today</p>
+                <div className="flex items-center gap-4">
+                  <p className="text-5xl font-bold text-slate-900">{adminToday}</p>
+                </div>
+                <p className="text-xs text-slate-400 mt-3">office admin entry</p>
+              </div>
+            </div>
+          </div>
+
+
+
+          <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-8 hover:shadow-md transition-shadow duration-300">
+            <div className="flex items-start justify-between">
+              <div className="flex-1">
                 <p className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4">Data Accuracy</p>
                 <div className="flex items-baseline gap-3">
-                  <p className={`text-5xl font-bold ${parseFloat(String(avgAccuracy)) >= 90 ? 'text-emerald-600' : parseFloat(String(avgAccuracy)) >= 80 ? 'text-cyan-600' : parseFloat(String(avgAccuracy)) >= 70 ? 'text-amber-600' : 'text-rose-600'}`}>{avgAccuracy}%</p>
+                  <p className={`text-5xl font-bold ${ratioPercent >= 100 ? 'text-emerald-600' : ratioPercent >= 80 ? 'text-cyan-600' : ratioPercent >= 60 ? 'text-amber-600' : 'text-rose-600'}`}>{ratioPercent}%</p>
                 </div>
-                <p className="text-xs text-slate-400 mt-3">system wide average</p>
+                <p className="text-xs text-slate-400 mt-3">based on today's showroom entries vs admin-entered customers</p>
               </div>
               <div className="p-4 bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-xl">
                 <BarChart3 className="w-8 h-8 text-emerald-600" />
@@ -207,7 +245,7 @@ export default function OfficeDashboardClient() {
                   const status = (it.status === 'Active' ? 'Active' : 'Active');
                   const performance = typeof it.performance === 'number'
                     ? Math.max(0, Math.min(100, Number(it.performance)))
-                    : Math.min(100, Math.round(60 + (accuracy % 40))); 
+                    : Math.min(100, Math.round(60 + (accuracy % 40)));
                   return (
                     <tr key={`${showroomName}-${idx}`} className={`border-b border-slate-100 hover:bg-slate-50 transition ${idx === summary.length - 1 ? 'border-b-0' : ''}`}>
                       <td className="px-8 py-5 text-sm font-semibold text-slate-900">{showroomName}</td>
@@ -239,8 +277,66 @@ export default function OfficeDashboardClient() {
           </div>
         </div>
       </div>
+
+      {openAdminCountModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-sm w-full">
+            <div className="p-6 border-b border-slate-100">
+              <h3 className="text-lg font-semibold text-slate-900">Set Admin Customers Today</h3>
+            </div>
+            <div className="p-6 space-y-4">
+              <input
+                type="number"
+                min={0}
+                value={pendingCount}
+                onChange={(e) => setPendingCount(e.target.value)}
+                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Enter count"
+              />
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setOpenAdminCountModal(false)}
+                  className="flex-1 px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-900 rounded-lg"
+                >
+                  Cancel
+                </button>
+                <button
+                  disabled={savingCount}
+                  onClick={async () => {
+                    try {
+                      setSavingCount(true);
+                      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+                      if (!token) return;
+                      const res = await fetch(`${baseUrl}/api/user/office-admin/daily-count`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                        body: JSON.stringify({ count: Number(pendingCount) }),
+                      });
+                      if (!res.ok) throw new Error('Failed to save');
+                      const js = await res.json();
+                      setAdminToday(Number(js.count || 0));
+                      // refresh today stats
+                      const st = await fetch(`${baseUrl}/api/user/office-admin/today-stats`, { headers: { Authorization: `Bearer ${token}` }, cache: 'no-store' });
+                      if (st.ok) {
+                        const stat = await st.json();
+                        setAdminToday(Number(stat.adminToday || 0));
+                      }
+                      setOpenAdminCountModal(false);
+                    } catch {
+                    } finally {
+                      setSavingCount(false);
+                    }
+                  }}
+                  className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg"
+                >
+                  Save
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
-
-

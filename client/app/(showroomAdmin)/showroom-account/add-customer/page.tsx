@@ -100,7 +100,7 @@ export default function AddCustomerPage() {
         const data = await res.json();
         const cats = (data.categories || []).map((c: any) => ({ id: c.id || c._id || c.name, name: c.name }));
         setCategories(cats);
-      } catch {}
+      } catch { }
     };
     load();
   }, []);
@@ -114,7 +114,7 @@ export default function AddCustomerPage() {
         const items: string[] = (data.showrooms || []).map((s: any) => s.name || s);
         setShowrooms(items);
         setFormData((prev) => ({ ...prev, showroomBranch: prev.showroomBranch || items[0] || '' }));
-      } catch {}
+      } catch { }
     };
     loadShowrooms();
   }, []);
@@ -181,18 +181,18 @@ export default function AddCustomerPage() {
   return (
     <div className="min-h-screen p-8 bg-white">
       <div className="max-w-5xl mx-auto">
-        {}
+        { }
         <div className="mb-10">
           <h1 className="text-4xl font-bold text-slate-900 mb-2">Add New Customer</h1>
           <p className="text-slate-600 text-lg">Enter customer information to create a new entry</p>
         </div>
 
-        {}
+        { }
         <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-10">
           <form onSubmit={handleSubmit} className="space-y-7">
-            {}
+            { }
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {}
+              { }
               <div>
                 <label className=" text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
                   <User size={18} className="text-blue-600" />
@@ -204,11 +204,10 @@ export default function AddCustomerPage() {
                   value={formData.customerName}
                   onChange={handleInputChange}
                   placeholder="Enter customer's full name"
-                  className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 transition text-slate-900 font-medium ${
-                    formErrors.customerName
+                  className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 transition text-slate-900 font-medium ${formErrors.customerName
                       ? 'border-red-500 bg-red-50'
                       : 'border-slate-200 bg-white'
-                  }`}
+                    }`}
                 />
                 {formErrors.customerName && (
                   <p className="text-red-600 text-xs mt-2 flex items-center gap-1">
@@ -220,7 +219,7 @@ export default function AddCustomerPage() {
                 )}
               </div>
 
-              {}
+              { }
               <div>
                 <label className=" text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
                   <Phone size={18} className="text-emerald-600" />
@@ -232,11 +231,10 @@ export default function AddCustomerPage() {
                   value={formData.phoneNumber}
                   onChange={handleInputChange}
                   placeholder="+1 (555) 123-4567"
-                  className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 transition text-slate-900 font-medium ${
-                    formErrors.phoneNumber
+                  className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 transition text-slate-900 font-medium ${formErrors.phoneNumber
                       ? 'border-red-500 bg-red-50'
                       : 'border-slate-200 bg-white'
-                  }`}
+                    }`}
                 />
                 {formErrors.phoneNumber && (
                   <p className="text-red-600 text-xs mt-2 flex items-center gap-1">
@@ -249,9 +247,9 @@ export default function AddCustomerPage() {
               </div>
             </div>
 
-            {}
+            { }
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {}
+              { }
               <div>
                 <label className=" text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
                   <Package size={18} className="text-purple-600" />
@@ -261,11 +259,10 @@ export default function AddCustomerPage() {
                   name="category"
                   value={formData.category}
                   onChange={handleInputChange}
-                  className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 transition bg-white text-slate-900 font-medium ${
-                    formErrors.category
+                  className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 transition bg-white text-slate-900 font-medium ${formErrors.category
                       ? 'border-red-500 bg-red-50'
                       : 'border-slate-200'
-                  }`}
+                    }`}
                 >
                   <option value="">Select a category</option>
                   {(categories.length ? categories.map((c) => c.name) : categoriesStatic).map((cat) => (
@@ -282,7 +279,7 @@ export default function AddCustomerPage() {
                 )}
               </div>
 
-              {}
+              { }
               <div>
                 <label className=" text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
                   <Calendar size={18} className="text-amber-600" />
@@ -293,11 +290,10 @@ export default function AddCustomerPage() {
                   name="visitDate"
                   value={formData.visitDate}
                   onChange={handleInputChange}
-                  className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 transition bg-white text-slate-900 font-medium ${
-                    formErrors.visitDate
+                  className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 transition bg-white text-slate-900 font-medium ${formErrors.visitDate
                       ? 'border-red-500 bg-red-50'
                       : 'border-slate-200'
-                  }`}
+                    }`}
                 />
                 {formErrors.visitDate && (
                   <p className="text-red-600 text-xs mt-2 flex items-center gap-1">
@@ -310,7 +306,7 @@ export default function AddCustomerPage() {
               </div>
             </div>
 
-            {}
+            { }
             <div>
               <label className=" text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
                 <Building2 size={18} className="text-cyan-600" />
@@ -320,11 +316,10 @@ export default function AddCustomerPage() {
                 name="showroomBranch"
                 value={formData.showroomBranch}
                 onChange={handleInputChange}
-                className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 transition bg-white text-slate-900 font-medium ${
-                  formErrors.showroomBranch
+                className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 transition bg-white text-slate-900 font-medium ${formErrors.showroomBranch
                     ? 'border-red-500 bg-red-50'
                     : 'border-slate-200'
-                }`}
+                  }`}
               >
                 <option value="" disabled>Select a showroom</option>
                 {showrooms.map((showroom) => (
@@ -343,10 +338,10 @@ export default function AddCustomerPage() {
               )}
             </div>
 
-            {}
+            { }
             <div className="border-t border-slate-200 pt-8"></div>
 
-            {}
+            { }
             <div className="flex items-center justify-center">
               <button
                 type="submit"
@@ -358,7 +353,7 @@ export default function AddCustomerPage() {
               </button>
             </div>
 
-            {}
+            { }
             <p className="text-xs text-slate-500 text-center mt-4">
               By submitting, an SMS will be sent to the customer with their entry confirmation.
             </p>
@@ -366,11 +361,11 @@ export default function AddCustomerPage() {
         </div>
       </div>
 
-      {}
+      { }
       {showConfirmation && submittedData && (
         <div className="fixed inset-0 z-50 flex items-center justify-center ">
           <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 animate-in fade-in zoom-in-95 duration-300">
-            {}
+            { }
             <button
               onClick={handleCloseConfirmation}
               className="absolute top-4 right-4 p-2 hover:bg-slate-100 rounded-lg transition"
@@ -378,9 +373,9 @@ export default function AddCustomerPage() {
               <X size={24} className="text-slate-400" />
             </button>
 
-            {}
+            { }
             <div className="p-10 text-center">
-              {}
+              { }
               <div className="flex justify-center mb-6">
                 <div className="relative">
                   <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center animate-pulse">
@@ -389,15 +384,15 @@ export default function AddCustomerPage() {
                 </div>
               </div>
 
-              {}
+              { }
               <h2 className="text-2xl font-bold text-slate-900 mb-2">Customer Added Successfully!</h2>
 
-              {}
+              { }
               <p className="text-slate-600 mb-6">
                 The customer entry has been created and an SMS confirmation has been sent.
               </p>
 
-              {}
+              { }
               <div className="bg-slate-50 rounded-lg p-6 mb-8 text-left space-y-3">
                 <div className="flex justify-between items-start">
                   <span className="text-sm font-semibold text-slate-600">Name:</span>
@@ -428,7 +423,7 @@ export default function AddCustomerPage() {
                 </div>
               </div>
 
-              {}
+              { }
               <div className="flex gap-3">
                 <Link
                   href="/showroom-account"
@@ -457,7 +452,7 @@ export default function AddCustomerPage() {
         </div>
       )}
 
-      {}
+      { }
       <Toast
         message={toastMessage}
         show={showToast}
