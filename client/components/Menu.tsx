@@ -44,7 +44,7 @@ const Menu = () => {
       if (typeof window !== "undefined") {
         localStorage.removeItem("token");
       }
-      router.push("/");
+      router.push("/login");
     }
   };
 

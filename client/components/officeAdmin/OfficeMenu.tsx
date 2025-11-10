@@ -68,7 +68,7 @@ const OfficeMenu = () => {
                                 }).catch(() => { });
                             } finally {
                                 if (typeof window !== 'undefined') localStorage.removeItem('token');
-                                router.push('/');
+                                router.push('/login');
                             }
                         }}
                     >
@@ -147,7 +147,7 @@ const OfficeMenu = () => {
                                 }).catch(() => { });
                             } finally {
                                 if (typeof window !== 'undefined') localStorage.removeItem('token');
-                                router.push('/');
+                                router.push('/login');
                             }
                         }}
                         className="flex items-center gap-4 p-3 rounded-lg hover:bg-white hover:bg-opacity-30 transition"

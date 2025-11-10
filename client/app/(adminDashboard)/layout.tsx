@@ -2,6 +2,7 @@ import Menu from "@/components/Menu";
 import Navbar from "@/components/Navbar";
 import { MenuProvider } from "@/components/MenuContext";
 import PageTransition from "@/components/PageTransition";
+import TokenRedirect from "@/components/TokenRedirect";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -19,6 +20,7 @@ export default function DashboardLayout({
           </div>
           <div className="w-[92%] lg:w-[84%] xl:w-[86%] bg-white overflow-scroll flex flex-col">
             <Navbar />
+            <TokenRedirect />
             <PageTransition>
               {children}
             </PageTransition>
@@ -28,6 +30,7 @@ export default function DashboardLayout({
           <Menu />
           <Navbar />
           <div className="bg-white">
+            <TokenRedirect />
             <PageTransition>
               {children}
             </PageTransition>
