@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -53,12 +53,15 @@ export default function LoginForm() {
         if (response.ok) {
           const data = await response.json()
           if (typeof window !== 'undefined' && data?.token) {
-
             try { sessionStorage.removeItem('auth_failed'); } catch { }
             localStorage.setItem('token', data.token)
             if (data?.user) {
               try { localStorage.setItem('user', JSON.stringify(data.user)); } catch { }
             }
+            try {
+              const maxAge = 7 * 24 * 60 * 60; // 7 days
+              document.cookie = `token=${data.token}; Path=/; Max-Age=${maxAge}; SameSite=Lax`;
+            } catch {}
           }
           const role = data?.user?.role
 

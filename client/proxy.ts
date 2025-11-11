@@ -6,7 +6,10 @@ function decodeRole(token?: string): string | null {
   try {
     const parts = token.split('.');
     if (parts.length < 2) return null;
-    const payload = JSON.parse(Buffer.from(parts[1].replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf8')) || {};
+    const b64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+    const pad = b64.length % 4 === 2 ? '==' : b64.length % 4 === 3 ? '=' : '';
+    const decoded = typeof atob === 'function' ? atob(b64 + pad) : '';
+    const payload = decoded ? JSON.parse(decoded) : {};
     const raw = (payload.role || '').toString();
     const norm = raw.replace(/[^a-z]/gi, '').toLowerCase();
     if (norm === 'admin') return 'admin';
