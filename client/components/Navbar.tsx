@@ -28,7 +28,7 @@ export default function Navbar({
           <button
             type="button"
             onClick={toggle}
-            className="md:hidden inline-flex flex-col justify-center items-center w-10 h-10 bg-[#D3DDD7] rounded-lg hover:bg-[#c5cdc8] transition"
+            className="md:hidden inline-flex flex-col sticky justify-center items-center w-10 h-10 bg-[#D3DDD7] rounded-lg hover:bg-[#c5cdc8] transition"
             aria-label="Open menu"
           >
             <span className="block w-6 h-0.5 bg-[#3E4C3A] mb-1" />
@@ -55,7 +55,7 @@ export default function Navbar({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search Anything..."
-              className="px-4 py-2 rounded-full bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 w-full sm:w-64 md:w-72 transition-all"
+              className="px-4 py-2 rounded-full bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 w-full sm:w-64 md:w-72 transition-all text-black"
             />
           </form>
         </div>

@@ -204,7 +204,7 @@ export default function AddCustomerPage() {
                   value={formData.customerName}
                   onChange={handleInputChange}
                   placeholder="Enter customer's full name"
-                  className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 transition text-slate-900 font-medium ${formErrors.customerName
+                  className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 transition text-black font-medium ${formErrors.customerName
                     ? 'border-red-500 bg-red-50'
                     : 'border-slate-200 bg-white'
                     }`}
@@ -230,8 +230,8 @@ export default function AddCustomerPage() {
                   name="phoneNumber"
                   value={formData.phoneNumber}
                   onChange={handleInputChange}
-                  placeholder="+1 (555) 123-4567"
-                  className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 transition text-slate-900 font-medium ${formErrors.phoneNumber
+                  placeholder="+880**********"
+                  className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 transition text-black font-medium ${formErrors.phoneNumber
                     ? 'border-red-500 bg-red-50'
                     : 'border-slate-200 bg-white'
                     }`}

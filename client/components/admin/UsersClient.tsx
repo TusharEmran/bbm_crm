@@ -353,7 +353,7 @@ export default function UsersClient({ initialUsers = [] }: UsersClientProps) {
                     value={formData.name}
                     onChange={handleInputChange}
                     required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                    className="w-full px-4 py-2 border text-black border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
                     placeholder="Enter name"
                   />
                 </div>
@@ -368,7 +368,7 @@ export default function UsersClient({ initialUsers = [] }: UsersClientProps) {
                     value={formData.email}
                     onChange={handleInputChange}
                     required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                    className="w-full px-4 py-2 border text-black border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
                     placeholder="Enter email"
                   />
                 </div>
@@ -388,7 +388,7 @@ export default function UsersClient({ initialUsers = [] }: UsersClientProps) {
                     value={formData.password}
                     onChange={handleInputChange}
                     required={!editingUser}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                    className="w-full px-4 py-2 border text-black border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
                     placeholder="Enter password"
                   />
                 </div>
@@ -401,7 +401,7 @@ export default function UsersClient({ initialUsers = [] }: UsersClientProps) {
                     name="role"
                     value={formData.role}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                    className="w-full px-4 py-2 border text-black border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
                   >
                     {roles.map((role) => (
                       <option key={role} value={role}>

@@ -56,7 +56,7 @@ export default function ShowroomNavbar({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search Anything..."
-              className="px-4 py-2 rounded-full bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 w-full sm:w-64 md:w-72 transition-all"
+              className="px-4 py-2 rounded-full bg-white border text-black border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 w-full sm:w-64 md:w-72 transition-all"
             />
             <button
               type="submit"

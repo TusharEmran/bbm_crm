@@ -394,7 +394,7 @@ export default function ReportsClient() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2"><Calendar size={16} className="inline mr-2" />Date Range</label>
-              <select value={dateRange} onChange={(e) => setDateRange(e.target.value as 'last30' | 'thisMonth' | 'lastMonth')} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <select value={dateRange} onChange={(e) => setDateRange(e.target.value as 'last30' | 'thisMonth' | 'lastMonth')} className="w-full px-3 py-2 text-black border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                 <option value="last30">Last 30 Days</option>
                 <option value="thisMonth">This Month</option>
                 <option value="lastMonth">Last Month</option>
@@ -402,14 +402,14 @@ export default function ReportsClient() {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Showroom</label>
-              <select value={selectedShowroom} onChange={(e) => setSelectedShowroom(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <select value={selectedShowroom} onChange={(e) => setSelectedShowroom(e.target.value)} className="w-full px-3 py-2 border text-black border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                 <option value="all">All Showrooms</option>
                 {showrooms.map((s) => (<option key={s} value={s}>{s}</option>))}
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
-              <select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <label className="block text-sm  font-medium text-gray-700 mb-2">Category</label>
+              <select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)} className="w-full px-3 py-2 border text-black border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                 <option value="all">All Categories</option>
                 {categories.map((c) => (<option key={c} value={c}>{c}</option>))}
               </select>
@@ -580,7 +580,7 @@ export default function ReportsClient() {
               </div>
               <div className="flex gap-3 pt-4">
                 <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium">Cancel</button>
-                <button type="submit" className="flex-1 px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors font-medium">{editingId !== null ? 'Update Showroom' : 'Add Showroom'}</button>
+                <button type="submit" className="flex-1 px-4 py-2 bg-gray-900 text-black rounded-lg hover:bg-gray-800 transition-colors font-medium">{editingId !== null ? 'Update Showroom' : 'Add Showroom'}</button>
               </div>
             </form>
           </div>

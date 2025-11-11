@@ -48,7 +48,7 @@ export default function MessageSettingsClient() {
           smsSenderId: s.smsSenderId || '',
           feedbackUrl: s.feedbackUrl || '',
         });
-      } catch {}
+      } catch { }
     };
     load();
   }, []);
@@ -138,20 +138,9 @@ export default function MessageSettingsClient() {
         <div className="bg-white rounded-lg shadow p-8">
           <form onSubmit={handleSaveSettings} className="space-y-6">
             <div>
-              <label htmlFor="smsProvider" className="block text-sm font-medium text-gray-700 mb-2">
-                SMS Provider
-              </label>
-              <select id="smsProvider" name="smsProvider" value={formData.smsProvider} onChange={handleInputChange} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 transition">
-                <option value="greenweb">Greenweb</option>
-                <option value="bulksmsbd">BulkSMSBD</option>
-                <option value="smsnetbd">SMS.net.bd</option>
-              </select>
-            </div>
-
-            <div>
               <label htmlFor="smsApiKey" className="block text-sm font-medium text-gray-700 mb-2">API Key</label>
               <div className="relative">
-                <input type={showApiKey ? 'text' : 'password'} name="smsApiKey" id="smsApiKey" value={formData.smsApiKey} onChange={handleInputChange} placeholder="Enter your SMS gateway API key" className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 transition" />
+                <input type={showApiKey ? 'text' : 'password'} name="smsApiKey" id="smsApiKey" value={formData.smsApiKey} onChange={handleInputChange} placeholder="Enter your SMS gateway API key" className="w-full px-4 py-3 border text-black border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 transition" />
                 <button type="button" onClick={() => setShowApiKey(!showApiKey)} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition" aria-label={showApiKey ? 'Hide API key' : 'Show API key'}>
                   {showApiKey ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
@@ -161,13 +150,13 @@ export default function MessageSettingsClient() {
 
             <div>
               <label htmlFor="smsSenderId" className="block text-sm font-medium text-gray-700 mb-2">Sender ID</label>
-              <input type="text" name="smsSenderId" id="smsSenderId" value={formData.smsSenderId} onChange={handleInputChange} placeholder="e.g., YourBrand or 1234" className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 transition" />
+              <input type="text" name="smsSenderId" id="smsSenderId" value={formData.smsSenderId} onChange={handleInputChange} placeholder="e.g., YourBrand or 1234" className="w-full px-4 py-3 border border-gray-300 text-black rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 transition" />
               <p className="text-xs text-gray-500 mt-1">The sender ID that will appear on SMS messages</p>
             </div>
 
             <div>
               <label htmlFor="feedbackUrl" className="block text-sm font-medium text-gray-700 mb-2">Feedback URL</label>
-              <input type="url" name="feedbackUrl" id="feedbackUrl" value={formData.feedbackUrl} onChange={handleInputChange} placeholder="e.g., https://yourapp.com/user/feedback" className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 transition" />
+              <input type="url" name="feedbackUrl" id="feedbackUrl" value={formData.feedbackUrl} onChange={handleInputChange} placeholder="e.g., https://yourapp.com/user/feedback" className="w-full px-4 py-3 border border-gray-300 text-black rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 transition" />
               <p className="text-xs text-gray-500 mt-1">Link used in SMS for collecting customer feedback</p>
             </div>
 

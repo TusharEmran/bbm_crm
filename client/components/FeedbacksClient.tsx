@@ -173,7 +173,7 @@ export default function FeedbacksClient() {
               <select
                 value={dateRange}
                 onChange={(e) => setDateRange(e.target.value as 'last7' | 'last30' | 'all')}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900"
+                className="w-full px-3 py-2 border text-black border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900"
               >
                 <option value="last7">Last 7 Days</option>
                 <option value="last30">Last 30 Days</option>
@@ -188,7 +188,7 @@ export default function FeedbacksClient() {
               <select
                 value={selectedShowroom}
                 onChange={(e) => setSelectedShowroom(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900"
+                className="w-full px-3 py-2 text-black border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900"
               >
                 <option value="all">All Showrooms</option>
                 {showrooms.map((showroom) => (
@@ -206,7 +206,7 @@ export default function FeedbacksClient() {
               <select
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900"
+                className="w-full px-3 py-2 text-black border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900"
               >
                 <option value="all">All Categories</option>
                 {categories.map((category) => (

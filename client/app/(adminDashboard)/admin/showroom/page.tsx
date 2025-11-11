@@ -179,7 +179,7 @@ export default function ShowroomActivityPage() {
                 placeholder="Search showrooms..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 transition"
+                className="w-full px-4 py-2 border text-black border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 transition"
               />
             </div>
 
@@ -188,7 +188,7 @@ export default function ShowroomActivityPage() {
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as 'visitors' | 'accuracy' | 'name')}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 transition"
+                className="w-full px-4 py-2 border texxt-black border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 transition"
               >
                 <option value="visitors">Sort by: Daily Visitors</option>
                 <option value="accuracy">Sort by: Accuracy</option>

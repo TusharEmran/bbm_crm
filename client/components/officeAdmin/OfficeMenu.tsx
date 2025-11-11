@@ -75,18 +75,11 @@ const OfficeMenu = () => {
                         <Image
                             src="/logout.png"
                             alt="logout"
-                            width={24}
-                            height={24}
+                            width={28}
+                            height={28}
                             className="opacity-70 hover:opacity-100"
                         />
                     </button>
-                    <Image
-                        src="/tushar.jpg"
-                        alt="profile"
-                        width={40}
-                        height={40}
-                        className="rounded-full border border-gray-200"
-                    />
                 </div>
             </div>
 
@@ -152,18 +145,10 @@ const OfficeMenu = () => {
                         }}
                         className="flex items-center gap-4 p-3 rounded-lg hover:bg-white hover:bg-opacity-30 transition"
                     >
-                        <Image src="/logout.png" alt="logout" width={24} height={24} />
+                        <Image src="/logout.png" alt="logout" width={28} height={28} />
                         <span className="text-[#3E4C3A] font-medium">Logout</span>
                     </button>
                     <div className="flex items-center gap-4 p-3">
-                        <Image
-                            src="/tushar.jpg"
-                            alt="profile"
-                            width={40}
-                            height={40}
-                            className="rounded-full border border-gray-200"
-                        />
-                        <span className="text-[#3E4C3A] font-medium">Profile</span>
                     </div>
                 </div>
             </div>

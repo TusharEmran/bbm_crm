@@ -180,13 +180,13 @@ export default function CategoryManagementClient() {
           </button>
         </div>
 
-        <div className="bg-white rounded-lg shadow p-6 mb-8">
+        <div className="bg-white  rounded-lg shadow p-6 mb-8">
           <input
             type="text"
             placeholder="Search categories..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 transition"
+            className="w-full px-4 py-2 border text-black border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 transition"
           />
         </div>
 
@@ -295,7 +295,7 @@ export default function CategoryManagementClient() {
                   value={formData.name}
                   onChange={handleInputChange}
                   placeholder="e.g., PACKAGING MACHINERIES"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 transition"
+                  className="w-full px-3 py-2 border text-black border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 transition"
                   autoFocus
                 />
               </div>

@@ -323,7 +323,7 @@ export default function OfficeDashboardClient() {
                 min={0}
                 value={pendingCount}
                 onChange={(e) => setPendingCount(e.target.value)}
-                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-2 border text-black border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="Enter count"
               />
               <div className="flex gap-3">

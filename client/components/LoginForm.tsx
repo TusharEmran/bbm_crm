@@ -111,7 +111,7 @@ export default function LoginForm() {
               if (errors.email) setErrors({ ...errors, email: undefined })
             }}
             placeholder="you@example.com"
-            className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 transition ${errors.email ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-indigo-500'
+            className={`w-full px-4 py-2 border rounded-lg text-black focus:outline-none focus:ring-2 transition ${errors.email ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-indigo-500'
               }`}
           />
           {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
@@ -131,7 +131,7 @@ export default function LoginForm() {
               if (errors.password) setErrors({ ...errors, password: undefined })
             }}
             placeholder="**********"
-            className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 transition ${errors.password ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-indigo-500'
+            className={`w-full px-4 py-2 border rounded-lg text-black focus:outline-none focus:ring-2 transition ${errors.password ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-indigo-500'
               }`}
           />
           {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}

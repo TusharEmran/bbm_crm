@@ -188,7 +188,6 @@ export default function ShowroomAccountClient({ initialTodayEntries }: ShowroomA
                 <p className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4">Performance %</p>
                 <div className="flex items-baseline gap-3">
                   <p className="text-5xl font-bold text-purple-600">{stats.performance}%</p>
-                  <span className="text-xs text-slate-400">excellent</span>
                 </div>
                 <div className="mt-4 w-full bg-slate-200 rounded-full h-2">
                   <div className="h-2 rounded-full bg-gradient-to-r from-purple-500 to-purple-600" style={{ width: `${stats.performance}%` }} />

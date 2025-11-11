@@ -126,7 +126,7 @@ export default function FeedbackSummaryPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {}
             <div>
-              <label className="block text-sm font-bold text-slate-900 mb-3">
+              <label className="block text-sm font-bold  text-slate-900 mb-3">
                 <Calendar size={16} className="inline mr-2" />
                 Select Date
               </label>

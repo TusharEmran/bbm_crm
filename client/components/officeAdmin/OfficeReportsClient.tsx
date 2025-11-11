@@ -399,7 +399,7 @@ export default function OfficeReportsClient({ initialShowrooms, initialSelectedS
                 name="startDate"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
-                className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900 transition"
+                className="w-full px-4 py-3 border text-black border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900 transition"
               />
             </div>
 
@@ -414,7 +414,7 @@ export default function OfficeReportsClient({ initialShowrooms, initialSelectedS
                 name="endDate"
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
-                className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900 transition"
+                className="w-full px-4 py-3 text-black border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900 transition"
               />
             </div>
 
