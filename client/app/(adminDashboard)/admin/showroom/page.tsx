@@ -144,7 +144,7 @@ export default function ShowroomActivityPage() {
           <div className="bg-white rounded-lg shadow p-6">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-sm font-medium text-gray-600 mb-1">Average Accuracy</h3>
+                <h3 className="text-sm font-medium text-gray-600 mb-1">Average Performance</h3>
                 <p className="text-3xl font-bold text-gray-900">{stats.avgAccuracy}%</p>
               </div>
               <div className="p-3 bg-green-100 rounded-lg">
@@ -219,7 +219,7 @@ export default function ShowroomActivityPage() {
                     Daily Visitors
                   </th>
                   <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">
-                    Accuracy
+                    Performance
                   </th>
                   <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">
                     Last Activity

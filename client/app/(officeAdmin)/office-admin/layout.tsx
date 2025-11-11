@@ -4,7 +4,6 @@ import OfficeNavbar from "@/components/officeAdmin/OfficeNavbar";
 import { MenuProvider as OfficeMenuProvider } from "@/components/officeAdmin/OfficeMenuContext";
 import { MenuProvider as AdminMenuProvider } from "@/components/MenuContext";
 import PageTransition from "@/components/PageTransition";
-import TokenRedirect from "@/components/TokenRedirect";
 
 export default function DashboardLayout({
   children,
@@ -21,7 +20,6 @@ export default function DashboardLayout({
               </div>
               <div className="w-[92%] lg:w-[84%] xl:w-[86%] bg-white overflow-scroll flex flex-col">
                 <Navbar />
-                <TokenRedirect />
                 <PageTransition>
                   {children}
                 </PageTransition>
@@ -31,7 +29,6 @@ export default function DashboardLayout({
               <OfficeMenu />
               <OfficeNavbar />
               <div className="bg-white">
-                <TokenRedirect />
                 <PageTransition>
                   {children}
                 </PageTransition>

@@ -4,7 +4,6 @@ import ShowroomNavbar from "@/components/showroomAdmin/ShowroomNavbar";
 import { MenuProvider as ShowroomMenuProvider } from "@/components/showroomAdmin/ShowroomMenuContext";
 import { MenuProvider as AdminMenuProvider } from "@/components/MenuContext";
 import PageTransition from "@/components/PageTransition";
-import TokenRedirect from "@/components/TokenRedirect";
 
 export default function DashboardLayout({
   children,
@@ -19,7 +18,6 @@ export default function DashboardLayout({
             </div>
             <div className="w-[92%] lg:w-[84%] xl:w-[86%] bg-white overflow-scroll flex flex-col">
               <Navbar />
-              <TokenRedirect />
               <PageTransition>
                 {children}
               </PageTransition>
@@ -29,7 +27,6 @@ export default function DashboardLayout({
             <ShowroomMenu />
             <ShowroomNavbar />
             <div className="bg-white">
-              <TokenRedirect />
               <PageTransition>
                 {children}
               </PageTransition>
