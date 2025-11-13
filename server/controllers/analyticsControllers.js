@@ -94,12 +94,39 @@ export const showroomSummary = async (req, res) => {
     );
 
     const nowMs = Date.now();
+    // Compute per-showroom day-over-day performance (today vs yesterday)
+    const todayStart = startOfDay(addDays(end, -1));
+    const todayEnd = end;
+    const yStart = startOfDay(addDays(end, -2));
+    const yEnd = todayStart;
+
+    const matchToday = { createdAt: { $gte: todayStart, $lt: todayEnd } };
+    const matchYest = { createdAt: { $gte: yStart, $lt: yEnd } };
+
+    const [todayAgg, yestAgg] = await Promise.all([
+      ShowroomCustomer.aggregate([
+        { $match: matchToday },
+        { $group: { _id: "$showroomBranch", uniquePhones: { $addToSet: "$phoneNumber" }, lastActivity: { $max: "$createdAt" } } },
+        { $project: { showroom: "$_id", todayCount: { $size: "$uniquePhones" }, lastActivity: 1, _id: 0 } },
+      ]),
+      ShowroomCustomer.aggregate([
+        { $match: matchYest },
+        { $group: { _id: "$showroomBranch", uniquePhones: { $addToSet: "$phoneNumber" } } },
+        { $project: { showroom: "$_id", yCount: { $size: "$uniquePhones" }, _id: 0 } },
+      ]),
+    ]);
+
+    const todayMap = new Map(todayAgg.map((r) => [String(r.showroom || ""), Number(r.todayCount || 0)]));
+    const yMap = new Map(yestAgg.map((r) => [String(r.showroom || ""), Number(r.yCount || 0)]));
+
     const items = Array.from(byShowroom.values())
       .filter((r) => activeSet.size === 0 || activeSet.has(r.showroom || ""))
       .map((r) => {
         const acc = r.uniqueCustomers > 0 ? Math.round((r.uniqueFeedbacks / r.uniqueCustomers) * 100) : 0;
         const status = r.lastActivity && nowMs - new Date(r.lastActivity).getTime() < 24 * 3600 * 1000 ? "Active" : "Inactive";
-        const performance = acc; 
+        const t = todayMap.get(r.showroom || "") || 0;
+        const y = yMap.get(r.showroom || "") || 0;
+        const performance = y > 0 ? Math.round((t / y) * 100) : 0;
         return { ...r, accuracy: acc, performance, status };
       });
 
@@ -284,15 +311,23 @@ export const showroomDaily = async (req, res) => {
 
     const days = Array.from(dayMap.values()).map((d) => {
       const accuracy = d.visitors > 0 ? Math.round((d.feedbacks / d.visitors) * 100) : 0;
-      const performance = accuracy; 
       return {
         day: d.day,
         visitors: d.visitors,
         accuracy,
-        performance,
+        performance: 0,
         sales: Number(d.sales || 0),
       };
     });
+
+    // Compute performance per day as ratio today/yesterday * 100 (Option B)
+    days.sort((a, b) => a.day.localeCompare(b.day));
+    for (let i = 0; i < days.length; i++) {
+      if (i === 0) { days[i].performance = 0; continue; }
+      const todayV = Number(days[i].visitors || 0);
+      const yV = Number(days[i - 1].visitors || 0);
+      days[i].performance = yV > 0 ? Math.round((todayV / yV) * 100) : 0;
+    }
 
     const totalVisitors = days.reduce((sum, d) => sum + d.visitors, 0);
     const accVals = days.map((d) => d.accuracy).filter((v) => v > 0);

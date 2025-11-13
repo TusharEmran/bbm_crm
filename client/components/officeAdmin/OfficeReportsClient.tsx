@@ -166,8 +166,9 @@ export default function OfficeReportsClient({ initialShowrooms, initialSelectedS
       if (selectedShowroom) params.set('showroom', selectedShowroom);
       params.set('ts', String(Date.now()));
 
+      const showroomQS = selectedShowroom ? `&showroom=${encodeURIComponent(selectedShowroom)}` : '';
       const [oaDailyRes, repRes, salesRes] = await Promise.all([
-        fetch(`${baseUrl}/api/user/office-admin/daily-stats?from=${start.toISOString().split('T')[0]}&to=${endExclusive.toISOString().split('T')[0]}`, {
+        fetch(`${baseUrl}/api/user/office-admin/daily-stats?from=${start.toISOString().split('T')[0]}&to=${endExclusive.toISOString().split('T')[0]}${showroomQS}` , {
           headers: { Authorization: `Bearer ${token}` },
           cache: 'no-store',
         }),
@@ -183,13 +184,21 @@ export default function OfficeReportsClient({ initialShowrooms, initialSelectedS
 
       if (!oaDailyRes.ok) throw new Error('Failed to fetch office-admin daily stats');
       const oaJson = await oaDailyRes.json();
-      const daysPayload: ChartData[] = Array.isArray(oaJson.days) ? oaJson.days.map((d: any) => ({
+      const baseDays: ChartData[] = Array.isArray(oaJson.days) ? oaJson.days.map((d: any) => ({
         day: String(d.date),
         visitors: Number(d.showroom || 0),
         accuracy: Number(d.ratioPercent || 0),
-        performance: Number(d.ratioPercent || 0),
+        performance: 0,
         sales: 0,
       })) : [];
+      // Compute performance as ratio today/yesterday * 100 (Option B)
+      for (let i = 0; i < baseDays.length; i++) {
+        if (i === 0) { baseDays[i].performance = 0; continue; }
+        const today = Number(baseDays[i].visitors || 0);
+        const yesterday = Number(baseDays[i - 1].visitors || 0);
+        baseDays[i].performance = yesterday > 0 ? Math.round((today / yesterday) * 100) : 0;
+      }
+      const daysPayload: ChartData[] = baseDays;
 
       // Merge sales totals per day
       if (salesRes.ok) {

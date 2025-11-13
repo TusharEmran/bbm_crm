@@ -1,7 +1,7 @@
-﻿'use client';
+'use client';
 
 import React, { useState, useMemo, useEffect } from 'react';
-import { Edit2, Trash2, X, Save, Calendar } from 'lucide-react';
+import { Edit2, Trash2, X, Save, Calendar, Eye, EyeOff } from 'lucide-react';
 import Toast from '@/components/Toast';
 
 interface Customer {
@@ -12,6 +12,17 @@ interface Customer {
   visitDate: string;
   createdAt: string;
   feedbackStatus: 'Received' | 'Pending' | 'No Feedback';
+  email?: string;
+  division?: string;
+  zila?: string;
+  interestLevel?: number;
+  customerType?: string;
+  businessName?: string;
+  quotation?: string;
+  rememberNote?: string;
+  rememberDate?: string;
+  notes?: string;
+  randomCustomer?: string;
 }
 
 interface EditingCustomer {
@@ -31,7 +42,6 @@ const formatVisitTime = (iso: string): string => {
     return iso;
   }
 };
-
 
 const getFeedbackStatusColor = (status: string): string => {
   switch (status) {
@@ -56,6 +66,10 @@ export default function EditEntriesPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
   const [categories, setCategories] = useState<string[]>([]);
+  const [revealed, setRevealed] = useState<Record<string, boolean>>({});
+  const [detailsOpen, setDetailsOpen] = useState<Record<string, boolean>>({});
+  const [noteCustomer, setNoteCustomer] = useState<Customer | null>(null);
+  const [noteText, setNoteText] = useState<string>("");
 
   const show = (msg: string) => { setToastMessage(msg); setShowToast(true); };
 
@@ -63,6 +77,13 @@ export default function EditEntriesPage() {
     const digits = (p || '').replace(/\D+/g, '');
     if (digits.length >= 10) return digits.slice(-10);
     return digits;
+  };
+
+  const maskPhone = (p: string): string => {
+    const digits = (p || '').replace(/\D+/g, '');
+    if (!digits) return '••••••••••';
+    const last2 = digits.slice(-2);
+    return `••••••••••${last2}`;
   };
 
   const isToday = (iso: string): boolean => {
@@ -81,12 +102,22 @@ export default function EditEntriesPage() {
     } catch { return false; }
   };
 
+  const fmtDate = (iso?: string): string => {
+    if (!iso) return '';
+    try { return new Date(iso).toISOString().slice(0, 10); } catch { return iso; }
+  };
+
   const loadCustomers = async () => {
     try {
       const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
       if (!token) return show('Not authenticated');
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth() + 1).padStart(2, '0');
+      const dd = String(today.getDate()).padStart(2, '0');
+      const ymd = `${yyyy}-${mm}-${dd}`; // local date
       const [custRes, fbRes] = await Promise.all([
-        fetch(`${baseUrl}/api/user/showroom/customers?limit=500`, { headers: { Authorization: `Bearer ${token}` } }),
+        fetch(`${baseUrl}/api/user/showroom/customers?limit=500&date=${encodeURIComponent(ymd)}`, { headers: { Authorization: `Bearer ${token}` } }),
         fetch(`${baseUrl}/api/user/feedbacks?page=1&limit=500`, { headers: { Authorization: `Bearer ${token}` } }),
       ]);
       if (!custRes.ok) throw new Error('Failed to load entries');
@@ -113,9 +144,18 @@ export default function EditEntriesPage() {
             visitDate: formatVisitTime(c.createdAt),
             createdAt: c.createdAt,
             feedbackStatus: status,
+            email: c.email || '',
+            division: c.division || '',
+            zila: c.upazila || '',
+            interestLevel: typeof c.interestLevel === 'number' ? c.interestLevel : undefined,
+            customerType: c.customerType || '',
+            businessName: c.businessName || '',
+            quotation: c.quotation || '',
+            rememberNote: c.rememberNote || '',
+            rememberDate: c.rememberDate || '',
+            notes: c.note || c.notes || '',
           };
-        })
-        .filter((c: Customer) => isToday(c.createdAt));
+        });
       setCustomers(mapped);
     } catch (e: any) {
       show(e?.message || 'Error loading entries');
@@ -269,139 +309,175 @@ export default function EditEntriesPage() {
               <tbody>
                 {filteredCustomers.length > 0 ? (
                   filteredCustomers.map((customer, idx) => (
-                    <tr
-                      key={customer.id}
-                      className={`border-b border-slate-100 hover:bg-slate-50 transition ${
-                        idx === filteredCustomers.length - 1 ? 'border-b-0' : ''
-                      }`}
-                    >
-                      {}
-                      <td className="px-8 py-5 text-sm">
-                        {editingId === customer.id && editingData ? (
-                          <input
-                            type="text"
-                            value={editingData.name}
-                            onChange={(e) => handleEditFieldChange('name', e.target.value)}
-                            className="w-full px-3 py-2 border border-blue-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 text-slate-900 font-semibold"
-                          />
-                        ) : (
-                          <span className="font-semibold text-slate-900">{customer.name}</span>
-                        )}
-                      </td>
-
-                      {}
-                      <td className="px-8 py-5 text-sm">
-                        {editingId === customer.id && editingData ? (
-                          <input
-                            type="tel"
-                            value={editingData.phone}
-                            onChange={(e) => handleEditFieldChange('phone', e.target.value)}
-                            className="w-full px-3 py-2 border border-blue-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 text-slate-900 font-medium"
-                          />
-                        ) : (
-                          <span className="text-slate-600 font-medium">{customer.phone}</span>
-                        )}
-                      </td>
-
-                      {}
-                      <td className="px-8 py-5 text-sm">
-                        {editingId === customer.id && editingData ? (
-                          <select
-                            value={editingData.category}
-                            onChange={(e) => handleEditFieldChange('category', e.target.value)}
-                            className="w-full px-3 py-2 border border-blue-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 bg-white text-slate-900 font-medium"
-                          >
-                            {categories.map((cat) => (
-                              <option key={cat} value={cat}>
-                                {cat}
-                              </option>
-                            ))}
-                          </select>
-                        ) : (
-                          <span className="px-3 py-1.5 bg-slate-100 text-slate-700 rounded-lg text-xs font-bold inline-block">
-                            {customer.category}
-                          </span>
-                        )}
-                      </td>
-
-                      {}
-                      <td className="px-8 py-5 text-sm text-slate-600 font-medium">
-                        {customer.visitDate}
-                      </td>
-
-                      {}
-                      <td className="px-8 py-5 text-sm">
-                        <span className={`px-3 py-1.5 rounded-lg text-xs font-bold ${getFeedbackStatusColor(customer.feedbackStatus)}`}>
-                          {customer.feedbackStatus}
-                        </span>
-                      </td>
-
-                      {}
-                      <td className="px-8 py-5 text-sm">
-                        <div className="flex items-center justify-center gap-2">
-                          {editingId === customer.id ? (
-                            <>
-                              <button
-                                onClick={() => handleSaveEdit(customer.id)}
-                                className="p-2 bg-emerald-100 text-emerald-700 hover:bg-emerald-200 rounded-lg transition"
-                                title="Save changes"
-                              >
-                                <Save size={18} />
-                              </button>
-                              <button
-                                onClick={handleCancelEdit}
-                                className="p-2 bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-lg transition"
-                                title="Cancel editing"
-                              >
-                                <X size={18} />
-                              </button>
-                            </>
+                    <React.Fragment key={customer.id}>
+                      <tr
+                        className={`border-b border-slate-100 hover:bg-slate-50 transition ${
+                          idx === filteredCustomers.length - 1 && !detailsOpen[customer.id] ? 'border-b-0' : ''
+                        }`}
+                      >
+                        {}
+                        <td className="px-8 py-5 text-sm">
+                          {editingId === customer.id && editingData ? (
+                            <input
+                              type="text"
+                              value={editingData.name}
+                              onChange={(e) => handleEditFieldChange('name', e.target.value)}
+                              className="w-full px-3 py-2 border border-blue-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 text-slate-900 font-semibold"
+                            />
                           ) : (
-                            <>
-                              <button
-                                onClick={() => handleEdit(customer)}
-                                className="p-2 bg-blue-100 text-blue-600 hover:bg-blue-200 rounded-lg transition"
-                                title="Edit customer"
-                              >
-                                <Edit2 size={18} />
-                              </button>
-                              <div className="relative">
-                                <button
-                                  onClick={() =>
-                                    setDeleteConfirmId(deleteConfirmId === customer.id ? null : customer.id)
-                                  }
-                                  className="p-2 bg-red-100 text-red-600 hover:bg-red-200 rounded-lg transition"
-                                  title="Delete customer"
-                                >
-                                  <Trash2 size={18} />
-                                </button>
-
-                                {}
-                                {deleteConfirmId === customer.id && (
-                                  <div className="absolute right-0 top-full mt-2 bg-white border border-slate-200 rounded-lg shadow-lg p-3 z-10 whitespace-nowrap">
-                                    <p className="text-sm font-medium text-slate-900 mb-3">Delete this entry?</p>
-                                    <div className="flex gap-2">
-                                      <button
-                                        onClick={() => handleDeleteConfirm(customer.id)}
-                                        className="px-3 py-1.5 bg-red-600 text-white text-xs rounded hover:bg-red-700 transition font-bold"
-                                      >
-                                        Delete
-                                      </button>
-                                      <button
-                                        onClick={() => setDeleteConfirmId(null)}
-                                        className="px-3 py-1.5 bg-slate-200 text-slate-700 text-xs rounded hover:bg-slate-300 transition font-bold"
-                                      >
-                                        Cancel
-                                      </button>
-                                    </div>
-                                  </div>
-                                )}
-                              </div>
-                            </>
+                            <span className="font-semibold text-slate-900">{customer.name}</span>
                           )}
-                        </div>
-                      </td>
-                    </tr>
+                        </td>
+
+                        {}
+                        <td className="px-8 py-5 text-sm">
+                          {editingId === customer.id && editingData ? (
+                            <input
+                              type="tel"
+                              value={editingData.phone}
+                              onChange={(e) => handleEditFieldChange('phone', e.target.value)}
+                              className="w-full px-3 py-2 border border-blue-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 text-slate-900 font-medium"
+                            />
+                          ) : (
+                            <div className="flex items-center gap-2 text-slate-600 font-medium">
+                              <span className="font-mono tracking-wide">{revealed[customer.id] ? customer.phone : maskPhone(customer.phone)}</span>
+                              <button
+                                type="button"
+                                onClick={() => setRevealed((prev) => ({ ...prev, [customer.id]: !prev[customer.id] }))}
+
+                                className="p-1.5 rounded hover:bg-slate-100 border border-slate-200"
+                                aria-label={revealed[customer.id] ? 'Hide phone' : 'Show phone'}
+                                title={revealed[customer.id] ? 'Hide phone' : 'Show phone'}
+                              >
+                                {revealed[customer.id] ? <EyeOff size={16} className="text-slate-700" /> : <Eye size={16} className="text-slate-700" />}
+                              </button>
+                            </div>
+                          )}
+                        </td>
+
+                        {}
+                        <td className="px-8 py-5 text-sm">
+                          {editingId === customer.id && editingData ? (
+                            <select
+                              value={editingData.category}
+                              onChange={(e) => handleEditFieldChange('category', e.target.value)}
+                              className="w-full px-3 py-2 border border-blue-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 bg-white text-slate-900 font-medium"
+                            >
+                              {categories.map((cat) => (
+                                <option key={cat} value={cat}>
+                                  {cat}
+                                </option>
+                              ))}
+                            </select>
+                          ) : (
+                            <span className="px-3 py-1.5 bg-slate-100 text-slate-700 rounded-lg text-xs font-bold inline-block">
+                              {customer.category}
+                            </span>
+                          )}
+                        </td>
+
+                        {}
+                        <td className="px-8 py-5 text-sm text-slate-600 font-medium">
+                          {customer.visitDate}
+                        </td>
+
+                        {}
+                        <td className="px-8 py-5 text-sm">
+                          <span className={`px-3 py-1.5 rounded-lg text-xs font-bold ${getFeedbackStatusColor(customer.feedbackStatus)}`}>
+                            {customer.feedbackStatus}
+                          </span>
+                        </td>
+
+                        {}
+                        <td className="px-8 py-5 text-sm">
+                          <div className="flex items-center justify-center gap-2">
+                            {editingId === customer.id ? (
+                              <React.Fragment>
+                                <button
+                                  onClick={() => handleSaveEdit(customer.id)}
+                                  className="p-2 bg-emerald-100 text-emerald-700 hover:bg-emerald-200 rounded-lg transition"
+                                  title="Save changes"
+                                >
+                                  <Save size={18} />
+                                </button>
+                                <button
+                                  onClick={handleCancelEdit}
+                                  className="p-2 bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-lg transition"
+                                  title="Cancel editing"
+                                >
+                                  <X size={18} />
+                                </button>
+                              </React.Fragment>
+                            ) : (
+                              <React.Fragment>
+                                <button
+                                  onClick={() => setDetailsOpen((prev) => ({ ...prev, [customer.id]: !prev[customer.id] }))}
+
+                                  className="p-2 bg-slate-100 text-slate-700 hover:bg-slate-200 rounded-lg transition"
+                                  title={detailsOpen[customer.id] ? 'Hide details' : 'Show details'}
+                                >
+                                  {detailsOpen[customer.id] ? <EyeOff size={18} /> : <Eye size={18} />}
+                                </button>
+                                <button
+                                  onClick={() => handleEdit(customer)}
+                                  className="p-2 bg-blue-100 text-blue-600 hover:bg-blue-200 rounded-lg transition"
+                                  title="Edit customer"
+                                >
+                                  <Edit2 size={18} />
+                                </button>
+                                <button
+                                  onClick={() => { setNoteCustomer(customer); setNoteText(customer.notes || ""); }}
+                                  className="p-2 bg-amber-100 text-amber-700 hover:bg-amber-200 rounded-lg transition"
+                                  title="View notes"
+                                >
+                                  <span className="text-xs font-bold">Note</span>
+                                </button>
+                              </React.Fragment>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                      {detailsOpen[customer.id] && (
+                        <tr className="bg-slate-50 border-b border-slate-100">
+                          <td className="px-8 py-5 text-sm" colSpan={6}>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-slate-700">
+                              <div>
+                                <div className="text-xs font-bold text-slate-500">Email</div>
+                                <div className="font-medium">{customer.email || '-'}</div>
+                              </div>
+                              <div>
+                                <div className="text-xs font-bold text-slate-500">Division</div>
+                                <div className="font-medium">{customer.division || '-'}</div>
+                              </div>
+                              <div>
+                                <div className="text-xs font-bold text-slate-500">Zila</div>
+                                <div className="font-medium">{customer.zila || '-'}</div>
+                              </div>
+                              <div>
+                                <div className="text-xs font-bold text-slate-500">Interest Level</div>
+                                <div className="font-medium">{typeof customer.interestLevel === 'number' ? `${customer.interestLevel} / 5` : '-'}</div>
+                              </div>
+                              <div>
+                                <div className="text-xs font-bold text-slate-500">Customer Type</div>
+                                <div className="font-medium">{customer.customerType || '-'}</div>
+                              </div>
+                              <div>
+                                <div className="text-xs font-bold text-slate-500">Business Name</div>
+                                <div className="font-medium">{customer.businessName || '-'}</div>
+                              </div>
+                              <div>
+                                <div className="text-xs font-bold text-slate-500">Quotation</div>
+                                <div className="font-medium">{customer.quotation || '-'}</div>
+                              </div>
+                              <div>
+                                <div className="text-xs font-bold text-slate-500">Remember Date</div>
+                                <div className="font-medium">{fmtDate(customer.rememberDate) || '-'}</div>
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </React.Fragment>
                   ))
                 ) : (
                   <tr>
@@ -442,6 +518,69 @@ export default function EditEntriesPage() {
         onClose={() => setShowToast(false)}
         duration={3000}
       />
+
+      {noteCustomer && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-xl shadow-2xl border border-slate-200 w-full max-w-lg p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-slate-900">Customer Notes</h3>
+              <button
+                onClick={() => setNoteCustomer(null)}
+                className="p-2 rounded-lg hover:bg-slate-100"
+                aria-label="Close"
+                title="Close"
+              >
+                <X size={18} className="text-slate-700" />
+              </button>
+            </div>
+            <div className="space-y-4 text-sm">
+              <div>
+                <div className="text-xs font-bold text-slate-500">General Notes</div>
+                <textarea
+                  value={noteText}
+                  onChange={(e)=>setNoteText(e.target.value)}
+                  className="mt-2 w-full min-h-[100px] px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 text-slate-900"
+                  placeholder="Write notes..."
+                />
+              </div>
+            </div>
+            <div className="mt-6 flex justify-end gap-2">
+              <button
+                onClick={() => setNoteCustomer(null)}
+                className="px-4 py-2 bg-slate-200 text-slate-800 rounded-lg hover:bg-slate-300 font-bold"
+              >
+                Close
+              </button>
+              <button
+                onClick={async () => {
+                  try {
+                    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+                    if (!token || !noteCustomer) return;
+                    const res = await fetch(`${baseUrl}/api/user/showroom/customers/${noteCustomer.id}`, {
+                      method: 'PUT',
+                      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                      body: JSON.stringify({ note: noteText }),
+                    });
+                    if (!res.ok) throw new Error('Failed to save notes');
+                    const data = await res.json();
+                    const u = data.customer;
+                    setCustomers(prev => prev.map(c => c.id === noteCustomer.id ? { ...c, notes: noteText } : c));
+                    setToastMessage('Notes saved');
+                    setShowToast(true);
+                    setNoteCustomer(null);
+                  } catch (e:any) {
+                    setToastMessage(e?.message || 'Could not save notes');
+                    setShowToast(true);
+                  }
+                }}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-bold"
+              >
+                Save Notes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,9 +1,9 @@
-﻿"use client";
+"use client";
 
 import React from "react";
 import { ResponsiveContainer, LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip, BarChart, Bar } from "recharts";
 
-export interface VisitorTrendData { day: string; visitors: number; accuracy: number }
+export interface VisitorTrendData { day: string; visitors: number; accuracy: number; performance: number }
 
 interface OfficeDashboardChartsClientProps {
   visitorTrendData: VisitorTrendData[];
@@ -57,7 +57,7 @@ export default function OfficeDashboardChartsClient({ visitorTrendData }: Office
               }}
               labelStyle={{ color: '#0f172a' }}
             />
-            <Bar dataKey="accuracy" fill="#10b981" radius={[8, 8, 0, 0]} />
+            <Bar dataKey="performance" fill="#10b981" radius={[8, 8, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </div>

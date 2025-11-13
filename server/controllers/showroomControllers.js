@@ -1,4 +1,4 @@
-﻿import { sendSMS } from "../services/smsService.js";
+import { sendSMS } from "../services/smsService.js";
 import mongoose from "mongoose";
 import { Settings } from "../models/settingsModel.js";
 import { ShowroomCustomer } from "../models/showroomCustomerModel.js";
@@ -16,7 +16,22 @@ function normalizeBdPhone(number) {
 
 export const createShowroomCustomer = async (req, res) => {
   try {
-    const { customerName, phoneNumber, category, showroomBranch } = req.body || {};
+    const {
+      customerName,
+      phoneNumber,
+      category,
+      showroomBranch,
+      email,
+      division,
+      upazila,
+      interestLevel,
+      note,
+      randomCustomer,
+      quotation,
+      rememberNote,
+      customerType,
+      businessName,
+    } = req.body || {};
     if (!customerName || !phoneNumber || !category || !showroomBranch) {
       return res.status(400).json({ message: "customerName, phoneNumber, category, showroomBranch are required" });
     }
@@ -37,7 +52,23 @@ export const createShowroomCustomer = async (req, res) => {
       phoneNumber,
       category,
       showroomBranch,
-
+      email: email ? String(email).trim() : "",
+      division: division ? String(division).trim() : "",
+      upazila: upazila ? String(upazila).trim() : "",
+      interestLevel: typeof interestLevel === 'number' ? interestLevel : (parseInt(interestLevel, 10) || 0),
+      notes: note ? String(note) : "",
+      randomCustomer: randomCustomer ? String(randomCustomer) : "",
+      quotation: quotation ? String(quotation) : "",
+      rememberNote: rememberNote ? String(rememberNote) : "",
+      rememberDate: (() => {
+        try {
+          if (!rememberNote) return null;
+          const d = new Date(String(rememberNote));
+          return isNaN(d.getTime()) ? null : d;
+        } catch { return null; }
+      })(),
+      customerType: customerType === 'business' ? 'business' : 'individual',
+      businessName: businessName ? String(businessName).trim() : "",
     });
 
     return res.status(201).json({
@@ -51,6 +82,16 @@ export const createShowroomCustomer = async (req, res) => {
         showroomBranch: saved.showroomBranch,
         status: saved.status,
         notes: saved.notes,
+        email: saved.email,
+        division: saved.division,
+        upazila: saved.upazila,
+        interestLevel: saved.interestLevel,
+        randomCustomer: saved.randomCustomer,
+        quotation: saved.quotation,
+        rememberNote: saved.rememberNote,
+        rememberDate: saved.rememberDate,
+        customerType: saved.customerType,
+        businessName: saved.businessName,
         createdAt: saved.createdAt,
       },
     });
@@ -66,11 +107,17 @@ export const listShowroomCustomers = async (req, res) => {
     const q = {};
     if (showroom) q.showroomBranch = String(showroom);
     if (date) {
-
-      const start = new Date(String(date));
-      const end = new Date(start);
-      end.setDate(start.getDate() + 1);
-      q.createdAt = { $gte: start, $lt: end };
+      try {
+        const parts = String(date).split('-');
+        const y = parseInt(parts[0], 10);
+        const m = parseInt(parts[1], 10);
+        const d = parseInt(parts[2], 10);
+        if (!isNaN(y) && !isNaN(m) && !isNaN(d)) {
+          const start = new Date(y, m - 1, d, 0, 0, 0, 0); // local midnight
+          const end = new Date(y, m - 1, d + 1, 0, 0, 0, 0); // next local midnight
+          q.createdAt = { $gte: start, $lt: end };
+        }
+      } catch {}
     }
 
     const p = page ? Math.max(parseInt(String(page), 10) || 1, 1) : undefined;
@@ -90,6 +137,16 @@ export const listShowroomCustomers = async (req, res) => {
         showroomBranch: d.showroomBranch,
         status: d.status,
         notes: d.notes,
+        email: d.email,
+        division: d.division,
+        upazila: d.upazila,
+        interestLevel: d.interestLevel,
+        randomCustomer: d.randomCustomer,
+        quotation: d.quotation,
+        rememberNote: d.rememberNote,
+        rememberDate: d.rememberDate,
+        customerType: d.customerType,
+        businessName: d.businessName,
         createdAt: d.createdAt,
       }));
       res.set("Cache-Control", "private, max-age=15");
@@ -105,6 +162,16 @@ export const listShowroomCustomers = async (req, res) => {
       showroomBranch: d.showroomBranch,
       status: d.status,
       notes: d.notes,
+      email: d.email,
+      division: d.division,
+      upazila: d.upazila,
+      interestLevel: d.interestLevel,
+      randomCustomer: d.randomCustomer,
+      quotation: d.quotation,
+      rememberNote: d.rememberNote,
+      rememberDate: d.rememberDate,
+      customerType: d.customerType,
+      businessName: d.businessName,
       createdAt: d.createdAt,
     }));
     res.set("Cache-Control", "private, max-age=15");

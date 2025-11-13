@@ -1,7 +1,7 @@
-﻿'use client';
+'use client';
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { Users, Search, Save, X, FileText } from 'lucide-react';
+import { Users, Search, Save, X, FileText, Eye, EyeOff } from 'lucide-react';
 import Toast from '@/components/Toast';
 
 interface Customer {
@@ -39,6 +39,14 @@ export default function CustomersClient() {
   const [toastMessage, setToastMessage] = useState('');
   const [showToast, setShowToast] = useState(false);
   const [sortBy, setSortBy] = useState<'name' | 'status'>('name');
+  const [revealed, setRevealed] = useState<Record<string, boolean>>({});
+
+  const maskPhone = (p: string) => {
+    const digits = (p || '').replace(/\D+/g, '');
+    if (!digits) return '••••••••••';
+    const last2 = digits.slice(-2);
+    return `••••••••••${last2}`;
+  };
 
   useEffect(() => {
     const load = async () => {
@@ -317,7 +325,22 @@ export default function CustomersClient() {
                       className={`border-b border-slate-100 hover:bg-slate-50 transition ${idx === filteredCustomers.length - 1 ? 'border-b-0' : ''}`}
                     >
                       <td className="px-8 py-5 text-sm font-semibold text-slate-900">{customer.name}</td>
-                      <td className="px-8 py-5 text-sm text-slate-600 font-medium">{customer.phone}</td>
+                      <td className="px-8 py-5 text-sm text-slate-600 font-medium">
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono tracking-wide">
+                            {revealed[customer.id] ? customer.phone : maskPhone(customer.phone)}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => setRevealed((prev) => ({ ...prev, [customer.id]: !prev[customer.id] }))}
+                            className="p-1.5 rounded hover:bg-slate-100 border border-slate-200"
+                            aria-label={revealed[customer.id] ? 'Hide phone' : 'Show phone'}
+                            title={revealed[customer.id] ? 'Hide phone' : 'Show phone'}
+                          >
+                            {revealed[customer.id] ? <EyeOff size={16} className="text-slate-700" /> : <Eye size={16} className="text-slate-700" />}
+                          </button>
+                        </div>
+                      </td>
                       <td className="px-8 py-5 text-sm">
                         <span className="px-3 py-1.5 bg-slate-100 text-slate-700 rounded-lg text-xs font-bold">{customer.interest}</span>
                       </td>

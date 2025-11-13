@@ -32,7 +32,7 @@ const testAnalytics = async (req, res) => {
 };
 import { getMessageSettings, updateMessageSettings } from "../controllers/settingsControllers.js";
 import { createSale, listSales } from "../controllers/salesControllers.js";
-import { getOfficeAdminDaily, upsertOfficeAdminDaily, getOfficeAdminTodayStats, getOfficeAdminDailyStats } from "../controllers/officeAdminControllers.js";
+import { getOfficeAdminDaily, upsertOfficeAdminDaily, getOfficeAdminTodayStats, getOfficeAdminDailyStats, getShowroomTodayStatsPublic, getShowroomRangeStatsPublic } from "../controllers/officeAdminControllers.js";
 
 const router = Router();
 
@@ -153,5 +153,8 @@ router.get("/office-admin/daily-count", requireAuth, requireOfficeAdmin, getOffi
 router.put("/office-admin/daily-count", requireAuth, requireOfficeAdmin, upsertOfficeAdminDaily);
 router.get("/office-admin/today-stats", requireAuth, requireOfficeAdmin, getOfficeAdminTodayStats);
 router.get("/office-admin/daily-stats", requireAuth, requireOfficeAdmin, getOfficeAdminDailyStats);
+
+router.get("/showroom/today-stats", requireAuth, getShowroomTodayStatsPublic);
+router.get("/showroom/range-stats", requireAuth, getShowroomRangeStatsPublic);
 
 export default router;
