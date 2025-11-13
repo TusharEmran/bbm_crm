@@ -110,7 +110,7 @@ export default function EditEntriesPage() {
   const loadCustomers = async () => {
     try {
       const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-      if (!token) return show('Not authenticated');
+      if (!token) return show('আপনি লগইন করেননি');
       const today = new Date();
       const yyyy = today.getFullYear();
       const mm = String(today.getMonth() + 1).padStart(2, '0');
@@ -120,7 +120,7 @@ export default function EditEntriesPage() {
         fetch(`${baseUrl}/api/user/showroom/customers?limit=500&date=${encodeURIComponent(ymd)}`, { headers: { Authorization: `Bearer ${token}` } }),
         fetch(`${baseUrl}/api/user/feedbacks?page=1&limit=500`, { headers: { Authorization: `Bearer ${token}` } }),
       ]);
-      if (!custRes.ok) throw new Error('Failed to load entries');
+      if (!custRes.ok) throw new Error('এন্ট্রি লোড করা যায়নি');
       if (fbRes.status === 401) {
         try { await fetch(`${baseUrl}/api/user/logout`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` } }); } catch { }
         if (typeof window !== 'undefined') localStorage.removeItem('token');
@@ -158,7 +158,7 @@ export default function EditEntriesPage() {
         });
       setCustomers(mapped);
     } catch (e: any) {
-      show(e?.message || 'Error loading entries');
+      show(e?.message || 'এন্ট্রি লোড করতে সমস্যা হয়েছে');
     }
   };
 
@@ -201,9 +201,9 @@ export default function EditEntriesPage() {
   const handleSaveEdit = async (id: string) => {
     if (!editingData) return;
 
-    if (!editingData.name.trim()) return show('Customer name cannot be empty');
-    if (!editingData.phone.trim()) return show('Phone number cannot be empty');
-    if (!editingData.category) return show('Category cannot be empty');
+    if (!editingData.name.trim()) return show('কাস্টমারের নাম খালি রাখা যাবে না');
+    if (!editingData.phone.trim()) return show('ফোন নম্বর খালি রাখা যাবে না');
+    if (!editingData.category) return show('ক্যাটাগরি খালি রাখা যাবে না');
 
     try {
       const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
@@ -213,15 +213,15 @@ export default function EditEntriesPage() {
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ customerName: editingData.name, phoneNumber: editingData.phone, category: editingData.category }),
       });
-      if (!res.ok) throw new Error('Failed to update');
+      if (!res.ok) throw new Error('আপডেট করা যায়নি');
       const data = await res.json();
       const u = data.customer;
       setCustomers(customers.map((c) => (c.id === id ? { ...c, name: u.customerName, phone: u.phoneNumber, category: u.category } : c)));
       setEditingId(null);
       setEditingData(null);
-      show('Customer information updated successfully!');
+      show('কাস্টমারের তথ্য সফলভাবে আপডেট হয়েছে!');
     } catch (e: any) {
-      show(e?.message || 'Update failed');
+      show(e?.message || 'আপডেট ব্যর্থ হয়েছে');
     }
   };
 
@@ -238,13 +238,13 @@ export default function EditEntriesPage() {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
       });
-      if (!res.ok) throw new Error('Failed to delete');
+      if (!res.ok) throw new Error('মুছে ফেলা যায়নি');
       const customer = customers.find((c) => c.id === id);
       setCustomers(customers.filter((c) => c.id !== id));
       setDeleteConfirmId(null);
-      show(`${customer?.name || 'Entry'} has been deleted successfully!`);
+      show(`${customer?.name || 'এন্ট্রি'} সফলভাবে মুছে ফেলা হয়েছে!`);
     } catch (e: any) {
-      show(e?.message || 'Delete failed');
+      show(e?.message || 'মুছে ফেলা ব্যর্থ হয়েছে');
     }
   };
 
@@ -260,8 +260,8 @@ export default function EditEntriesPage() {
         { }
         <div className="mb-10">
 
-          <h1 className="text-4xl font-bold text-slate-900 mb-2">Edit Today's Entries</h1>
-          <p className="text-slate-600 text-lg">Manage and update customer information for today's visits</p>
+          <h1 className="text-4xl font-bold text-slate-900 mb-2">আজকের এন্ট্রি সম্পাদনা</h1>
+          <p className="text-slate-600 text-lg">আজকের ভিজিটগুলোর কাস্টমার তথ্য ম্যানেজ ও আপডেট করুন</p>
         </div>
 
         { }
@@ -272,7 +272,7 @@ export default function EditEntriesPage() {
             </svg>
             <input
               type="text"
-              placeholder="Search by name, phone, or category..."
+              placeholder="নাম, ফোন বা ক্যাটাগরি দিয়ে খুঁজুন..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-12 pr-4 py-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 transition text-slate-900 font-medium"
@@ -287,8 +287,8 @@ export default function EditEntriesPage() {
             <div className="flex items-center gap-3">
               <Calendar className="w-6 h-6 text-slate-900" />
               <div>
-                <h2 className="text-xl font-bold text-slate-900">Today's Customer Entries</h2>
-                <p className="text-sm text-slate-500 mt-1">{filteredCustomers.length} customer{filteredCustomers.length !== 1 ? 's' : ''} in total</p>
+                <h2 className="text-xl font-bold text-slate-900">আজকের কাস্টমার এন্ট্রি</h2>
+                <p className="text-sm text-slate-500 mt-1">মোট {filteredCustomers.length} জন কাস্টমার</p>
               </div>
             </div>
           </div>
@@ -298,12 +298,12 @@ export default function EditEntriesPage() {
             <table className="w-full">
               <thead>
                 <tr className="bg-slate-50 border-b border-slate-100">
-                  <th className="px-8 py-4 text-left text-sm font-bold text-slate-900">Customer Name</th>
-                  <th className="px-8 py-4 text-left text-sm font-bold text-slate-900">Phone</th>
-                  <th className="px-8 py-4 text-left text-sm font-bold text-slate-900">Category</th>
-                  <th className="px-8 py-4 text-left text-sm font-bold text-slate-900">Visit Time</th>
-                  <th className="px-8 py-4 text-left text-sm font-bold text-slate-900">Feedback Status</th>
-                  <th className="px-8 py-4 text-center text-sm font-bold text-slate-900">Actions</th>
+                  <th className="px-8 py-4 text-left text-sm font-bold text-slate-900">কাস্টমারের নাম</th>
+                  <th className="px-8 py-4 text-left text-sm font-bold text-slate-900">ফোন</th>
+                  <th className="px-8 py-4 text-left text-sm font-bold text-slate-900">ক্যাটাগরি</th>
+                  <th className="px-8 py-4 text-left text-sm font-bold text-slate-900">ভিজিটের সময়</th>
+                  <th className="px-8 py-4 text-left text-sm font-bold text-slate-900">ফিডব্যাক স্ট্যাটাস</th>
+                  <th className="px-8 py-4 text-center text-sm font-bold text-slate-900">অ্যাকশন</th>
                 </tr>
               </thead>
               <tbody>
@@ -345,8 +345,8 @@ export default function EditEntriesPage() {
                                 onClick={() => setRevealed((prev) => ({ ...prev, [customer.id]: !prev[customer.id] }))}
 
                                 className="p-1.5 rounded hover:bg-slate-100 border border-slate-200"
-                                aria-label={revealed[customer.id] ? 'Hide phone' : 'Show phone'}
-                                title={revealed[customer.id] ? 'Hide phone' : 'Show phone'}
+                                aria-label={revealed[customer.id] ? 'ফোন লুকান' : 'ফোন দেখুন'}
+                                title={revealed[customer.id] ? 'ফোন লুকান' : 'ফোন দেখুন'}
                               >
                                 {revealed[customer.id] ? <EyeOff size={16} className="text-slate-700" /> : <Eye size={16} className="text-slate-700" />}
                               </button>
@@ -395,14 +395,14 @@ export default function EditEntriesPage() {
                                 <button
                                   onClick={() => handleSaveEdit(customer.id)}
                                   className="p-2 bg-emerald-100 text-emerald-700 hover:bg-emerald-200 rounded-lg transition"
-                                  title="Save changes"
+                                  title="পরিবর্তন সংরক্ষণ করুন"
                                 >
                                   <Save size={18} />
                                 </button>
                                 <button
                                   onClick={handleCancelEdit}
                                   className="p-2 bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-lg transition"
-                                  title="Cancel editing"
+                                  title="এডিট বাতিল করুন"
                                 >
                                   <X size={18} />
                                 </button>
@@ -413,23 +413,23 @@ export default function EditEntriesPage() {
                                   onClick={() => setDetailsOpen((prev) => ({ ...prev, [customer.id]: !prev[customer.id] }))}
 
                                   className="p-2 bg-slate-100 text-slate-700 hover:bg-slate-200 rounded-lg transition"
-                                  title={detailsOpen[customer.id] ? 'Hide details' : 'Show details'}
+                                  title={detailsOpen[customer.id] ? 'বিস্তারিত লুকান' : 'বিস্তারিত দেখুন'}
                                 >
                                   {detailsOpen[customer.id] ? <EyeOff size={18} /> : <Eye size={18} />}
                                 </button>
                                 <button
                                   onClick={() => handleEdit(customer)}
                                   className="p-2 bg-blue-100 text-blue-600 hover:bg-blue-200 rounded-lg transition"
-                                  title="Edit customer"
+                                  title="কাস্টমার এডিট করুন"
                                 >
                                   <Edit2 size={18} />
                                 </button>
                                 <button
                                   onClick={() => { setNoteCustomer(customer); setNoteText(customer.notes || ""); }}
                                   className="p-2 bg-amber-100 text-amber-700 hover:bg-amber-200 rounded-lg transition"
-                                  title="View notes"
+                                  title="নোট দেখুন"
                                 >
-                                  <span className="text-xs font-bold">Note</span>
+                                  <span className="text-xs font-bold">নোট</span>
                                 </button>
                               </React.Fragment>
                             )}
@@ -441,35 +441,35 @@ export default function EditEntriesPage() {
                           <td className="px-8 py-5 text-sm" colSpan={6}>
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-slate-700">
                               <div>
-                                <div className="text-xs font-bold text-slate-500">Email</div>
+                                <div className="text-xs font-bold text-slate-500">ইমেইল</div>
                                 <div className="font-medium">{customer.email || '-'}</div>
                               </div>
                               <div>
-                                <div className="text-xs font-bold text-slate-500">Division</div>
+                                <div className="text-xs font-bold text-s্লেট-500">বিভাগ</div>
                                 <div className="font-medium">{customer.division || '-'}</div>
                               </div>
                               <div>
-                                <div className="text-xs font-bold text-slate-500">Zila</div>
+                                <div className="text-xs font-bold text-slate-500">জেলা</div>
                                 <div className="font-medium">{customer.zila || '-'}</div>
                               </div>
                               <div>
-                                <div className="text-xs font-bold text-slate-500">Interest Level</div>
+                                <div className="text-xs font-bold text-slate-500">আগ্রহের মাত্রা</div>
                                 <div className="font-medium">{typeof customer.interestLevel === 'number' ? `${customer.interestLevel} / 5` : '-'}</div>
                               </div>
                               <div>
-                                <div className="text-xs font-bold text-slate-500">Customer Type</div>
+                                <div className="text-xs font-bold text-slate-500">কাস্টমার টাইপ</div>
                                 <div className="font-medium">{customer.customerType || '-'}</div>
                               </div>
                               <div>
-                                <div className="text-xs font-bold text-slate-500">Business Name</div>
+                                <div className="text-xs font-bold text-slate-500">ব্যবসার নাম</div>
                                 <div className="font-medium">{customer.businessName || '-'}</div>
                               </div>
                               <div>
-                                <div className="text-xs font-bold text-slate-500">Quotation</div>
+                                <div className="text-xs font-bold text-slate-500">কোটেশন</div>
                                 <div className="font-medium">{customer.quotation || '-'}</div>
                               </div>
                               <div>
-                                <div className="text-xs font-bold text-slate-500">Remember Date</div>
+                                <div className="text-xs font-bold text-slate-500">রিমাইন্ডারের তারিখ</div>
                                 <div className="font-medium">{fmtDate(customer.rememberDate) || '-'}</div>
                               </div>
                             </div>
@@ -481,8 +481,8 @@ export default function EditEntriesPage() {
                 ) : (
                   <tr>
                     <td colSpan={6} className="px-8 py-12 text-center text-slate-500">
-                      <p className="text-lg font-semibold">No customers found</p>
-                      <p className="text-sm mt-2">Try adjusting your search criteria or add new customers to get started.</p>
+                      <p className="text-lg font-semibold">কোনো কাস্টমার পাওয়া যায়নি</p>
+                      <p className="text-sm mt-2">সার্চ পরিবর্তন করে দেখুন অথবা নতুন কাস্টমার যোগ করুন।</p>
                     </td>
                   </tr>
                 )}
@@ -494,8 +494,7 @@ export default function EditEntriesPage() {
           {filteredCustomers.length > 0 && (
             <div className="p-6 bg-slate-50 border-t border-slate-100 text-center">
               <p className="text-sm text-slate-600 font-medium">
-                Showing <span className="font-bold text-slate-900">{filteredCustomers.length}</span> of{' '}
-                <span className="font-bold text-slate-900">{customers.length}</span> customers
+                মোট <span className="font-bold text-slate-900">{customers.length}</span> কাস্টমারের মধ্যে দেখানো হচ্ছে <span className="font-bold text-slate-900">{filteredCustomers.length}</span>
               </p>
             </div>
           )}
@@ -503,9 +502,9 @@ export default function EditEntriesPage() {
 
         { }
         <div className="mt-10 bg-blue-50 border border-blue-200 rounded-xl p-6">
-          <h3 className="text-sm font-bold text-blue-900 mb-2">ðŸ’¡ Tips for Editing</h3>
+          <h3 className="text-sm font-bold text-blue-900 mb-2">পরামর্শ</h3>
           <p className="text-sm text-blue-800">
-            Click the edit icon to modify customer information. Changes are saved immediately. Use the delete button to remove entries you no longer need.
+            কাস্টমারের তথ্য পরিবর্তন করতে এডিট আইকনে ক্লিক করুন। পরিবর্তনগুলো সাথে সাথে সংরক্ষিত হবে। প্রয়োজন না হলে ডিলিট বাটনে ক্লিক করে এন্ট্রি মুছে ফেলতে পারেন।
           </p>
         </div>
       </div>
@@ -522,24 +521,24 @@ export default function EditEntriesPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
           <div className="bg-white rounded-xl shadow-2xl border border-slate-200 w-full max-w-lg p-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-slate-900">Customer Notes</h3>
+              <h3 className="text-lg font-bold text-slate-900">কাস্টমার নোট</h3>
               <button
                 onClick={() => setNoteCustomer(null)}
                 className="p-2 rounded-lg hover:bg-slate-100"
-                aria-label="Close"
-                title="Close"
+                aria-label="বন্ধ করুন"
+                title="বন্ধ করুন"
               >
                 <X size={18} className="text-slate-700" />
               </button>
             </div>
             <div className="space-y-4 text-sm">
               <div>
-                <div className="text-xs font-bold text-slate-500">General Notes</div>
+                <div className="text-xs font-bold text-slate-500">সাধারণ নোট</div>
                 <textarea
                   value={noteText}
                   onChange={(e) => setNoteText(e.target.value)}
                   className="mt-2 w-full min-h-[100px] px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 text-slate-900"
-                  placeholder="Write notes..."
+                  placeholder="নোট লিখুন..."
                 />
               </div>
             </div>
@@ -548,7 +547,7 @@ export default function EditEntriesPage() {
                 onClick={() => setNoteCustomer(null)}
                 className="px-4 py-2 bg-slate-200 text-slate-800 rounded-lg hover:bg-slate-300 font-bold"
               >
-                Close
+                বন্ধ করুন
               </button>
               <button
                 onClick={async () => {
@@ -560,21 +559,21 @@ export default function EditEntriesPage() {
                       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
                       body: JSON.stringify({ note: noteText }),
                     });
-                    if (!res.ok) throw new Error('Failed to save notes');
+                    if (!res.ok) throw new Error('নোট সংরক্ষণ করা যায়নি');
                     const data = await res.json();
                     const u = data.customer;
                     setCustomers(prev => prev.map(c => c.id === noteCustomer.id ? { ...c, notes: noteText } : c));
-                    setToastMessage('Notes saved');
+                    setToastMessage('নোট সংরক্ষিত হয়েছে');
                     setShowToast(true);
                     setNoteCustomer(null);
                   } catch (e: any) {
-                    setToastMessage(e?.message || 'Could not save notes');
+                    setToastMessage(e?.message || 'নোট সংরক্ষণ করা যায়নি');
                     setShowToast(true);
                   }
                 }}
                 className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-bold"
               >
-                Save Notes
+                নোট সংরক্ষণ করুন
               </button>
             </div>
           </div>

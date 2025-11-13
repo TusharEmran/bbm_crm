@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { Activity, TrendingUp, Users, Clock } from 'lucide-react';
@@ -98,25 +98,25 @@ export default function ShowroomActivityClient() {
     const diffMins = Math.floor(diffMs / 60000);
     const diffHours = Math.floor(diffMs / 3600000);
     const diffDays = Math.floor(diffMs / 86400000);
-    if (diffMins < 1) return 'Just now';
-    if (diffMins < 60) return `${diffMins} min ago`;
-    if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
-    return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+    if (diffMins < 1) return 'এইমাত্র';
+    if (diffMins < 60) return `${diffMins} মিনিট আগে`;
+    if (diffHours < 24) return `${diffHours} ঘণ্টা আগে`;
+    return `${diffDays} দিন আগে`;
   };
 
   return (
     <div className="min-h-screen p-8 bg-white">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Showroom Activity</h1>
-          <p className="text-gray-600">Monitor showroom performance and visitor metrics</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">শোরুম কার্যক্রম</h1>
+          <p className="text-gray-600">শোরুমের পারফরম্যান্স ও ভিজিটর মেট্রিকস মনিটর করুন</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <div className="bg-white rounded-lg shadow p-6">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-sm font-medium text-gray-600 mb-1">Total Visitors Today</h3>
+                <h3 className="text-sm font-medium text-gray-600 mb-1">আজকের মোট ভিজিটর</h3>
                 <p className="text-3xl font-bold text-gray-900">{stats.totalVisitors}</p>
               </div>
               <div className="p-3 bg-blue-100 rounded-lg">
@@ -128,7 +128,7 @@ export default function ShowroomActivityClient() {
           <div className="bg-white rounded-lg shadow p-6">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-sm font-medium text-gray-600 mb-1">Average Accuracy</h3>
+                <h3 className="text-sm font-medium text-gray-600 mb-1">গড় নির্ভুলতা</h3>
                 <p className="text-3xl font-bold text-gray-900">{stats.avgAccuracy}%</p>
               </div>
               <div className="p-3 bg-green-100 rounded-lg">
@@ -140,7 +140,7 @@ export default function ShowroomActivityClient() {
           <div className="bg-white rounded-lg shadow p-6">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-sm font-medium text-gray-600 mb-1">Active Showrooms</h3>
+                <h3 className="text-sm font-medium text-gray-600 mb-1">সক্রিয় শোরুম</h3>
                 <p className="text-3xl font-bold text-gray-900">{stats.activeShowrooms}/{showroomData.length}</p>
               </div>
               <div className="p-3 bg-purple-100 rounded-lg">
@@ -153,13 +153,13 @@ export default function ShowroomActivityClient() {
         <div className="bg-white rounded-lg shadow p-6 mb-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <input type="text" placeholder="Search showrooms..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 transition" />
+              <input type="text" placeholder="শোরুম সার্চ করুন..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 transition" />
             </div>
             <div>
               <select value={sortBy} onChange={(e) => setSortBy(e.target.value as 'visitors' | 'accuracy' | 'name')} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 transition">
-                <option value="visitors">Sort by: Daily Visitors</option>
-                <option value="accuracy">Sort by: Accuracy</option>
-                <option value="name">Sort by: Name</option>
+                <option value="visitors">সাজান: দৈনিক ভিজিটর</option>
+                <option value="accuracy">সাজান: নির্ভুলতা</option>
+                <option value="name">সাজান: নাম</option>
               </select>
             </div>
           </div>
@@ -167,17 +167,17 @@ export default function ShowroomActivityClient() {
 
         <div className="bg-white rounded-lg shadow overflow-hidden">
           <div className="p-6 border-b border-gray-200">
-            <h2 className="text-xl font-bold text-gray-900">Showroom Performance ({filteredAndSortedData.length})</h2>
+            <h2 className="text-xl font-bold text-gray-900">শোরুম পারফরম্যান্স ({filteredAndSortedData.length})</h2>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="bg-gray-50 border-b border-gray-200">
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Showroom Name</th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Daily Visitors</th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Accuracy</th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Last Activity</th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Status</th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">শোরুমের নাম</th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">দৈনিক ভিজিটর</th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">নির্ভুলতা</th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">সর্বশেষ কার্যক্রম</th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">স্ট্যাটাস</th>
                 </tr>
               </thead>
               <tbody>
@@ -197,7 +197,7 @@ export default function ShowroomActivityClient() {
                     </tr>
                   ))
                 ) : (
-                  <tr><td colSpan={5} className="px-6 py-8 text-center text-gray-500">No showrooms found matching your search</td></tr>
+                  <tr><td colSpan={5} className="px-6 py-8 text-center text-gray-500">আপনার সার্চের সাথে মিল রেখে কোনো শোরুম পাওয়া যায়নি</td></tr>
                 )}
               </tbody>
             </table>
@@ -206,7 +206,7 @@ export default function ShowroomActivityClient() {
 
         <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-sm font-semibold text-gray-700 mb-4">Highest Accuracy</h3>
+            <h3 className="text-sm font-semibold text-gray-700 mb-4">সর্বোচ্চ নির্ভুলতা</h3>
             {showroomData.length > 0 && (
               <div>
                 <p className="text-lg font-bold text-gray-900">{showroomData.reduce((max, s) => (s.accuracy > max.accuracy ? s : max)).showroomName}</p>
@@ -216,11 +216,11 @@ export default function ShowroomActivityClient() {
           </div>
 
           <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-sm font-semibold text-gray-700 mb-4">Most Visitors</h3>
+            <h3 className="text-sm font-semibold text-gray-700 mb-4">সর্বাধিক ভিজিটর</h3>
             {showroomData.length > 0 && (
               <div>
                 <p className="text-lg font-bold text-gray-900">{showroomData.reduce((max, s) => (s.dailyVisitors > max.dailyVisitors ? s : max)).showroomName}</p>
-                <p className="text-2xl font-bold text-blue-600 mt-1">{Math.max(...showroomData.map((s) => s.dailyVisitors))} visitors</p>
+                <p className="text-2xl font-bold text-blue-600 mt-1">{Math.max(...showroomData.map((s) => s.dailyVisitors))} জন</p>
               </div>
             )}
           </div>

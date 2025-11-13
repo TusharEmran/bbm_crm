@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { MessageSquare, Calendar, Phone, Search } from 'lucide-react';
@@ -44,7 +44,7 @@ export default function FeedbackSummaryPage() {
         router.push('/');
         return;
       }
-      if (!res.ok) throw new Error('Failed to load feedbacks');
+      if (!res.ok) throw new Error('ফিডব্যাক লোড করা যায়নি');
       const data = await res.json();
       const items: FeedbackItem[] = (data.feedbacks || []).map((d: any) => ({
         id: d.id,
@@ -60,7 +60,7 @@ export default function FeedbackSummaryPage() {
       setFeedbacks(items);
       if (typeof data.total === 'number') setTotal(data.total);
     } catch (e: any) {
-      setToastMessage(e?.message || 'Error loading feedbacks');
+      setToastMessage(e?.message || 'ফিডব্যাক লোড করতে সমস্যা হয়েছে');
       setShowToast(true);
     }
   };
@@ -89,7 +89,7 @@ export default function FeedbackSummaryPage() {
   const handleClearFilters = () => {
     setSelectedDate('');
     setPhoneSearch('');
-    setToastMessage('Filters cleared!');
+    setToastMessage('ফিল্টার রিসেট করা হয়েছে!');
     setShowToast(true);
     setPage(1);
   };
@@ -99,8 +99,8 @@ export default function FeedbackSummaryPage() {
       <div className="max-w-7xl mx-auto">
         {}
         <div className="mb-10">
-          <h1 className="text-4xl font-bold text-slate-900 mb-2">Feedback Summary</h1>
-          <p className="text-slate-600 text-lg">View and analyze customer feedback and reviews</p>
+          <h1 className="text-4xl font-bold text-slate-900 mb-2">ফিডব্যাক সারাংশ</h1>
+          <p className="text-slate-600 text-lg">কাস্টমার ফিডব্যাক ও রিভিউ দেখুন এবং বিশ্লেষণ করুন</p>
         </div>
 
         {}
@@ -109,9 +109,9 @@ export default function FeedbackSummaryPage() {
           <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-8 hover:shadow-md transition-shadow duration-300">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4">Total Feedback</p>
+                <p className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4">মোট ফিডব্যাক</p>
                 <p className="text-4xl font-bold text-slate-900">{stats.total}</p>
-                <p className="text-xs text-slate-400 mt-2">customer reviews</p>
+                <p className="text-xs text-slate-400 mt-2">কাস্টমার রিভিউ</p>
               </div>
               <div className="p-4 gradient-to-br from-blue-50 to-blue-100 rounded-xl">
                 <MessageSquare className="w-8 h-8 text-blue-600" />
@@ -122,23 +122,23 @@ export default function FeedbackSummaryPage() {
 
         {}
         <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-8 mb-10">
-          <h2 className="text-xl font-bold text-slate-900 mb-6">Filters</h2>
+          <h2 className="text-xl font-bold text-slate-900 mb-6">ফিল্টার</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {}
             <div>
               <label className="block text-sm font-bold  text-slate-900 mb-3">
                 <Calendar size={16} className="inline mr-2" />
-                Select Date
+                তারিখ নির্বাচন করুন
               </label>
               <select
                 value={selectedDate}
                 onChange={(e) => { setSelectedDate(e.target.value); setPage(1); }}
                 className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900 transition bg-white text-slate-900 font-medium"
               >
-                <option value="">All Dates</option>
+                <option value="">সব তারিখ</option>
                 {uniqueDates.map((date) => (
                   <option key={date} value={date}>
-                    {new Date(date).toLocaleDateString('en-US', {
+                    {new Date(date).toLocaleDateString('bn-BD', {
                       weekday: 'long',
                       year: 'numeric',
                       month: 'long',
@@ -153,13 +153,13 @@ export default function FeedbackSummaryPage() {
             <div>
               <label className="block text-sm font-bold text-slate-900 mb-3">
                 <Phone size={16} className="inline mr-2" />
-                Search by Phone
+                ফোন দিয়ে খুঁজুন
               </label>
               <div className="relative">
                 <Search size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
                 <input
                   type="text"
-                  placeholder="Enter phone number..."
+                  placeholder="ফোন নম্বর লিখুন..."
                   value={phoneSearch}
                   onChange={(e) => { setPhoneSearch(e.target.value); setPage(1); }}
                   className="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900 transition text-slate-900 font-medium"
@@ -173,7 +173,7 @@ export default function FeedbackSummaryPage() {
                 onClick={handleClearFilters}
                 className="w-full px-4 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-bold transition"
               >
-                Clear Filters
+                ফিল্টার রিসেট
               </button>
             </div>
           </div>
@@ -184,7 +184,7 @@ export default function FeedbackSummaryPage() {
           {}
           <div className="p-8 border-b border-slate-100">
             <h2 className="text-xl font-bold text-slate-900">
-              Customer Feedback ({stats.total})
+              কাস্টমার ফিডব্যাক ({stats.total})
             </h2>
           </div>
 
@@ -193,10 +193,10 @@ export default function FeedbackSummaryPage() {
             <table className="w-full">
               <thead>
                 <tr className="bg-slate-50 border-b border-slate-100">
-                  <th className="px-8 py-4 text-left text-sm font-bold text-slate-900">Customer Name</th>
-                  <th className="px-8 py-4 text-left text-sm font-bold text-slate-900">Phone</th>
-                  <th className="px-8 py-4 text-left text-sm font-bold text-slate-900">Feedback</th>
-                  <th className="px-8 py-4 text-left text-sm font-bold text-slate-900">Date</th>
+                  <th className="px-8 py-4 text-left text-sm font-bold text-slate-900">কাস্টমারের নাম</th>
+                  <th className="px-8 py-4 text-left text-sm font-bold text-slate-900">ফোন</th>
+                  <th className="px-8 py-4 text-left text-sm font-bold text-slate-900">ফিডব্যাক</th>
+                  <th className="px-8 py-4 text-left text-sm font-bold text-sਲੇট-900">তারিখ</th>
                 </tr>
               </thead>
               <tbody>
@@ -227,7 +227,7 @@ export default function FeedbackSummaryPage() {
 
                       {}
                       <td className="px-8 py-5 text-sm text-slate-600 font-medium">
-                        {new Date(feedback.date).toLocaleDateString('en-US', {
+                        {new Date(feedback.date).toLocaleDateString('bn-BD', {
                           year: 'numeric',
                           month: 'short',
                           day: 'numeric',
@@ -238,8 +238,8 @@ export default function FeedbackSummaryPage() {
                 ) : (
                   <tr>
                     <td colSpan={6} className="px-8 py-12 text-center text-slate-500">
-                      <p className="text-lg font-semibold">No feedback found</p>
-                      <p className="text-sm mt-2">Try adjusting your filters to see feedback entries.</p>
+                      <p className="text-lg font-semibold">কোনো ফিডব্যাক পাওয়া যায়নি</p>
+                      <p className="text-sm mt-2">ফিল্টার পরিবর্তন করে দেখুন।</p>
                     </td>
                   </tr>
                 )}
@@ -251,7 +251,7 @@ export default function FeedbackSummaryPage() {
           {filteredFeedback.length > 0 && (
             <div className="p-6 bg-slate-50 border-t border-slate-100 flex items-center justify-between gap-4">
               <div className="text-sm text-slate-600 font-medium">
-                Page <span className="font-bold text-slate-900">{page}</span> of{' '}
+                পৃষ্ঠা <span className="font-bold text-slate-900">{page}</span> /
                 <span className="font-bold text-slate-900">{Math.max(1, Math.ceil((total || 0) / limit))}</span>
               </div>
               <div className="flex items-center gap-2">
@@ -260,14 +260,14 @@ export default function FeedbackSummaryPage() {
                   disabled={page <= 1}
                   className={`px-4 py-2 rounded-lg text-sm font-semibold ${page <= 1 ? 'bg-slate-100 text-slate-400' : 'bg-slate-900 text-white hover:bg-slate-800'}`}
                 >
-                  Previous
+                  পূর্ববর্তী
                 </button>
                 <button
                   onClick={() => setPage((p) => p + 1)}
                   disabled={page >= Math.ceil((total || 0) / limit)}
                   className={`px-4 py-2 rounded-lg text-sm font-semibold ${page >= Math.ceil((total || 0) / limit) ? 'bg-slate-100 text-slate-400' : 'bg-slate-900 text-white hover:bg-slate-800'}`}
                 >
-                  Next
+                  পরবর্তী
                 </button>
               </div>
             </div>

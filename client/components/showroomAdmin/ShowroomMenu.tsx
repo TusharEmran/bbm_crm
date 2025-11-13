@@ -7,10 +7,10 @@ import { useMenu } from "@/components/showroomAdmin/ShowroomMenuContext";
 import { X } from "lucide-react";
 
 const menuItems = [
-  { icon: "/home.png", href: "/showroom-account", label: "Home" },
-  { icon: "/customers.png", href: "/showroom-account/add-customer", label: "Customers" },
-  { icon: "/reports.png", href: "/showroom-account/edit-entries", label: "Reports" },
-  { icon: "/feedbacks.png", href: "/showroom-account/feedbacks", label: "Feedbacks" },
+  { icon: "/home.png", href: "/showroom-account", label: "হোম" },
+  { icon: "/customers.png", href: "/showroom-account/add-customer", label: "কাস্টমার" },
+  { icon: "/reports.png", href: "/showroom-account/edit-entries", label: "রিপোর্টস" },
+  { icon: "/feedbacks.png", href: "/showroom-account/feedbacks", label: "ফিডব্যাক" },
 ];
 
 const ShowroomMenu = () => {
@@ -140,7 +140,7 @@ const ShowroomMenu = () => {
             className="flex items-center gap-4 p-3 rounded-lg hover:bg-white hover:bg-opacity-30 transition"
           >
             <Image src="/logout.png" alt="logout" width={24} height={24} />
-            <span className="text-[#3E4C3A] font-medium">Logout</span>
+            <span className="text-[#3E4C3A] font-medium">লগআউট</span>
           </button>
           <div className="flex items-center gap-4 p-3">
           </div>

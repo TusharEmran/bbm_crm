@@ -189,37 +189,37 @@ export default function AddCustomerPage() {
     const errors: Partial<Record<keyof FormData, string>> = {};
 
     if (!formData.customerName.trim()) {
-      errors.customerName = 'Customer name is required';
+      errors.customerName = 'কাস্টমারের নাম আবশ্যক';
     }
 
     if (!formData.phoneNumber.trim()) {
-      errors.phoneNumber = 'Phone number is required';
+      errors.phoneNumber = 'ফোন নম্বর আবশ্যক';
     } else if (!/^[+]?[(]?[0-9]{3}[)]?[-\s.]?[0-9]{3}[-\s.]?[0-9]{4,6}$/.test(formData.phoneNumber.replace(/\s/g, ''))) {
-      errors.phoneNumber = 'Please enter a valid phone number';
+      errors.phoneNumber = 'সঠিক ফোন নম্বর দিন';
     }
 
     if (formData.email && formData.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      errors.email = 'Please enter a valid email address';
+      errors.email = 'সঠিক ইমেইল ঠিকানা দিন';
     }
 
     if (!formData.category) {
-      errors.category = 'Please select a category';
+      errors.category = 'ক্যাটাগরি নির্বাচন করুন';
     }
 
     if (!formData.visitDate) {
-      errors.visitDate = 'Visit date is required';
+      errors.visitDate = 'ভিজিটের তারিখ আবশ্যক';
     }
 
     if (!formData.showroomBranch) {
-      errors.showroomBranch = 'Please select a showroom branch';
+      errors.showroomBranch = 'শোরুম শাখা নির্বাচন করুন';
     }
 
     if (!formData.division) {
-      errors.division = 'Please select a division';
+      errors.division = 'বিভাগ নির্বাচন করুন';
     }
 
     if (!formData.zila) {
-      errors.zila = 'Please select a zila';
+      errors.zila = 'জেলা নির্বাচন করুন';
     }
 
     setFormErrors(errors);
@@ -257,7 +257,7 @@ export default function AddCustomerPage() {
     e.preventDefault();
 
     if (!validateForm()) {
-      setToastMessage('Please fill in all required fields correctly');
+      setToastMessage('সব আবশ্যক ঘর সঠিকভাবে পূরণ করুন');
       setShowToast(true);
       return;
     }
@@ -267,7 +267,7 @@ export default function AddCustomerPage() {
     try {
       const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
       if (!token) {
-        setToastMessage('Not authenticated');
+        setToastMessage('আপনি লগইন করেননি');
         setShowToast(true);
         setIsSubmitting(false);
         return;
@@ -324,7 +324,7 @@ export default function AddCustomerPage() {
       setSelectedCommentType('');
       setCustomerType('individual');
     } catch (error: any) {
-      setToastMessage(error?.message || 'Failed to submit customer. Please try again.');
+      setToastMessage(error?.message || 'কাস্টমার সাবমিট করা যায়নি। আবার চেষ্টা করুন।');
       setShowToast(true);
     } finally {
       setIsSubmitting(false);
@@ -343,11 +343,11 @@ export default function AddCustomerPage() {
       <div className="max-w-5xl mx-auto">
         <div className="mb-10 flex items-center justify-between flex-wrap gap-4">
           <div>
-            <h1 className="text-4xl font-bold text-slate-900 mb-2">Add New Customer</h1>
-            <p className="text-slate-600 text-lg">Enter customer information to create a new entry</p>
+            <h1 className="text-4xl font-bold text-slate-900 mb-2">নতুন কাস্টমার যোগ করুন</h1>
+            <p className="text-slate-600 text-lg">নতুন এন্ট্রি তৈরির জন্য কাস্টমারের তথ্য দিন</p>
           </div>
           <div className="flex items-center gap-4">
-            <span className="text-sm font-bold text-slate-900">Customer Type</span>
+            <span className="text-sm font-bold text-slate-900">কাস্টমার ধরন</span>
             <label
               className={`${customerType === 'individual' ? 'bg-black text-white' : 'bg-white text-slate-800'} flex items-center gap-2 text-sm px-3 py-1.5 rounded-lg border border-slate-300 cursor-pointer`}
             >
@@ -359,7 +359,7 @@ export default function AddCustomerPage() {
                 onChange={() => setCustomerType('individual')}
                 className="accent-green-600"
               />
-              Individual
+              ব্যক্তিগত
             </label>
             <label
               className={`${customerType === 'business' ? 'bg-black text-white' : 'bg-white text-slate-800'} flex items-center gap-2 text-sm px-3 py-1.5 rounded-lg border border-slate-300 cursor-pointer`}
@@ -372,7 +372,7 @@ export default function AddCustomerPage() {
                 onChange={() => setCustomerType('business')}
                 className="accent-green-600"
               />
-              Business
+              ব্যবসায়িক
             </label>
           </div>
         </div>
@@ -383,7 +383,7 @@ export default function AddCustomerPage() {
               <div>
                 <label className=" text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
                   <Phone size={18} className="text-emerald-600" />
-                  Phone Number
+                  ফোন নম্বর
                 </label>
                 <input
                   type="tel"
@@ -409,14 +409,14 @@ export default function AddCustomerPage() {
               <div>
                 <label className=" text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
                   <User size={18} className="text-blue-600" />
-                  Customer Name
+                  কাস্টমারের নাম
                 </label>
                 <input
                   type="text"
                   name="customerName"
                   value={formData.customerName}
                   onChange={handleInputChange}
-                  placeholder="Enter customer's full name"
+                  placeholder="কাস্টমারের পুরো নাম লিখুন"
                   className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 transition text-black font-medium ${formErrors.customerName
                     ? 'border-red-500 bg-red-50'
                     : 'border-slate-200 bg-white'
@@ -435,14 +435,14 @@ export default function AddCustomerPage() {
               {customerType === 'business' && (
                 <div>
                   <label className=" text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
-                    Business Name
+                    ব্যবসার নাম
                   </label>
                   <input
                     type="text"
                     name="businessName"
                     value={formData.businessName || ''}
                     onChange={handleInputChange}
-                    placeholder="Enter business name"
+                    placeholder="ব্যবসার নাম লিখুন"
                     className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 transition text-black font-medium border-slate-200 bg-white`}
                   />
                 </div>
@@ -450,7 +450,7 @@ export default function AddCustomerPage() {
 
               <div>
                 <label className=" text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
-                  Division (Bangladesh)
+                  বিভাগ (বাংলাদেশ)
                 </label>
                 <select
                   name="division"
@@ -461,7 +461,7 @@ export default function AddCustomerPage() {
                     : 'border-slate-200'
                     }`}
                 >
-                  <option value="">Select Division</option>
+                  <option value="">বিভাগ নির্বাচন করুন</option>
                   {bangladeshDivisions.map((d) => (
                     <option key={d} value={d}>{d}</option>
                   ))}
@@ -478,7 +478,7 @@ export default function AddCustomerPage() {
 
               <div>
                 <label className=" text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
-                  Zila
+                  জেলা
                 </label>
                 <select
                   name="zila"
@@ -490,7 +490,7 @@ export default function AddCustomerPage() {
                     : formErrors.zila ? 'border-red-500 bg-red-50' : 'border-slate-200'
                     }`}
                 >
-                  <option value="">{formData.division ? 'Select zila' : 'Select Division first'}</option>
+                  <option value="">{formData.division ? 'জেলা নির্বাচন করুন' : 'আগে বিভাগ নির্বাচন করুন'}</option>
                   {(zilasByDivision[formData.division] || []).map((u: string) => (
                     <option key={u} value={u}>{u}</option>
                   ))}
@@ -507,14 +507,14 @@ export default function AddCustomerPage() {
 
               <div>
                 <label className=" text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
-                  Email (optional)
+                  ইমেইল (ঐচ্ছিক)
                 </label>
                 <input
                   type="email"
                   name="email"
                   value={formData.email || ''}
                   onChange={handleInputChange}
-                  placeholder="example@email.com"
+                  placeholder="name@example.com"
                   className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 transition text-black font-medium ${formErrors.email
                     ? 'border-red-500 bg-red-50'
                     : 'border-slate-200 bg-white'
@@ -533,7 +533,7 @@ export default function AddCustomerPage() {
               <div>
                 <label className=" text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
                   <Package size={18} className="text-purple-600" />
-                  Category / Product Interest
+                  ক্যাটাগরি / পণ্যের আগ্রহ
                 </label>
                 <select
                   name="category"
@@ -544,7 +544,7 @@ export default function AddCustomerPage() {
                     : 'border-slate-200'
                     }`}
                 >
-                  <option value="">Select a category</option>
+                  <option value="">ক্যাটাগরি নির্বাচন করুন</option>
                   {(categories.length ? categories.map((c) => c.name) : categoriesStatic).map((cat) => (
                     <option key={cat} value={cat}>{cat}</option>
                   ))}
@@ -561,7 +561,7 @@ export default function AddCustomerPage() {
 
               <div>
                 <label className=" text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
-                  Customer Interest Level
+                  কাস্টমারের আগ্রহের মাত্রা
                 </label>
                 <div className="flex items-center gap-2">
                   {[1, 2, 3, 4, 5].map((n) => {
@@ -574,7 +574,7 @@ export default function AddCustomerPage() {
                         onMouseLeave={() => setHoverInterest(0)}
                         onClick={() => setFormData((p) => ({ ...p, interestLevel: n }))}
                         className="p-1"
-                        aria-label={`Set interest level ${n}`}
+                        aria-label={`আগ্রহের মাত্রা ${n} সেট করুন`}
                       >
                         <Star
                           className={active ? 'text-amber-500' : 'text-slate-300'}
@@ -591,7 +591,7 @@ export default function AddCustomerPage() {
               <div>
                 <label className=" text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
                   <Calendar size={18} className="text-amber-600" />
-                  Visit Date
+                  ভিজিটের তারিখ
                 </label>
                 <input
                   type="date"
@@ -617,7 +617,7 @@ export default function AddCustomerPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className=" text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
-                  Note Type
+                  নোটের ধরন
                 </label>
                 <select
                   name="noteType"
@@ -625,26 +625,26 @@ export default function AddCustomerPage() {
                   onChange={(e) => { setSelectedNoteType(e.target.value); setSelectedCommentType(''); }}
                   className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 transition bg-white text-slate-900 font-medium ${''}`}
                 >
-                  <option value="">Select note type</option>
-                  <option value="quotation">Quotation</option>
-                  <option value="comments">Comments</option>
+                  <option value="">নোটের ধরন নির্বাচন করুন</option>
+                  <option value="quotation">কোটেশন</option>
+                  <option value="comments">মন্তব্য</option>
                 </select>
               </div>
 
               <div>
                 {selectedNoteType === 'comments' && !selectedCommentType && (
                   <div>
-                    <label className="text-sm font-bold text-slate-900 mb-3 block">Comment Type</label>
+                    <label className="text-sm font-bold text-slate-900 mb-3 block">মন্তব্যের ধরন</label>
                     <select
                       name="commentType"
                       value={selectedCommentType}
                       onChange={(e) => setSelectedCommentType(e.target.value)}
                       className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 transition bg-white text-slate-900 font-medium ${''}`}
                     >
-                      <option value="">Select comment type</option>
-                      <option value="call">Call Note</option>
-                      <option value="random">Random Customer</option>
-                      <option value="remember">Remember Note</option>
+                      <option value="">মন্তব্যের ধরন নির্বাচন করুন</option>
+                      <option value="call">কল নোট</option>
+                      <option value="random">র‍্যান্ডম কাস্টমার</option>
+                      <option value="remember">রিমাইন্ডার নোট</option>
                     </select>
                   </div>
                 )}
@@ -652,18 +652,18 @@ export default function AddCustomerPage() {
                 {selectedNoteType === 'quotation' && (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="text-sm font-bold text-slate-900 mb-3 block">Quotation No</label>
+                      <label className="text-sm font-bold text-slate-900 mb-3 block">কোটেশন নম্বর</label>
                       <input
                         type="text"
                         name="quotationNumber"
                         value={formData.quotationNumber || ''}
                         onChange={handleInputChange}
-                        placeholder="Enter quotation number"
+                        placeholder="কোটেশন নম্বর লিখুন"
                         className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 transition bg-white text-slate-900"
                       />
                     </div>
                     <div>
-                      <label className="text-sm font-bold text-slate-900 mb-3 block">Quotation Date</label>
+                      <label className="text-sm font-bold text-slate-900 mb-3 block">কোটেশনের তারিখ</label>
                       <input
                         type="date"
                         name="quotationDate"
@@ -677,22 +677,22 @@ export default function AddCustomerPage() {
 
                 {selectedNoteType === 'comments' && selectedCommentType && (
                   <div>
-                    <label className="text-sm font-bold text-slate-900 mb-3 block">Selected Comment</label>
+                    <label className="text-sm font-bold text-slate-900 mb-3 block">নির্বাচিত মন্তব্য</label>
                     <input
                       type="text"
                       readOnly
                       value={
                         selectedCommentType === 'call'
-                          ? 'Call Note'
+                          ? 'কল নোট'
                           : selectedCommentType === 'random'
-                            ? 'Random Customer'
-                            : 'Remember Note'
+                            ? 'র‍্যান্ডম কাস্টমার'
+                            : 'রিমাইন্ডার নোট'
                       }
                       className="w-full px-4 py-3 border rounded-lg bg-slate-50 text-slate-700"
                     />
                     {selectedCommentType === 'remember' && (
                       <div className="mt-4">
-                        <label className="text-sm font-bold text-slate-900 mb-3 block">Remember Date</label>
+                        <label className="text-sm font-bold text-slate-900 mb-3 block">রিমাইন্ডারের তারিখ</label>
                         <input
                           type="date"
                           name="rememberNote"
@@ -711,7 +711,7 @@ export default function AddCustomerPage() {
               <div>
                 <label className=" text-sm font-bold text-slate-900 w-full mb-3 flex items-center gap-2">
                   <Building2 size={18} className="text-cyan-600" />
-                  Showroom Branch
+                  শোরুম শাখা
                 </label>
                 <select
                   name="showroomBranch"
@@ -722,7 +722,7 @@ export default function AddCustomerPage() {
                     : 'border-slate-200'
                     }`}
                 >
-                  <option value="" disabled>Select a showroom</option>
+                  <option value="" disabled>একটি শোরুম নির্বাচন করুন</option>
                   {showrooms.map((showroom) => (
                     <option key={showroom} value={showroom}>
                       {showroom}
@@ -754,12 +754,12 @@ export default function AddCustomerPage() {
              disabled:bg-neutral-400 disabled:text-gray-200 disabled:cursor-not-allowed"
               >
                 <Send size={20} />
-                {isSubmitting ? 'Submitting...' : 'Submit & Send SMS'}
+                {isSubmitting ? 'সাবমিট করা হচ্ছে...' : 'সাবমিট ও এসএমএস পাঠান'}
               </button>
             </div>
 
             <p className="text-xs text-slate-500 text-center mt-4">
-              By submitting, an SMS will be sent to the customer with their entry confirmation.
+              সাবমিট করলে কাস্টমারকে তাদের এন্ট্রি কনফার্মেশনের একটি এসএমএস পাঠানো হবে।
             </p>
           </form>
         </div>
@@ -789,31 +789,31 @@ export default function AddCustomerPage() {
               </div>
 
               { }
-              <h2 className="text-2xl font-bold text-slate-900 mb-2">Customer Added Successfully!</h2>
+              <h2 className="text-2xl font-bold text-slate-900 mb-2">কাস্টমার সফলভাবে যুক্ত হয়েছে!</h2>
 
               { }
               <p className="text-slate-600 mb-6">
-                The customer entry has been created and an SMS confirmation has been sent.
+                কাস্টমারের এন্ট্রি তৈরি হয়েছে এবং একটি কনফার্মেশন এসএমএস পাঠানো হয়েছে।
               </p>
 
               { }
               <div className="bg-slate-50 rounded-lg p-6 mb-8 text-left space-y-3">
                 <div className="flex justify-between items-start">
-                  <span className="text-sm font-semibold text-slate-600">Name:</span>
+                  <span className="text-sm font-semibold text-slate-600">নাম:</span>
                   <span className="text-sm font-bold text-slate-900">{submittedData.customerName}</span>
                 </div>
                 <div className="flex justify-between items-start">
-                  <span className="text-sm font-semibold text-slate-600">Phone:</span>
+                  <span className="text-sm font-semibold text-slate-600">ফোন:</span>
                   <span className="text-sm font-bold text-slate-900">{submittedData.phoneNumber}</span>
                 </div>
                 <div className="flex justify-between items-start">
-                  <span className="text-sm font-semibold text-slate-600">Category:</span>
+                  <span className="text-sm font-semibold text-slate-600">ক্যাটাগরি:</span>
                   <span className="text-sm font-bold text-slate-900">{submittedData.category}</span>
                 </div>
                 <div className="flex justify-between items-start">
-                  <span className="text-sm font-semibold text-slate-600">Visit Date:</span>
+                  <span className="text-sm font-semibold text-slate-600">ভিজিটের তারিখ:</span>
                   <span className="text-sm font-bold text-slate-900">
-                    {new Date(submittedData.visitDate).toLocaleDateString('en-US', {
+                    {new Date(submittedData.visitDate).toLocaleDateString('bn-BD', {
                       weekday: 'short',
                       year: 'numeric',
                       month: 'short',
@@ -822,7 +822,7 @@ export default function AddCustomerPage() {
                   </span>
                 </div>
                 <div className="flex justify-between items-start">
-                  <span className="text-sm font-semibold text-slate-600">Showroom:</span>
+                  <span className="text-sm font-semibold text-slate-600">শোরুম:</span>
                   <span className="text-sm font-bold text-slate-900">{submittedData.showroomBranch}</span>
                 </div>
               </div>
@@ -832,7 +832,7 @@ export default function AddCustomerPage() {
                   href="/showroom-account"
                   className="flex-1 px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold transition"
                 >
-                  Back to Dashboard
+                  ড্যাশবোর্ডে ফিরে যান
                 </Link>
                 <button
                   onClick={() => {
@@ -861,7 +861,7 @@ export default function AddCustomerPage() {
                   }}
                   className="flex-1 px-4 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-bold transition"
                 >
-                  Add Another
+                  আরেকটি যোগ করুন
                 </button>
               </div>
             </div>
