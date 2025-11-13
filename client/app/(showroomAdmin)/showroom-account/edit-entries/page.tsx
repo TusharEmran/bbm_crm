@@ -122,7 +122,7 @@ export default function EditEntriesPage() {
       ]);
       if (!custRes.ok) throw new Error('Failed to load entries');
       if (fbRes.status === 401) {
-        try { await fetch(`${baseUrl}/api/user/logout`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` } }); } catch {}
+        try { await fetch(`${baseUrl}/api/user/logout`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` } }); } catch { }
         if (typeof window !== 'undefined') localStorage.removeItem('token');
         return;
       }
@@ -175,7 +175,7 @@ export default function EditEntriesPage() {
         const data = await res.json();
         const names: string[] = (data.categories || []).map((c: any) => c.name || c);
         setCategories(names);
-      } catch {}
+      } catch { }
     };
     loadCategories();
   }, [baseUrl]);
@@ -257,14 +257,14 @@ export default function EditEntriesPage() {
   return (
     <div className="min-h-screen p-8 bg-white">
       <div className="max-w-7xl mx-auto">
-        {}
+        { }
         <div className="mb-10">
- 
+
           <h1 className="text-4xl font-bold text-slate-900 mb-2">Edit Today's Entries</h1>
           <p className="text-slate-600 text-lg">Manage and update customer information for today's visits</p>
         </div>
 
-        {}
+        { }
         <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6 mb-10">
           <div className="relative">
             <svg className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -280,9 +280,9 @@ export default function EditEntriesPage() {
           </div>
         </div>
 
-        {}
+        { }
         <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
-          {}
+          { }
           <div className="p-8 border-b border-slate-100">
             <div className="flex items-center gap-3">
               <Calendar className="w-6 h-6 text-slate-900" />
@@ -293,7 +293,7 @@ export default function EditEntriesPage() {
             </div>
           </div>
 
-          {}
+          { }
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
@@ -311,11 +311,10 @@ export default function EditEntriesPage() {
                   filteredCustomers.map((customer, idx) => (
                     <React.Fragment key={customer.id}>
                       <tr
-                        className={`border-b border-slate-100 hover:bg-slate-50 transition ${
-                          idx === filteredCustomers.length - 1 && !detailsOpen[customer.id] ? 'border-b-0' : ''
-                        }`}
+                        className={`border-b border-slate-100 hover:bg-slate-50 transition ${idx === filteredCustomers.length - 1 && !detailsOpen[customer.id] ? 'border-b-0' : ''
+                          }`}
                       >
-                        {}
+                        { }
                         <td className="px-8 py-5 text-sm">
                           {editingId === customer.id && editingData ? (
                             <input
@@ -329,7 +328,7 @@ export default function EditEntriesPage() {
                           )}
                         </td>
 
-                        {}
+                        { }
                         <td className="px-8 py-5 text-sm">
                           {editingId === customer.id && editingData ? (
                             <input
@@ -355,7 +354,7 @@ export default function EditEntriesPage() {
                           )}
                         </td>
 
-                        {}
+                        { }
                         <td className="px-8 py-5 text-sm">
                           {editingId === customer.id && editingData ? (
                             <select
@@ -376,19 +375,19 @@ export default function EditEntriesPage() {
                           )}
                         </td>
 
-                        {}
+                        { }
                         <td className="px-8 py-5 text-sm text-slate-600 font-medium">
                           {customer.visitDate}
                         </td>
 
-                        {}
+                        { }
                         <td className="px-8 py-5 text-sm">
                           <span className={`px-3 py-1.5 rounded-lg text-xs font-bold ${getFeedbackStatusColor(customer.feedbackStatus)}`}>
                             {customer.feedbackStatus}
                           </span>
                         </td>
 
-                        {}
+                        { }
                         <td className="px-8 py-5 text-sm">
                           <div className="flex items-center justify-center gap-2">
                             {editingId === customer.id ? (
@@ -491,7 +490,7 @@ export default function EditEntriesPage() {
             </table>
           </div>
 
-          {}
+          { }
           {filteredCustomers.length > 0 && (
             <div className="p-6 bg-slate-50 border-t border-slate-100 text-center">
               <p className="text-sm text-slate-600 font-medium">
@@ -502,7 +501,7 @@ export default function EditEntriesPage() {
           )}
         </div>
 
-        {}
+        { }
         <div className="mt-10 bg-blue-50 border border-blue-200 rounded-xl p-6">
           <h3 className="text-sm font-bold text-blue-900 mb-2">ðŸ’¡ Tips for Editing</h3>
           <p className="text-sm text-blue-800">
@@ -511,7 +510,7 @@ export default function EditEntriesPage() {
         </div>
       </div>
 
-      {}
+      { }
       <Toast
         message={toastMessage}
         show={showToast}
@@ -538,7 +537,7 @@ export default function EditEntriesPage() {
                 <div className="text-xs font-bold text-slate-500">General Notes</div>
                 <textarea
                   value={noteText}
-                  onChange={(e)=>setNoteText(e.target.value)}
+                  onChange={(e) => setNoteText(e.target.value)}
                   className="mt-2 w-full min-h-[100px] px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 text-slate-900"
                   placeholder="Write notes..."
                 />
@@ -568,7 +567,7 @@ export default function EditEntriesPage() {
                     setToastMessage('Notes saved');
                     setShowToast(true);
                     setNoteCustomer(null);
-                  } catch (e:any) {
+                  } catch (e: any) {
                     setToastMessage(e?.message || 'Could not save notes');
                     setShowToast(true);
                   }
