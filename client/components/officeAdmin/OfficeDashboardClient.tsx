@@ -102,13 +102,26 @@ export default function OfficeDashboardClient() {
         const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
         if (!token) return;
         const ts = Date.now();
-        const res = await fetch(`${baseUrl}/api/user/showroom/today-stats?ts=${ts}`, { headers: { Authorization: `Bearer ${token}` }, cache: 'no-store' });
+        const sr = selectedShowroom ? `&showroom=${encodeURIComponent(selectedShowroom)}` : '';
+        const res = await fetch(`${baseUrl}/api/user/showroom/today-stats?ts=${ts}${sr}`, { headers: { Authorization: `Bearer ${token}` }, cache: 'no-store' });
         if (!res.ok) return;
         const js = await res.json();
         setVisitorsToday(Number(js.visitorsToday || 0));
-        setAdminToday(Number(js.adminToday || 0));
-        setRatioPercent(Number(js.ratioPercent || 0));
         const abList: any[] = Array.isArray(js.accuracyBreakdown) ? js.accuracyBreakdown : [];
+        if (selectedShowroom) {
+          const key = selectedShowroom.toString().toLowerCase().trim();
+          const row = abList.find((r: any) => String(r.showroom || '').toLowerCase().trim() === key);
+          if (row && typeof row.accuracyPercent === 'number') {
+            setRatioPercent(Math.round(Number(row.accuracyPercent)));
+            setAdminToday(typeof row.admin === 'number' ? Number(row.admin) : 0);
+          } else {
+            setRatioPercent(0);
+            setAdminToday(0);
+          }
+        } else {
+          setAdminToday(Number(js.adminToday || 0));
+          setRatioPercent(Number(js.ratioPercent || 0));
+        }
         setAccuracyBreakdown(abList);
         setAdminBreakdown(abList.length > 0 ? abList.map((r: any) => ({ showroom: String(r.showroom || ''), count: Number(r.admin || 0) })) : []);
       } catch { }
@@ -129,7 +142,7 @@ export default function OfficeDashboardClient() {
       window.removeEventListener('focus', handleFocus);
       document.removeEventListener('visibilitychange', handleVisibility);
     };
-  }, []);
+  }, [selectedShowroom]);
 
   const { totalVisitors, avgAccuracy, avgPerformance, visitorTrendData } = useMemo(() => {
 
@@ -244,15 +257,26 @@ export default function OfficeDashboardClient() {
   }, [customers]);
 
   const avgPerfByShowroom = useMemo(() => {
-    const vals = Array.from(perfByShowroom.values()).map((v) => Number((v as any).perf ?? 0)).filter((n) => Number.isFinite(n));
+    // If a showroom is selected, show that showroom's performance
+    if (selectedShowroom) {
+      const key = selectedShowroom.toString().toLowerCase().trim();
+      const row = perfByShowroom.get(key) as any;
+      const val = Number(row?.perf ?? 0);
+      return Number.isFinite(val) ? val : 0;
+    } 
+
+    // Otherwise, show average performance across all showrooms
+    const vals = Array.from(perfByShowroom.values())
+      .map((v) => Number((v as any).perf ?? 0))
+      .filter((n) => Number.isFinite(n));
     if (!vals.length) return 0;
     return Math.round(vals.reduce((a, b) => a + b, 0) / vals.length);
-  }, [perfByShowroom]);
+  }, [perfByShowroom, selectedShowroom]);
 
   return (
     <div className="min-h-screen p-8 bg-white">
       <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-10">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-10 gap-4">
           <div>
             <h1 className="text-4xl font-bold text-slate-900 mb-2">Dashboard</h1>
             <p className="text-slate-600 text-lg">
@@ -260,16 +284,31 @@ export default function OfficeDashboardClient() {
             </p>
           </div>
 
-          <button
-            onClick={() => {
-              setPendingCount(String(adminToday || ""));
-              // keep selection
-              setOpenAdminCountModal(true);
-            }}
-            className="mt-4 md:mt-0 px-4 py-2 text-sm font-semibold rounded-lg bg-black text-white transition-all duration-200 shadow-sm"
-          >
-            Todays Customer Entries
-          </button>
+          <div className="flex flex-col md:flex-row md:items-center gap-3">
+            <div className="flex flex-col">
+              <label className="text-xs font-semibold text-slate-600 mb-1">Showroom Filter</label>
+              <select
+                value={selectedShowroom}
+                onChange={(e) => setSelectedShowroom(e.target.value)}
+                className="px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white text-slate-900 min-w-[160px]"
+              >
+                <option value="">All Showrooms</option>
+                {showrooms.map((s) => (
+                  <option key={s.id} value={s.name}>{s.name}</option>
+                ))}
+              </select>
+            </div>
+
+            <button
+              onClick={() => {
+                setPendingCount(String(adminToday || ""));
+                setOpenAdminCountModal(true);
+              }}
+              className="px-4 py-2 text-sm font-semibold rounded-lg bg-black text-white transition-all duration-200 shadow-sm"
+            >
+              Todays Customer Entries
+            </button>
+          </div>
         </div>
 
 
@@ -280,7 +319,7 @@ export default function OfficeDashboardClient() {
               <div className="flex-1">
                 <p className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4">Total Visitors Today</p>
                 <div className="flex items-baseline gap-3">
-                  <p className="text-5xl font-bold text-slate-900">{visitorsToday}</p>
+                  <p className="text-4xl font-bold text-slate-900">{visitorsToday}</p>
                   <div className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 rounded-lg">
                     <span className="text-sm font-semibold text-emerald-600">live</span>
                   </div>
@@ -299,21 +338,9 @@ export default function OfficeDashboardClient() {
               <div className="flex-1">
                 <p className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4">Admin Customers Today</p>
                 <div className="flex items-baseline gap-3">
-                  <p className="text-3xl font-bold text-slate-900">{adminToday || 0}</p>
+                  <p className="text-4xl font-bold text-slate-900">{adminToday || 0}</p>
                 </div>
-                {adminBreakdown.length > 0 && (
-                  <div className="mt-2 flex flex-wrap gap-1">
-                    {adminBreakdown.map((b, i) => (
-                      <span
-                        key={`${b.showroom}-${i}`}
-                        className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-slate-100 rounded text-xs"
-                      >
-                        <span className="font-semibold text-slate-900">{b.count}</span>
-                        <span className="text-slate-600 max-w-[80px] truncate" title={b.showroom}>{b.showroom}</span>
-                      </span>
-                    ))}
-                  </div>
-                )}
+                <p className="text-xs text-slate-400 mt-2">Total admin entries for the selected showroom or all showrooms.</p>
               </div>
             </div>
           </div>
@@ -323,33 +350,10 @@ export default function OfficeDashboardClient() {
             <div className="flex items-start justify-between">
               <div className="flex-1">
                 <p className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-3">Data Accuracy</p>
-                <p className="text-xs text-slate-400 mb-3">based on showroom vs admin</p>
-                <div className="flex items-baseline gap-3 mb-3">
-                  <p className="text-3xl font-bold text-slate-900">{ratioPercent || 0}%</p>
+                <div className="flex items-baseline gap-3 mb-1">
+                  <p className="text-4xl font-bold text-slate-900">{ratioPercent || 0}%</p>
                 </div>
-
-                {accuracyBreakdown.length > 0 && (
-                  <div className="flex flex-wrap gap-0.5">
-                    {accuracyBreakdown.map((r, i) => (
-                      <span
-                        key={`${r.showroom}-${i}`}
-                        className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-medium ${
-                          r.accuracyPercent >= 90
-                            ? 'bg-emerald-50 text-emerald-700'
-                            : r.accuracyPercent >= 80
-                            ? 'bg-cyan-50 text-cyan-700'
-                            : r.accuracyPercent >= 70
-                            ? 'bg-amber-50 text-amber-700'
-                            : 'bg-rose-50 text-rose-700'
-                        }`}
-                        title={`${r.showroom} • ${r.accuracyPercent}% (Visitors: ${r.visitors} | Admin: ${r.admin})`}
-                      >
-                        <span className="font-bold">{r.accuracyPercent}%</span>
-                        <span className="max-w-[60px] truncate">{r.showroom}</span>
-                      </span>
-                    ))}
-                  </div>
-                )}
+                <p className="text-xs text-slate-400">Overall accuracy for the selected showroom or all showrooms.</p>
               </div>
 
               <div className="p-3 bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-xl ml-4 flex-shrink-0">
@@ -364,7 +368,7 @@ export default function OfficeDashboardClient() {
               <div className="flex-1">
                 <p className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4">Avg Performance</p>
                 <div className="flex items-baseline gap-3">
-                  <p className="text-5xl font-bold text-slate-900">{avgPerfByShowroom}%</p>
+                  <p className="text-4xl font-bold text-slate-900">{avgPerfByShowroom}%</p>
                 </div>
                 <p className="text-xs text-slate-400 mt-3">per showroom</p>
               </div>

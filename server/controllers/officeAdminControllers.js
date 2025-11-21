@@ -110,8 +110,8 @@ export const getShowroomRangeStatsPublic = async (req, res) => {
       const row = byDate.get(key) || { date: key, showroom: 0, admin: 0, ratioPercent: 0 };
       const admin = Number(row.admin || 0);
       const showroomCount = Number(row.showroom || 0);
-      // Accuracy: admin customer input vs showroom customers => (admin / showroom) * 100
-      row.ratioPercent = showroomCount > 0 ? Math.round((admin / showroomCount) * 100) : 0;
+      // Accuracy: Showroom Count / Admin Count * 100
+      row.ratioPercent = admin > 0 ? Math.round((showroomCount / admin) * 100) : 0;
       days.push(row);
       cursor.setUTCDate(cursor.getUTCDate() + 1);
     }
@@ -177,13 +177,13 @@ export const getShowroomTodayStatsPublic = async (req, res) => {
       const a = Number(adminByShowroom.get(key) || 0);
       visitorsToday += v;
       adminToday += a;
-      // Accuracy per showroom: admin input vs showroom visitors => (admin / visitors) * 100
-      const accuracyPercent = v > 0 ? Math.round((a / v) * 100) : 0;
+      // Accuracy per showroom: Showroom Count / Admin Count * 100
+      const accuracyPercent = a > 0 ? Math.round((v / a) * 100) : 0;
       breakdown.push({ showroom: key, accuracyPercent, visitors: v, admin: a });
     }
 
-    // Overall accuracy: adminToday vs visitorsToday => (adminToday / visitorsToday) * 100
-    const ratioPercent = visitorsToday > 0 ? Math.round((adminToday / visitorsToday) * 100) : 0;
+    // Overall accuracy: VisitorsToday / AdminToday * 100
+    const ratioPercent = adminToday > 0 ? Math.round((visitorsToday / adminToday) * 100) : 0;
     return res.status(200).json({ showroom, visitorsToday, adminToday, ratioPercent, accuracyBreakdown: breakdown });
   } catch (e) {
     return res.status(500).json({ message: "Server error" });
@@ -247,8 +247,8 @@ export const getOfficeAdminDailyStats = async (req, res) => {
       const row = byDate.get(key) || { date: key, showroom: 0, admin: 0, ratioPercent: 0 };
       const admin = Number(row.admin || 0);
       const showroom = Number(row.showroom || 0);
-      // Accuracy: admin customer input vs showroom customers => (admin / showroom) * 100
-      row.ratioPercent = showroom > 0 ? Math.round((admin / showroom) * 100) : 0;
+      // Accuracy: Showroom Count / Admin Count * 100
+      row.ratioPercent = admin > 0 ? Math.round((showroom / admin) * 100) : 0;
       days.push(row);
       cursor.setDate(cursor.getDate() + 1);
     }
@@ -325,8 +325,9 @@ export const getOfficeAdminTodayStats = async (req, res) => {
 
     const adminToday = adminDocs.reduce((s, d) => s + Number(d.count || 0), 0);
     const visitorsToday = showroomGroup.reduce((s, r) => s + Number(r.visitors || 0), 0);
-    const ratio = visitorsToday > 0 ? adminToday / visitorsToday : 0;
-    const ratioPercent = visitorsToday > 0 ? Math.round((adminToday / visitorsToday) * 100) : 0;
+    // Overall accuracy ratio: Showroom / Admin * 100
+    const ratio = adminToday > 0 ? visitorsToday / adminToday : 0;
+    const ratioPercent = adminToday > 0 ? Math.round((visitorsToday / adminToday) * 100) : 0;
 
     let breakdown = undefined;
     let accuracyBreakdown = undefined;
@@ -347,8 +348,8 @@ export const getOfficeAdminTodayStats = async (req, res) => {
       accuracyBreakdown = Array.from(new Set([...Array.from(by.keys()), ...Array.from(visitorsBy.keys())])).map((name) => {
         const adminCount = Number(by.get(name) || 0);
         const visitors = Number(visitorsBy.get(name) || 0);
-        // Accuracy per showroom: admin input vs showroom visitors => (admin / visitors) * 100
-        const acc = visitors > 0 ? Math.round((adminCount / visitors) * 100) : 0;
+        // Accuracy per showroom: Showroom Count / Admin Count * 100
+        const acc = adminCount > 0 ? Math.round((visitors / adminCount) * 100) : 0;
         return { showroom: name, accuracyPercent: acc, visitors, admin: adminCount };
       });
     }

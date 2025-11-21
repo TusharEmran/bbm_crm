@@ -6,7 +6,7 @@ import { JWT_SECRET } from "../config/jwtConfig.js";
 import { listAdmins, createAdmin, deleteAdmin, updateAdmin } from "../controllers/adminControllers.js";
 import { listCategories, createCategory, updateCategory, deleteCategory } from "../controllers/categoryControllers.js";
 import { createFeedback, listFeedbacks, updateFeedbackStatus, deleteFeedback } from "../controllers/feedbackControllers.js";
-import { createShowroomCustomer, listShowroomCustomers, updateShowroomCustomer, deleteShowroomCustomer, listShowrooms, listShowroomsPublic, createShowroom, updateShowroom, deleteShowroom, getShowroomCustomer } from "../controllers/showroomControllers.js";
+import { createShowroomCustomer, listShowroomCustomers, updateShowroomCustomer, deleteShowroomCustomer, listShowrooms, listShowroomsPublic, createShowroom, updateShowroom, deleteShowroom, getShowroomCustomer, getShowroomCustomerVisitCount } from "../controllers/showroomControllers.js";
 import { showroomSummary, showroomReport, showroomDaily } from "../controllers/analyticsControllers.js";
 
 const testAnalytics = async (req, res) => {
@@ -135,6 +135,7 @@ router.delete("/feedbacks/:id", requireAuth, requireAdmin, deleteFeedback);
 router.post("/showroom/customers", requireAuth, requireFeedbackAccess, createShowroomCustomer);
 
 router.get("/showroom/customers", requireAuth, requireFeedbackAccess, listShowroomCustomers);
+router.get("/showroom/customers/visit-count", requireAuth, requireFeedbackAccess, getShowroomCustomerVisitCount);
 router.get("/showroom/customers/:id", requireAuth, requireFeedbackAccess, getShowroomCustomer);
 router.put("/showroom/customers/:id", requireAuth, requireFeedbackAccess, updateShowroomCustomer);
 router.delete("/showroom/customers/:id", requireAuth, requireFeedbackAccess, deleteShowroomCustomer);

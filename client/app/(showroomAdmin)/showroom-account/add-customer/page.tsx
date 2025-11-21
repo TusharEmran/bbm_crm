@@ -161,6 +161,8 @@ export default function AddCustomerPage() {
   const [selectedNoteType, setSelectedNoteType] = useState<string>('');
   const [selectedCommentType, setSelectedCommentType] = useState<string>('');
   const [customerType, setCustomerType] = useState<'individual' | 'business'>('individual');
+  const [visitCount, setVisitCount] = useState<number | null>(null);
+  const [checkingVisits, setCheckingVisits] = useState(false);
 
   const [formErrors, setFormErrors] = useState<Partial<Record<keyof FormData, string>>>({});
   const [toastMessage, setToastMessage] = useState('');
@@ -252,6 +254,41 @@ export default function AddCustomerPage() {
     };
     loadShowrooms();
   }, []);
+
+  useEffect(() => {
+    const phone = formData.phoneNumber.trim();
+    if (!phone) {
+      setVisitCount(null);
+      return;
+    }
+
+    let cancelled = false;
+    const timer = setTimeout(async () => {
+      try {
+        const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+        if (!token) return;
+        setCheckingVisits(true);
+        const url = new URL(`${baseUrl}/api/user/showroom/customers/visit-count`);
+        url.searchParams.set('phone', phone);
+        url.searchParams.set('ts', String(Date.now()));
+        const res = await fetch(url.toString(), { headers: { Authorization: `Bearer ${token}` }, cache: 'no-store' });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!cancelled) {
+          setVisitCount(Number(data.visitCount || 0));
+        }
+      } catch {
+        if (!cancelled) setVisitCount(null);
+      } finally {
+        if (!cancelled) setCheckingVisits(false);
+      }
+    }, 600);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [formData.phoneNumber, baseUrl]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -396,6 +433,16 @@ export default function AddCustomerPage() {
                     : 'border-slate-200 bg-white'
                     }`}
                 />
+                {checkingVisits && !formErrors.phoneNumber && (
+                  <p className="text-xs text-slate-400 mt-1">পূর্বের ভিজিট খোঁজা হচ্ছে...</p>
+                )}
+                {visitCount !== null && !checkingVisits && !formErrors.phoneNumber && (
+                  <p className="text-xs text-slate-500 mt-1">
+                    {visitCount > 0
+                      ? `এই কাস্টমার আগে ${visitCount} বার ভিজিট করেছেন।`
+                      : 'এটি সম্ভবত কাস্টমারের প্রথম ভিজিট।'}
+                  </p>
+                )}
                 {formErrors.phoneNumber && (
                   <p className="text-red-600 text-xs mt-2 flex items-center gap-1">
                     <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -623,7 +670,7 @@ export default function AddCustomerPage() {
                   name="noteType"
                   value={selectedNoteType}
                   onChange={(e) => { setSelectedNoteType(e.target.value); setSelectedCommentType(''); }}
-                  className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 transition bg-white text-slate-900 font-medium ${''}`}
+                  className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 transition bg-white text-slate-900 font-medium"
                 >
                   <option value="">নোটের ধরন নির্বাচন করুন</option>
                   <option value="quotation">কোটেশন</option>
@@ -632,20 +679,73 @@ export default function AddCustomerPage() {
               </div>
 
               <div>
-                {selectedNoteType === 'comments' && !selectedCommentType && (
-                  <div>
-                    <label className="text-sm font-bold text-slate-900 mb-3 block">মন্তব্যের ধরন</label>
-                    <select
-                      name="commentType"
-                      value={selectedCommentType}
-                      onChange={(e) => setSelectedCommentType(e.target.value)}
-                      className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 transition bg-white text-slate-900 font-medium ${''}`}
-                    >
-                      <option value="">মন্তব্যের ধরন নির্বাচন করুন</option>
-                      <option value="call">কল নোট</option>
-                      <option value="random">র‍্যান্ডম কাস্টমার</option>
-                      <option value="remember">রিমাইন্ডার নোট</option>
-                    </select>
+                {selectedNoteType === 'comments' && (
+                  <div className="space-y-4">
+                    <div>
+                      <label className="text-sm font-bold text-slate-900 mb-3 block">মন্তব্যের ধরন</label>
+                      <select
+                        name="commentType"
+                        value={selectedCommentType}
+                        onChange={(e) => setSelectedCommentType(e.target.value)}
+                        className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 transition bg-white text-slate-900 font-medium"
+                      >
+                        <option value="">মন্তব্যের ধরন নির্বাচন করুন</option>
+                        <option value="call">কল নোট</option>
+                        <option value="random">র‍্যান্ডম কাস্টমার</option>
+                        <option value="remember">রিমাইন্ডার নোট</option>
+                      </select>
+                    </div>
+
+                    {selectedCommentType === 'call' && (
+                      <div>
+                        <label className="text-sm font-bold text-slate-900 mb-3 block">কল নোট লিখুন</label>
+                        <textarea
+                          name="notes"
+                          value={formData.notes || ''}
+                          onChange={handleInputChange}
+                          placeholder="কল নোট লিখুন"
+                          className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 transition bg-white text-slate-900 min-h-[80px]"
+                        />
+                      </div>
+                    )}
+
+                    {selectedCommentType === 'random' && (
+                      <div>
+                        <label className="text-sm font-bold text-slate-900 mb-3 block">র‍্যান্ডম কাস্টমার নোট লিখুন</label>
+                        <textarea
+                          name="randomCustomerNote"
+                          value={formData.randomCustomerNote || ''}
+                          onChange={handleInputChange}
+                          placeholder="র‍্যান্ডম কাস্টমার সম্পর্কে নোট লিখুন"
+                          className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 transition bg-white text-slate-900 min-h-[80px]"
+                        />
+                      </div>
+                    )}
+
+                    {selectedCommentType === 'remember' && (
+                      <div className="space-y-4">
+                        <div>
+                          <label className="text-sm font-bold text-slate-900 mb-3 block">রিমাইন্ডারের তারিখ</label>
+                          <input
+                            type="date"
+                            name="rememberNote"
+                            value={formData.rememberNote || ''}
+                            onChange={handleInputChange}
+                            className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 transition bg-white text-slate-900"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-sm font-bold text-slate-900 mb-3 block">রিমাইন্ডার নোট লিখুন</label>
+                          <textarea
+                            name="notes"
+                            value={formData.notes || ''}
+                            onChange={handleInputChange}
+                            placeholder="রিমাইন্ডার নোট লিখুন"
+                            className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 transition bg-white text-slate-900 min-h-[80px]"
+                          />
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
 
@@ -672,36 +772,6 @@ export default function AddCustomerPage() {
                         className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 transition bg-white text-slate-900"
                       />
                     </div>
-                  </div>
-                )}
-
-                {selectedNoteType === 'comments' && selectedCommentType && (
-                  <div>
-                    <label className="text-sm font-bold text-slate-900 mb-3 block">নির্বাচিত মন্তব্য</label>
-                    <input
-                      type="text"
-                      readOnly
-                      value={
-                        selectedCommentType === 'call'
-                          ? 'কল নোট'
-                          : selectedCommentType === 'random'
-                            ? 'র‍্যান্ডম কাস্টমার'
-                            : 'রিমাইন্ডার নোট'
-                      }
-                      className="w-full px-4 py-3 border rounded-lg bg-slate-50 text-slate-700"
-                    />
-                    {selectedCommentType === 'remember' && (
-                      <div className="mt-4">
-                        <label className="text-sm font-bold text-slate-900 mb-3 block">রিমাইন্ডারের তারিখ</label>
-                        <input
-                          type="date"
-                          name="rememberNote"
-                          value={formData.rememberNote || ''}
-                          onChange={handleInputChange}
-                          className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 transition bg-white text-slate-900"
-                        />
-                      </div>
-                    )}
                   </div>
                 )}
               </div>

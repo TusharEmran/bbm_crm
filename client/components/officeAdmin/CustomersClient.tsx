@@ -11,6 +11,15 @@ interface Customer {
   interest: string;
   status: 'Interested' | 'Not Interested' | 'Follow-up';
   notes: string;
+  visitCount?: number;
+  email?: string;
+  division?: string;
+  zila?: string;
+  interestLevel?: number;
+  customerType?: string;
+  businessName?: string;
+  quotation?: string;
+  rememberDate?: string;
 }
 
 const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
@@ -38,8 +47,15 @@ export default function CustomersClient() {
   const [notesModalContent, setNotesModalContent] = useState('');
   const [toastMessage, setToastMessage] = useState('');
   const [showToast, setShowToast] = useState(false);
-  const [sortBy, setSortBy] = useState<'name' | 'status'>('name');
+  const [sortBy, setSortBy] = useState<'name' | 'status' | 'visitDesc' | 'visitAsc'>('name');
   const [revealed, setRevealed] = useState<Record<string, boolean>>({});
+  const [detailsOpen, setDetailsOpen] = useState<Record<string, boolean>>({});
+
+  const normalizePhone = (p: string): string => {
+    const digits = (p || '').replace(/\D+/g, '');
+    if (digits.length >= 10) return digits.slice(-10);
+    return digits;
+  };
 
   const maskPhone = (p: string) => {
     const digits = (p || '').replace(/\D+/g, '');
@@ -74,8 +90,31 @@ export default function CustomersClient() {
           interest: c.category,
           status: (c.status as any) || 'Interested',
           notes: (c.notes as any) || '',
+          email: c.email || '',
+          division: c.division || '',
+          zila: c.upazila || '',
+          interestLevel: typeof c.interestLevel === 'number' ? c.interestLevel : undefined,
+          customerType: c.customerType || '',
+          businessName: c.businessName || '',
+          quotation: c.quotation || '',
+          rememberDate: c.rememberDate || '',
         }));
-        setCustomers(mapped);
+
+        // Compute visit count per normalized phone across all loaded customers
+        const visitCounts = new Map<string, number>();
+        mapped.forEach((cust) => {
+          const key = normalizePhone(cust.phone);
+          if (!key) return;
+          visitCounts.set(key, (visitCounts.get(key) || 0) + 1);
+        });
+
+        const withCounts = mapped.map((cust) => {
+          const key = normalizePhone(cust.phone);
+          const count = key ? visitCounts.get(key) || 0 : 0;
+          return { ...cust, visitCount: count };
+        });
+
+        setCustomers(withCounts);
       } catch (e: any) {
         setToastMessage(e?.message || 'Failed to load');
         setShowToast(true);
@@ -101,6 +140,12 @@ export default function CustomersClient() {
       filtered.sort(
         (a, b) => statusOrder[a.status as keyof typeof statusOrder] - statusOrder[b.status as keyof typeof statusOrder]
       );
+    } else if (sortBy === 'visitDesc' || sortBy === 'visitAsc') {
+      filtered.sort((a, b) => {
+        const av = a.visitCount || 0;
+        const bv = b.visitCount || 0;
+        return sortBy === 'visitAsc' ? av - bv : bv - av;
+      });
     } else {
       filtered.sort((a, b) => a.name.localeCompare(b.name));
     }
@@ -291,11 +336,13 @@ export default function CustomersClient() {
               <label className="block text-sm font-bold text-slate-900 mb-3">Sort By</label>
               <select
                 value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as 'name' | 'status')}
+                onChange={(e) => setSortBy(e.target.value as 'name' | 'status' | 'visitDesc' | 'visitAsc')}
                 className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900 transition bg-white text-slate-900 font-medium"
               >
                 <option value="name">Name (A-Z)</option>
                 <option value="status">Status (Priority)</option>
+                <option value="visitDesc">Visit Count (High to Low)</option>
+                <option value="visitAsc">Visit Count (Low to High)</option>
               </select>
             </div>
           </div>
@@ -313,62 +360,117 @@ export default function CustomersClient() {
                   <th className="px-8 py-4 text-left text-sm font-bold text-slate-900">Customer Name</th>
                   <th className="px-8 py-4 text-left text-sm font-bold text-slate-900">Phone</th>
                   <th className="px-8 py-4 text-left text-sm font-bold text-slate-900">Interest</th>
+                  <th className="px-8 py-4 text-left text-sm font-bold text-slate-900">Visit Count</th>
                   <th className="px-8 py-4 text-left text-sm font-bold text-slate-900">Status</th>
-                  <th className="px-8 py-4 text-left text-sm font-bold text-slate-900">Notes</th>
+                  <th className="px-8 py-4 text-left text-sm font-bold text-slate-900">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredCustomers.length > 0 ? (
                   filteredCustomers.map((customer, idx) => (
-                    <tr
-                      key={customer.id}
-                      className={`border-b border-slate-100 hover:bg-slate-50 transition ${idx === filteredCustomers.length - 1 ? 'border-b-0' : ''}`}
-                    >
-                      <td className="px-8 py-5 text-sm font-semibold text-slate-900">{customer.name}</td>
-                      <td className="px-8 py-5 text-sm text-slate-600 font-medium">
-                        <div className="flex items-center gap-2">
-                          <span className="font-mono tracking-wide">
-                            {revealed[customer.id] ? customer.phone : maskPhone(customer.phone)}
-                          </span>
-                          <button
-                            type="button"
-                            onClick={() => setRevealed((prev) => ({ ...prev, [customer.id]: !prev[customer.id] }))}
-                            className="p-1.5 rounded hover:bg-slate-100 border border-slate-200"
-                            aria-label={revealed[customer.id] ? 'Hide phone' : 'Show phone'}
-                            title={revealed[customer.id] ? 'Hide phone' : 'Show phone'}
+                    <React.Fragment key={customer.id}>
+                      <tr
+                        className={`border-b border-slate-100 hover:bg-slate-50 transition ${idx === filteredCustomers.length - 1 && !detailsOpen[customer.id] ? 'border-b-0' : ''}`}
+                      >
+                        <td className="px-8 py-5 text-sm font-semibold text-slate-900">{customer.name}</td>
+                        <td className="px-8 py-5 text-sm text-slate-600 font-medium">
+                          <div className="flex items-center gap-2">
+                            <span className="font-mono tracking-wide">
+                              {revealed[customer.id] ? customer.phone : maskPhone(customer.phone)}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => setRevealed((prev) => ({ ...prev, [customer.id]: !prev[customer.id] }))}
+                              className="p-1.5 rounded hover:bg-slate-100 border border-slate-200"
+                              aria-label={revealed[customer.id] ? 'Hide phone' : 'Show phone'}
+                              title={revealed[customer.id] ? 'Hide phone' : 'Show phone'}
+                            >
+                              {revealed[customer.id] ? <EyeOff size={16} className="text-slate-700" /> : <Eye size={16} className="text-slate-700" />}
+                            </button>
+                          </div>
+                        </td>
+                        <td className="px-8 py-5 text-sm">
+                          <span className="px-3 py-1.5 bg-slate-100 text-slate-700 rounded-lg text-xs font-bold">{customer.interest}</span>
+                        </td>
+                        <td className="px-8 py-5 text-sm text-slate-700 font-semibold">
+                          {customer.visitCount ?? 0}
+                        </td>
+                        <td className="px-8 py-5 text-sm">
+                          <select
+                            value={customer.status}
+                            onChange={(e) => handleStatusChange(customer.id, e.target.value as 'Interested' | 'Not Interested' | 'Follow-up')}
+                            className={`px-3 py-1.5 rounded-lg text-xs font-bold border-2 focus:outline-none focus:ring-2 focus:ring-slate-900 transition cursor-pointer ${getStatusColor(customer.status)}`}
                           >
-                            {revealed[customer.id] ? <EyeOff size={16} className="text-slate-700" /> : <Eye size={16} className="text-slate-700" />}
-                          </button>
-                        </div>
-                      </td>
-                      <td className="px-8 py-5 text-sm">
-                        <span className="px-3 py-1.5 bg-slate-100 text-slate-700 rounded-lg text-xs font-bold">{customer.interest}</span>
-                      </td>
-                      <td className="px-8 py-5 text-sm">
-                        <select
-                          value={customer.status}
-                          onChange={(e) => handleStatusChange(customer.id, e.target.value as 'Interested' | 'Not Interested' | 'Follow-up')}
-                          className={`px-3 py-1.5 rounded-lg text-xs font-bold border-2 focus:outline-none focus:ring-2 focus:ring-slate-900 transition cursor-pointer ${getStatusColor(customer.status)}`}
-                        >
-                          <option value="Interested">Interested</option>
-                          <option value="Follow-up">Follow-up</option>
-                          <option value="Not Interested">Not Interested</option>
-                        </select>
-                      </td>
-                      <td className="px-8 py-5 text-sm">
-                        <button
-                          onClick={() => handleOpenNotesModal(customer)}
-                          className="inline-flex items-center gap-2 px-4 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition font-semibold text-xs border border-slate-300"
-                        >
-                          <FileText size={16} />
-                          Edit Notes
-                        </button>
-                      </td>
-                    </tr>
+                            <option value="Interested">Interested</option>
+                            <option value="Follow-up">Follow-up</option>
+                            <option value="Not Interested">Not Interested</option>
+                          </select>
+                        </td>
+                        <td className="px-8 py-5 text-sm">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <button
+                              onClick={() => handleOpenNotesModal(customer)}
+                              className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition font-semibold text-xs border border-slate-300 min-w-[140px]"
+                            >
+                              <FileText size={16} />
+                              Edit Notes
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setDetailsOpen((prev) => ({ ...prev, [customer.id]: !prev[customer.id] }))}
+                              className="inline-flex items-center justify-center px-4 py-2 text-xs font-semibold rounded-lg border border-slate-300 hover:bg-slate-100 min-w-[140px]"
+                            >
+                              {detailsOpen[customer.id] ? 'Hide Details' : 'View Details'}
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+
+                      {detailsOpen[customer.id] && (
+                        <tr className="bg-slate-50 border-b border-slate-100">
+                          <td className="px-8 py-5 text-sm" colSpan={6}>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-slate-700">
+                              <div>
+                                <div className="text-xs font-bold text-slate-500">Email</div>
+                                <div className="font-medium break-all">{customer.email || '-'}</div>
+                              </div>
+                              <div>
+                                <div className="text-xs font-bold text-slate-500">Division</div>
+                                <div className="font-medium">{customer.division || '-'}</div>
+                              </div>
+                              <div>
+                                <div className="text-xs font-bold text-slate-500">Zila</div>
+                                <div className="font-medium">{customer.zila || '-'}</div>
+                              </div>
+                              <div>
+                                <div className="text-xs font-bold text-slate-500">Interest Level</div>
+                                <div className="font-medium">{typeof customer.interestLevel === 'number' ? `${customer.interestLevel} / 5` : '-'}</div>
+                              </div>
+                              <div>
+                                <div className="text-xs font-bold text-slate-500">Customer Type</div>
+                                <div className="font-medium">{customer.customerType || '-'}</div>
+                              </div>
+                              <div>
+                                <div className="text-xs font-bold text-slate-500">Business Name</div>
+                                <div className="font-medium">{customer.businessName || '-'}</div>
+                              </div>
+                              <div>
+                                <div className="text-xs font-bold text-slate-500">Quotation</div>
+                                <div className="font-medium">{customer.quotation || '-'}</div>
+                              </div>
+                              <div>
+                                <div className="text-xs font-bold text-slate-500">Reminder Date</div>
+                                <div className="font-medium">{customer.rememberDate ? new Date(customer.rememberDate).toISOString().slice(0, 10) : '-'}</div>
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </React.Fragment>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={5} className="px-8 py-12 text-center text-slate-500">No customers found matching your search criteria</td>
+                    <td colSpan={6} className="px-8 py-12 text-center text-slate-500">No customers found matching your search criteria</td>
                   </tr>
                 )}
               </tbody>

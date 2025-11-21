@@ -11,6 +11,7 @@ const menuItems = [
   { icon: "/customers.png", href: "/showroom-account/add-customer", label: "কাস্টমার" },
   { icon: "/reports.png", href: "/showroom-account/edit-entries", label: "রিপোর্টস" },
   { icon: "/feedbacks.png", href: "/showroom-account/feedbacks", label: "ফিডব্যাক" },
+  { icon: "/showroom.png", href: "/showroom-account/customer-list", label: "শোরুম" },
 ];
 
 const ShowroomMenu = () => {

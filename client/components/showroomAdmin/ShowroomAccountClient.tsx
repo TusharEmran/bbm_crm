@@ -43,7 +43,18 @@ export default function ShowroomAccountClient({ initialTodayEntries }: ShowroomA
   const [selectedShowroom, setSelectedShowroom] = useState<string>("");
   const [oaAccuracy, setOaAccuracy] = useState<number>(0);
   const [oaAdminCount, setOaAdminCount] = useState<number>(0);
-  const [allReminders, setAllReminders] = useState<Array<{ id: string; name: string; showroom?: string; date: string }>>([]);
+  const [allReminders, setAllReminders] = useState<Array<{
+    id: string;
+    name: string;
+    showroom?: string;
+    date: string;
+    phone?: string;
+    notes?: string;
+    randomCustomer?: string;
+    quotation?: string;
+    rememberNote?: string;
+  }>>([]);
+  const [isRemindersModalOpen, setIsRemindersModalOpen] = useState(false);
   const [dismissedReminders, setDismissedReminders] = useState<Set<string>>(new Set());
   const [rangePreset, setRangePreset] = useState<'day' | 'week' | 'lastMonth' | 'thisMonth' | 'custom'>('day');
   const localToday = (() => { const d = new Date(); const y = d.getFullYear(); const m = String(d.getMonth() + 1).padStart(2, '0'); const dd = String(d.getDate()).padStart(2, '0'); return `${y}-${m}-${dd}`; })();
@@ -165,14 +176,41 @@ export default function ShowroomAccountClient({ initialTodayEntries }: ShowroomA
           });
         setTodayEntries(items);
 
-        // compute reminders due today from rememberDate
+        // compute reminders due (rememberDate <= today) from rememberDate
         const todayKey = yyyymmdd(new Date());
-        const reminders: Array<{ id: string; name: string; showroom?: string; date: string }> = (custData.customers || [])
+        const reminders: Array<{
+          id: string;
+          name: string;
+          showroom?: string;
+          date: string;
+          phone?: string;
+          notes?: string;
+          randomCustomer?: string;
+          quotation?: string;
+          rememberNote?: string;
+        }> = (custData.customers || [])
           .filter((c: any) => !!c.rememberDate)
-          .filter((c: any) => {
-            try { return yyyymmdd(new Date(c.rememberDate)) === todayKey; } catch { return false; }
+          .map((c: any): { c: any; dateKey: string | null } => {
+            let dateKey: string | null = null;
+            try {
+              dateKey = yyyymmdd(new Date(c.rememberDate));
+            } catch {
+              dateKey = null;
+            }
+            return { c, dateKey };
           })
-          .map((c: any) => ({ id: String(c.id || c._id), name: c.customerName, showroom: (c.showroomBranch || '').toString(), date: todayKey }));
+          .filter(({ dateKey }: { dateKey: string | null }) => !!dateKey && dateKey <= todayKey)
+          .map(({ c, dateKey }: { c: any; dateKey: string | null }) => ({
+            id: String(c.id || c._id),
+            name: c.customerName,
+            showroom: (c.showroomBranch || '').toString(),
+            date: dateKey as string,
+            phone: c.phoneNumber,
+            notes: c.notes,
+            randomCustomer: c.randomCustomer,
+            quotation: c.quotation,
+            rememberNote: c.rememberNote,
+          }));
         setAllReminders(reminders);
       } catch (e: any) {
         setToastMessage(e?.message || 'Error loading dashboard');
@@ -384,7 +422,12 @@ export default function ShowroomAccountClient({ initialTodayEntries }: ShowroomA
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6 hover:shadow-md transition-shadow duration-300 overflow-hidden">
+          <div
+            className="bg-white rounded-xl shadow-sm border border-slate-100 p-6 hover:shadow-md transition-shadow duration-300 overflow-hidden cursor-pointer"
+            onClick={() => {
+              if (remindersDue.length > 0) setIsRemindersModalOpen(true);
+            }}
+          >
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1 min-w-0 overflow-hidden">
                 <p className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4">আজকের রিমাইন্ডার</p>
@@ -392,20 +435,141 @@ export default function ShowroomAccountClient({ initialTodayEntries }: ShowroomA
                   <p className="text-5xl font-bold text-amber-600">{remindersDue.length}</p>
                   <span className="text-xs text-slate-400">বাকি</span>
                 </div>
-                {remindersDue.length > 0 && (
-                  <ul className="mt-4 space-y-2 max-h-32 overflow-auto">
-                    {remindersDue.slice(0, 5).map((r: { id: string; name: string; showroom?: string; date: string }) => (
-                      <li key={r.id} className="flex items-center justify-between text-sm">
-                        <span className="font-semibold text-slate-800 truncate mr-3">{r.name}</span>
-                        <button type="button" onClick={() => dismissReminder(r.id)} className="px-2 py-1 text-xs rounded border border-slate-300 hover:bg-slate-100" title="রিমাইন্ডার বাতিল করুন">ডিসমিস</button>
-                      </li>
-                    ))}
-                  </ul>
-                )}
+                <p className="text-xs text-slate-400 mt-4">
+                  {remindersDue.length > 0 ? 'বিস্তারিত দেখতে ক্লিক করুন' : 'আজ কোনো রিমাইন্ডার নেই'}
+                </p>
               </div>
             </div>
           </div>
         </div>
+
+        {isRemindersModalOpen && (
+<div
+  className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 "
+  onClick={() => setIsRemindersModalOpen(false)}
+>
+  <div
+    className="relative bg-white rounded-2xl shadow-2xl max-w-5xl w-full mx-4 max-h-[85vh] overflow-hidden flex flex-col "
+    onClick={(e) => e.stopPropagation()}
+  >
+    {/* Header */}
+    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 px-6 py-4 border-b bg-black text-white shadow-md">
+      <div>
+        <h2 className="text-xl font-bold">আজকের রিমাইন্ডার তালিকা</h2>
+        <p className="text-sm text-gray-300 mt-1">
+          মোট <span className="font-semibold">{remindersDue.length}</span> টি রিমাইন্ডার
+        </p>
+      </div>
+
+      <div className="flex items-center gap-4">
+        {/* Showroom Filter */}
+        <div>
+          <label className="block text-xs font-semibold text-gray-300 mb-1">
+            শোরুম ফিল্টার
+          </label>
+          <select
+            value={selectedShowroom}
+            onChange={(e) => setSelectedShowroom(e.target.value)}
+            className="px-3 py-2  rounded-lg text-sm bg-gray-900 text-white "
+          >
+            <option value="">সব শোরুম</option>
+            {showrooms.map((name) => (
+              <option key={name} value={name}>
+                {name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Close Button */}
+        <button
+          type="button"
+          onClick={() => setIsRemindersModalOpen(false)}
+          className="px-4 py-2 text-sm font-semibold rounded-lg bg-white text-black border border-white shadow hover:bg-gray-200 transition"
+        >
+          বন্ধ করুন
+        </button>
+      </div>
+    </div>
+
+    {/* Table */}
+    <div className="overflow-x-auto overflow-y-auto max-h-[70vh]">
+      <table className="w-full text-sm">
+        <thead className="bg-gray-900 text-white sticky top-0 z-10 shadow">
+          <tr>
+            <th className="px-6 py-3 text-left font-semibold">কাস্টমারের নাম</th>
+            <th className="px-6 py-3 text-left font-semibold">ফোন</th>
+            <th className="px-6 py-3 text-left font-semibold">শোরুম</th>
+            <th className="px-6 py-3 text-left font-semibold">তারিখ</th>
+            <th className="px-6 py-3 text-left font-semibold">রিমাইন্ডার নোট</th>
+            <th className="px-6 py-3 text-right font-semibold">একশন</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {remindersDue.map((r) => {
+            const reminderDate = r.rememberNote || "";
+            const noteText = r.notes || r.randomCustomer || r.quotation || "";
+
+            return (
+              <tr
+                key={r.id}
+                className="border-b hover:bg-gray-100 transition"
+              >
+                <td className="px-6 py-3 font-medium text-gray-800">
+                  {r.name}
+                </td>
+
+                <td className="px-6 py-3 font-mono text-xs text-gray-700">
+                  {r.phone || "-"}
+                </td>
+
+                <td className="px-6 py-3 whitespace-nowrap text-gray-700">
+                  {r.showroom || "-"}
+                </td>
+
+                <td className="px-6 py-3 whitespace-nowrap text-gray-700 text-sm">
+                  {reminderDate || "-"}
+                </td>
+
+                <td className="px-6 py-3 text-gray-700 max-w-xs">
+                  {noteText ? (
+                    <p className="text-sm text-gray-800 line-clamp-2">{noteText}</p>
+                  ) : (
+                    <span className="text-gray-400 text-sm">কোনো নোট নেই</span>
+                  )}
+                </td>
+
+                <td className="px-6 py-3 text-right">
+                  <button
+                    type="button"
+                    onClick={() => dismissReminder(r.id)}
+                    className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-gray-800 text-gray-800 hover:bg-gray-900 hover:text-white transition"
+                  >
+                    ডিসমিস
+                  </button>
+                </td>
+              </tr>
+            );
+          })}
+
+          {remindersDue.length === 0 && (
+            <tr>
+              <td
+                colSpan={5}
+                className="px-6 py-10 text-center text-gray-500 text-sm"
+              >
+                আজ কোনো রিমাইন্ডার নেই
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+        )}
 
         <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
           <div className="p-8 border-b border-slate-100">

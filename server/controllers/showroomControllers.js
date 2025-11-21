@@ -181,19 +181,40 @@ export const listShowroomCustomers = async (req, res) => {
   }
 };
 
+export const getShowroomCustomerVisitCount = async (req, res) => {
+  try {
+    const rawPhone = (req.query.phone || "").toString();
+    if (!rawPhone) return res.status(400).json({ message: "phone is required" });
+    const norm = normalizeBdPhone(rawPhone);
+    if (!norm) return res.status(400).json({ message: "invalid phone" });
+
+    // Scan customers and compare normalized phone numbers
+    const docs = await ShowroomCustomer.find({}).select("phoneNumber").lean();
+    let count = 0;
+    for (const d of docs) {
+      const p = normalizeBdPhone(d.phoneNumber);
+      if (p === norm) count += 1;
+    }
+    return res.status(200).json({ phone: norm, visitCount: count });
+  } catch (err) {
+    return res.status(500).json({ message: "Server error" });
+  }
+};
+
 export const updateShowroomCustomer = async (req, res) => {
   try {
     const { id } = req.params;
     if (!id || !mongoose.isValidObjectId(id)) {
       return res.status(400).json({ message: "Invalid customer id" });
     }
-    const { customerName, phoneNumber, category, status, notes } = req.body || {};
+    const { customerName, phoneNumber, category, status, notes, note } = req.body || {};
     const update = {};
     if (customerName) update.customerName = customerName;
     if (phoneNumber) update.phoneNumber = phoneNumber;
     if (category) update.category = category;
     if (status) update.status = status;
-    if (notes !== undefined) update.notes = String(notes);
+    const finalNotes = notes !== undefined ? notes : note;
+    if (finalNotes !== undefined) update.notes = String(finalNotes);
     const doc = await ShowroomCustomer.findByIdAndUpdate(id, update, { new: true });
     if (!doc) return res.status(404).json({ message: "Customer not found" });
     return res.status(200).json({
