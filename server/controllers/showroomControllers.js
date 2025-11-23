@@ -29,6 +29,7 @@ export const createShowroomCustomer = async (req, res) => {
       randomCustomer,
       quotation,
       rememberNote,
+      rememberDate,
       sellNote,
       customerType,
       businessName,
@@ -64,8 +65,8 @@ export const createShowroomCustomer = async (req, res) => {
       rememberNote: rememberNote ? String(rememberNote) : "",
       rememberDate: (() => {
         try {
-          if (!rememberNote) return null;
-          const d = new Date(String(rememberNote));
+          if (!rememberDate) return null;
+          const d = new Date(String(rememberDate));
           return isNaN(d.getTime()) ? null : d;
         } catch { return null; }
       })(),
@@ -166,6 +167,7 @@ export const listShowroomCustomers = async (req, res) => {
       showroomBranch: d.showroomBranch,
       status: d.status,
       notes: d.notes,
+      sellNote: d.sellNote,
       email: d.email,
       division: d.division,
       upazila: d.upazila,
@@ -211,15 +213,73 @@ export const updateShowroomCustomer = async (req, res) => {
     if (!id || !mongoose.isValidObjectId(id)) {
       return res.status(400).json({ message: "Invalid customer id" });
     }
-    const { customerName, phoneNumber, category, status, notes, note, sellNote } = req.body || {};
+
+    const {
+      customerName,
+      phoneNumber,
+      category,
+      status,
+      notes,
+      note,
+      sellNote,
+      email,
+      division,
+      upazila,
+      interestLevel,
+      randomCustomer,
+      quotation,
+      rememberNote,
+      rememberDate,
+      showroomBranch,
+      customerType,
+      businessName,
+    } = req.body || {};
+
     const update = {};
-    if (customerName) update.customerName = customerName;
-    if (phoneNumber) update.phoneNumber = phoneNumber;
-    if (category) update.category = category;
-    if (status) update.status = status;
+
+    if (customerName !== undefined) update.customerName = String(customerName);
+    if (phoneNumber !== undefined) update.phoneNumber = String(phoneNumber);
+    if (category !== undefined) update.category = String(category);
+    if (status !== undefined) update.status = String(status);
+
     const finalNotes = notes !== undefined ? notes : note;
     if (finalNotes !== undefined) update.notes = String(finalNotes);
+
     if (sellNote !== undefined) update.sellNote = String(sellNote);
+
+    if (email !== undefined) update.email = String(email).trim();
+    if (division !== undefined) update.division = String(division).trim();
+    if (upazila !== undefined) update.upazila = String(upazila).trim();
+
+    if (interestLevel !== undefined) {
+      const lvl =
+        typeof interestLevel === "number"
+          ? interestLevel
+          : parseInt(interestLevel, 10);
+      update.interestLevel = isNaN(lvl) ? 0 : lvl;
+    }
+
+    if (randomCustomer !== undefined) update.randomCustomer = String(randomCustomer);
+    if (quotation !== undefined) update.quotation = String(quotation);
+
+    if (rememberNote !== undefined) update.rememberNote = String(rememberNote);
+    if (rememberDate !== undefined) {
+      try {
+        const d = new Date(String(rememberDate));
+        update.rememberDate = isNaN(d.getTime()) ? null : d;
+      } catch {
+        update.rememberDate = null;
+      }
+    }
+
+    if (showroomBranch !== undefined) update.showroomBranch = String(showroomBranch);
+    if (customerType !== undefined) {
+      update.customerType = customerType === "business" ? "business" : "individual";
+    }
+    if (businessName !== undefined) {
+      update.businessName = String(businessName).trim();
+    }
+
     const doc = await ShowroomCustomer.findByIdAndUpdate(id, update, { new: true });
     if (!doc) return res.status(404).json({ message: "Customer not found" });
     return res.status(200).json({
@@ -232,6 +292,16 @@ export const updateShowroomCustomer = async (req, res) => {
         status: doc.status,
         notes: doc.notes,
         sellNote: doc.sellNote,
+        email: doc.email,
+        division: doc.division,
+        upazila: doc.upazila,
+        interestLevel: doc.interestLevel,
+        randomCustomer: doc.randomCustomer,
+        quotation: doc.quotation,
+        rememberNote: doc.rememberNote,
+        rememberDate: doc.rememberDate,
+        customerType: doc.customerType,
+        businessName: doc.businessName,
         createdAt: doc.createdAt,
       },
     });

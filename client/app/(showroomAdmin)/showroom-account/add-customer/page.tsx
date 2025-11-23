@@ -315,15 +315,12 @@ export default function AddCustomerPage() {
         return;
       }
 
-      // Join main call note, any extra call notes, and reminder note text into a single note string
+      // Join main call note and any extra call notes into a single general note string
       const noteParts: string[] = [];
       if (formData.notes && formData.notes.trim()) noteParts.push(formData.notes.trim());
       extraCallNotes.forEach((n) => {
         if (n && n.trim()) noteParts.push(n.trim());
       });
-      if (formData.rememberText && formData.rememberText.trim()) {
-        noteParts.push(formData.rememberText.trim());
-      }
       const finalNoteText = noteParts.join('\n---\n');
 
       const res = await fetch(`${baseUrl}/api/user/showroom/customers`, {
@@ -343,7 +340,8 @@ export default function AddCustomerPage() {
           quotation: formData.quotationNumber || formData.quotationDate
             ? `${formData.quotationNumber || ''}${formData.quotationNumber && formData.quotationDate ? ' - ' : ''}${formData.quotationDate || ''}`
             : '',
-          rememberNote: formData.rememberNote,
+          rememberNote: formData.rememberText,
+          rememberDate: formData.rememberNote,
           sellNote: formData.sellNote,
         }),
       });

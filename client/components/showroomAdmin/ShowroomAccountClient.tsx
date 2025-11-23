@@ -515,7 +515,22 @@ export default function ShowroomAccountClient({ initialTodayEntries }: ShowroomA
                 </td>
 
                 <td className="px-6 py-3 text-gray-700 max-w-xs">
-                  {noteText ? (
+                  {r.notes ? (
+                    <div className="space-y-1">
+                      {(r.notes || "")
+                        .split('\n---\n')
+                        .map((segment) => segment.trim())
+                        .filter((segment) => segment.length > 0)
+                        .map((segment, index) => (
+                          <div
+                            key={index}
+                            className="border border-gray-200 rounded-md px-2 py-1 bg-gray-50 text-[12px] text-gray-800 whitespace-pre-wrap"
+                          >
+                            {segment}
+                          </div>
+                        ))}
+                    </div>
+                  ) : noteText ? (
                     <p className="text-sm text-gray-800 line-clamp-2">{noteText}</p>
                   ) : (
                     <span className="text-gray-400 text-sm">কোনো নোট নেই</span>
