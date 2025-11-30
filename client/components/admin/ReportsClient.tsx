@@ -405,10 +405,6 @@ export default function ReportsClient() {
             <h1 className="text-3xl font-bold text-gray-900 mb-2">রিপোর্টসমূহ</h1>
             <p className="text-gray-600">শোরুম পারফরম্যান্স ডেটা দেখুন ও বিশ্লেষণ করুন</p>
           </div>
-          <button onClick={() => { setEditingId(null); setEditingOriginalName(null); setFormData({ name: '', customerCount: '', feedbackCount: '', performancePercentage: '' }); setIsModalOpen(true); }} className="inline-flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors font-medium">
-            <Plus className="w-5 হ-5" />
-            শোরুম যোগ করুন
-          </button>
         </div>
 
         <div className="bg-white rounded-lg shadow p-6 mb-8">

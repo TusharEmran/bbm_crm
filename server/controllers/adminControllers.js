@@ -3,13 +3,14 @@ import bcrypt from "bcryptjs";
 
 export const listAdmins = async (req, res) => {
   try {
-    const admins = await Admin.find({}).select("username email role status");
+    const admins = await Admin.find({}).select("username email role status showroomName");
     const users = admins.map((u) => ({
       id: u._id.toString(),
       name: u.username,
       email: u.email,
       role: u.role,
       status: u.status || "Active",
+      showroomName: u.showroomName || "",
     }));
     return res.status(200).json({ users });
   } catch (err) {
@@ -23,7 +24,7 @@ export const listAdmins = async (req, res) => {
 
 export const createAdmin = async (req, res) => {
   try {
-    const { name, email, password, role, status } = req.body || {};
+    const { name, email, password, role, status, showroomName } = req.body || {};
     if (!name || !email || !password || !role) {
       return res.status(400).json({ message: "name, email, password, role are required" });
     }
@@ -35,9 +36,23 @@ export const createAdmin = async (req, res) => {
     if (map[role]) storeRole = map[role];
 
     const hashed = await bcrypt.hash(password, 10);
-    const user = await Admin.create({ username: name, email, password: hashed, role: storeRole, status: status || "Active" });
+    const user = await Admin.create({
+      username: name,
+      email,
+      password: hashed,
+      role: storeRole,
+      status: status || "Active",
+      showroomName: showroomName ? String(showroomName).trim() : undefined,
+    });
     return res.status(201).json({
-      user: { id: user._id.toString(), name: user.username, email: user.email, role: user.role, status: user.status || "Active" },
+      user: {
+        id: user._id.toString(),
+        name: user.username,
+        email: user.email,
+        role: user.role,
+        status: user.status || "Active",
+        showroomName: user.showroomName || "",
+      },
     });
   } catch (err) {
     console.error("createAdmin error:", err);
@@ -51,7 +66,7 @@ export const createAdmin = async (req, res) => {
 export const updateAdmin = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, email, password, role, status } = req.body || {};
+    const { name, email, password, role, status, showroomName } = req.body || {};
     const update = {};
     if (name) update.username = name;
     if (email) update.email = email;
@@ -60,12 +75,20 @@ export const updateAdmin = async (req, res) => {
       update.role = map[role] || role;
     }
     if (status) update.status = status;
+    if (showroomName !== undefined) update.showroomName = String(showroomName).trim();
     if (password) update.password = await bcrypt.hash(password, 10);
 
     const user = await Admin.findByIdAndUpdate(id, update, { new: true });
     if (!user) return res.status(404).json({ message: "Not found" });
     return res.status(200).json({
-      user: { id: user._id.toString(), name: user.username, email: user.email, role: user.role, status: user.status || "Active" },
+      user: {
+        id: user._id.toString(),
+        name: user.username,
+        email: user.email,
+        role: user.role,
+        status: user.status || "Active",
+        showroomName: user.showroomName || "",
+      },
     });
   } catch (err) {
     return res.status(500).json({ message: "Server error" });

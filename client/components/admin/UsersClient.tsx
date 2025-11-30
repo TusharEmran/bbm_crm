@@ -10,6 +10,7 @@ export interface User {
   email: string;
   role: string;
   status: string;
+  showroomName?: string;
 }
 
 interface FormData {
@@ -18,6 +19,7 @@ interface FormData {
   password: string;
   role: string;
   status: string;
+   showroomName: string;
 }
 
 interface UsersClientProps {
@@ -36,7 +38,10 @@ export default function UsersClient({ initialUsers = [] }: UsersClientProps) {
     password: "",
     role: "Admin",
     status: "Active",
+    showroomName: "",
   });
+
+  const [showrooms, setShowrooms] = useState<{ id: string; name: string }[]>([]);
 
   const [toast, setToast] = useState<{
     show: boolean;
@@ -51,6 +56,21 @@ export default function UsersClient({ initialUsers = [] }: UsersClientProps) {
     setToast({ show: true, message, type });
   };
 
+  const fetchShowrooms = async () => {
+    try {
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+      const res = await fetch(`${baseUrl}/api/user/showrooms-public`, {
+        cache: 'no-store',
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+      const items = Array.isArray(data.showrooms) ? data.showrooms : [];
+      setShowrooms(items.map((s: any) => ({ id: s.id, name: s.name })));
+    } catch (e) {
+      // ignore showroom load errors for now
+    }
+  };
+
   const closeToast = () => setToast((t) => ({ ...t, show: false }));
 
   const handleOpenModal = (user: User | null = null) => {
@@ -62,6 +82,7 @@ export default function UsersClient({ initialUsers = [] }: UsersClientProps) {
         password: "",
         role: user.role,
         status: user.status,
+        showroomName: user.showroomName || "",
       });
     } else {
       setEditingUser(null);
@@ -71,6 +92,7 @@ export default function UsersClient({ initialUsers = [] }: UsersClientProps) {
         password: "",
         role: "Admin",
         status: "Active",
+        showroomName: "",
       });
     }
     setIsModalOpen(true);
@@ -85,6 +107,7 @@ export default function UsersClient({ initialUsers = [] }: UsersClientProps) {
       password: "",
       role: "Admin",
       status: "Active",
+      showroomName: "",
     });
   };
 
@@ -123,6 +146,7 @@ export default function UsersClient({ initialUsers = [] }: UsersClientProps) {
         email: u.email,
         role: mapBackendToDisplayRole(u.role),
         status: u.status || 'Active',
+        showroomName: u.showroomName || "",
       }));
       setAllUsers(users);
       setDisplayedUsers(users.slice(0, 10));
@@ -133,7 +157,7 @@ export default function UsersClient({ initialUsers = [] }: UsersClientProps) {
 
   useEffect(() => {
     fetchUsers();
-
+    fetchShowrooms();
   }, []);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -144,10 +168,19 @@ export default function UsersClient({ initialUsers = [] }: UsersClientProps) {
       const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
       if (editingUser) {
-        const payload: any = { name: formData.name, email: formData.email, role: formData.role };
+        const payload: any = {
+          name: formData.name,
+          email: formData.email,
+          role: formData.role,
+        };
         if (formData.password) payload.password = formData.password;
 
         payload.role = mapDisplayToBackendRole(payload.role);
+        if (payload.role === 'showroom') {
+          payload.showroomName = formData.showroomName || '';
+        } else {
+          payload.showroomName = '';
+        }
         const res = await fetch(`${baseUrl}/api/user/admins/${editingUser.id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
@@ -162,6 +195,7 @@ export default function UsersClient({ initialUsers = [] }: UsersClientProps) {
           password: formData.password,
           role: mapDisplayToBackendRole(formData.role),
           status: 'Active',
+          showroomName: mapDisplayToBackendRole(formData.role) === 'showroom' ? (formData.showroomName || '') : '',
         };
         const res = await fetch(`${baseUrl}/api/user/admins`, {
           method: 'POST',
@@ -257,6 +291,7 @@ export default function UsersClient({ initialUsers = [] }: UsersClientProps) {
                   <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">নাম</th>
                   <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">ইমেইল</th>
                   <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">ভূমিকা</th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">শোরুম</th>
                   <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">স্ট্যাটাস</th>
                   <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">অ্যাকশন</th>
                 </tr>
@@ -271,6 +306,11 @@ export default function UsersClient({ initialUsers = [] }: UsersClientProps) {
                       <td className="px-6 py-4 text-sm text-gray-900">{user.name}</td>
                       <td className="px-6 py-4 text-sm text-gray-600">{user.email}</td>
                       <td className="px-6 py-4 text-sm text-gray-900">{user.role}</td>
+                      <td className="px-6 py-4 text-sm text-gray-900">
+                        {user.role === 'Showroom' && user.showroomName
+                          ? user.showroomName
+                          : "-"}
+                      </td>
                       <td className="px-6 py-4 text-sm">
                         <span
                           className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(
@@ -411,7 +451,27 @@ export default function UsersClient({ initialUsers = [] }: UsersClientProps) {
                   </select>
                 </div>
 
-
+                {formData.role === 'Showroom' && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      শোরুমের নাম
+                    </label>
+                    <select
+                      name="showroomName"
+                      value={formData.showroomName}
+                      onChange={handleInputChange}
+                      required={formData.role === 'Showroom'}
+                      className="w-full px-4 py-2 border text-black border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                    >
+                      <option value="">একটি শোরুম নির্বাচন করুন</option>
+                      {showrooms.map((s) => (
+                        <option key={s.id} value={s.name}>
+                          {s.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
 
                 <div className="flex gap-3 pt-4">
                   <button

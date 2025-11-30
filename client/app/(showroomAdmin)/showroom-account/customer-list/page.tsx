@@ -227,6 +227,30 @@ export default function CustomerListPage() {
     loadCategories();
   }, [baseUrl]);
 
+  // Lock this page to the logged-in showroom admin's showroomName
+  useEffect(() => {
+    const loadCurrentShowroom = async () => {
+      try {
+        const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+        if (!token) return;
+        const res = await fetch(`${baseUrl}/api/user/me`, {
+          headers: { Authorization: `Bearer ${token}` },
+          cache: 'no-store',
+        });
+        if (!res.ok) return;
+        const js = await res.json();
+        const showroomName = (js?.user?.showroomName || "").toString();
+        const role = (js?.user?.role || "").toString().toLowerCase();
+        if (showroomName && role === 'showroom') {
+          setShowroomFilter(showroomName);
+        }
+      } catch {
+        // ignore errors; page will just show unfiltered data
+      }
+    };
+    loadCurrentShowroom();
+  }, [baseUrl]);
+
   const filteredCustomers = useMemo(() => {
     const q = searchQuery.toLowerCase();
 
@@ -307,111 +331,6 @@ export default function CustomerListPage() {
     return Array.from(set).sort();
   }, [customers]);
 
-  const handlePrintAll = () => {
-    if (customers.length === 0) {
-      show("প্রিন্ট করার মতো কোনো কাস্টমার পাওয়া যায়নি");
-      return;
-    }
-
-    // Group all customers by normalized phone to collect all visits per person
-    const groups = new Map<
-      string,
-      {
-        name: string;
-        phone: string;
-        category: string;
-        visits: { date: string; time: string }[];
-      }
-    >();
-
-    customers.forEach((c) => {
-      const key = normalizePhone(c.phone) || c.id;
-      const d = new Date(c.createdAt);
-      const dateStr = isNaN(d.getTime())
-        ? c.createdAt
-        : d.toISOString().slice(0, 10);
-      const timeStr = formatVisitTime(c.createdAt);
-
-      if (!groups.has(key)) {
-        groups.set(key, {
-          name: c.name,
-          phone: c.phone,
-          category: c.category,
-          visits: [],
-        });
-      }
-      const g = groups.get(key)!;
-      g.visits.push({ date: dateStr, time: timeStr });
-    });
-
-    const rowsHtml = Array.from(groups.values())
-      .map((g) => {
-        const visitLines = g.visits
-          .map((v, idx) => `${idx + 1}. ${v.date} ${v.time}`)
-          .join("<br/>");
-        return `
-          <tr>
-            <td>${g.name || ""}</td>
-            <td>${g.phone || ""}</td>
-            <td>${g.category || ""}</td>
-            <td>${g.visits.length}</td>
-            <td>${visitLines}</td>
-          </tr>
-        `;
-      })
-      .join("");
-
-    const html = `
-      <!DOCTYPE html>
-      <html lang="bn">
-        <head>
-          <meta charSet="utf-8" />
-          <title>শোরুম কাস্টমার তালিকা</title>
-          <style>
-            body { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; padding: 24px; }
-            h1 { font-size: 20px; margin-bottom: 8px; }
-            p { margin: 0 0 16px 0; font-size: 13px; color: #4b5563; }
-            table { width: 100%; border-collapse: collapse; font-size: 12px; }
-            th, td { border: 1px solid #e5e7eb; padding: 6px 8px; text-align: left; vertical-align: top; }
-            th { background: #f3f4f6; font-weight: 600; }
-            .small { font-size: 11px; color: #6b7280; margin-top: 4px; }
-          </style>
-        </head>
-        <body>
-          <h1>শোরুম কাস্টমার তালিকা (প্রিন্ট)</h1>
-          <p>মোট ${groups.size} জন কাস্টমার - তৈরি হয়েছে ${new Date().toLocaleString()}</p>
-          <table>
-            <thead>
-              <tr>
-                <th>নাম</th>
-                <th>ফোন</th>
-                <th>ক্যাটাগরি</th>
-                <th>মোট ভিজিট</th>
-                <th>ভিজিটের তারিখ ও সময়</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${rowsHtml}
-            </tbody>
-          </table>
-          <p class="small">নোট: একই ফোন নম্বরের সব ভিজিট একসাথে দেখানো হয়েছে।</p>
-          <script>
-            window.onload = function() { window.print(); };
-          </script>
-        </body>
-      </html>
-    `;
-
-    const printWindow = window.open("", "_blank");
-    if (!printWindow) {
-      show("প্রিন্ট উইন্ডো খোলা যায়নি");
-      return;
-    }
-    printWindow.document.open();
-    printWindow.document.write(html);
-    printWindow.document.close();
-  };
-
   const handleEdit = (customer: Customer) => {
     setEditingId(customer.id);
     setEditingData({
@@ -422,14 +341,24 @@ export default function CustomerListPage() {
     });
   };
 
+  const handleEditFieldChange = (field: keyof EditingCustomer, value: string) => {
+    if (editingData) {
+      setEditingData({ ...editingData, [field]: value });
+    }
+  };
+
   const handleSaveEdit = async (id: string) => {
     if (!editingData) return;
 
-    if (!editingData.name.trim())
+    if (!editingData.name.trim()) {
       return show("কাস্টমারের নাম খালি রাখা যাবে না");
-    if (!editingData.phone.trim())
+    }
+    if (!editingData.phone.trim()) {
       return show("ফোন নম্বর খালি রাখা যাবে না");
-    if (!editingData.category) return show("ক্যাটাগরি খালি রাখা যাবে না");
+    }
+    if (!editingData.category) {
+      return show("ক্যাটাগরি খালি রাখা যাবে না");
+    }
 
     try {
       const token =
@@ -477,33 +406,6 @@ export default function CustomerListPage() {
     setEditingData(null);
   };
 
-  const handleDeleteConfirm = async (id: string) => {
-    try {
-      const token =
-        typeof window !== "undefined" ? localStorage.getItem("token") : null;
-      if (!token) return show("Not authenticated");
-
-      const res = await fetch(`${baseUrl}/api/user/showroom/customers/${id}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      if (!res.ok) throw new Error("মুছে ফেলা যায়নি");
-      const customer = customers.find((c) => c.id === id);
-      setCustomers((prev) => prev.filter((c) => c.id !== id));
-      setDeleteConfirmId(null);
-      show(`${customer?.name || "এন্ট্রি"} সফলভাবে মুছে ফেলা হয়েছে!`);
-    } catch (e: any) {
-      show(e?.message || "মুছে ফেলা ব্যর্থ হয়েছে");
-    }
-  };
-
-  const handleEditFieldChange = (field: keyof EditingCustomer, value: string) => {
-    if (editingData) {
-      setEditingData({ ...editingData, [field]: value });
-    }
-  };
-
   const handleSaveDetails = async (customer: Customer) => {
     try {
       const token =
@@ -547,6 +449,27 @@ export default function CustomerListPage() {
     }
   };
 
+  const handleDeleteConfirm = async (id: string) => {
+    try {
+      const token =
+        typeof window !== "undefined" ? localStorage.getItem("token") : null;
+      if (!token) return show("Not authenticated");
+
+      const res = await fetch(`${baseUrl}/api/user/showroom/customers/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!res.ok) throw new Error("মুছে ফেলা যায়নি");
+      const customer = customers.find((c) => c.id === id);
+      setCustomers((prev) => prev.filter((c) => c.id !== id));
+      setDeleteConfirmId(null);
+      show(`${customer?.name || "এন্ট্রি"} সফলভাবে মুছে ফেলা হয়েছে!`);
+    } catch (e: any) {
+      show(e?.message || "মুছে ফেলা ব্যর্থ হয়েছে");
+    }
+  };
+
   return (
     <div className="min-h-screen p-8 bg-white">
       <div className="max-w-7xl mx-auto">
@@ -560,19 +483,10 @@ export default function CustomerListPage() {
               সব ভিজিটের কাস্টমার তথ্য দেখুন, ম্যানেজ ও আপডেট করুন
             </p>
           </div>
-          <div>
-            <button
-              type="button"
-              onClick={handlePrintAll}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-emerald-500 bg-emerald-500 text-sm font-semibold text-white hover:bg-emerald-600 hover:border-emerald-600 shadow-sm"
-            >
-              <span>প্রিন্ট / PDF</span>
-            </button>
-          </div>
         </div>
 
         {/* Search + Filters */}
-        <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6 mb-10">
+        <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6 mb-6">
           <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between">
             <div className="relative flex-1">
               <svg
@@ -633,20 +547,11 @@ export default function CustomerListPage() {
 
               <div className="w-full md:w-56">
                 <label className="block text-xs font-semibold text-slate-600 mb-1">
-                  শোরুম ফিল্টার
+                  আপনার শোরুম
                 </label>
-                <select
-                  value={showroomFilter}
-                  onChange={(e) => setShowroomFilter(e.target.value)}
-                  className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-white text-slate-900 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-600"
-                >
-                  <option value="all">সব শোরুম</option>
-                  {showroomOptions.map((s) => (
-                    <option key={s} value={s}>
-                      {s}
-                    </option>
-                  ))}
-                </select>
+                <div className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 text-slate-900 text-sm font-semibold flex items-center">
+                  {showroomFilter !== 'all' ? showroomFilter : 'শোরুম তথ্য পাওয়া যায়নি'}
+                </div>
               </div>
 
               <div className="w-full md:w-52">
@@ -1151,20 +1056,9 @@ export default function CustomerListPage() {
                                 <div className="text-xs font-bold text-slate-500">
                                   শোরুম
                                 </div>
-                                <input
-                                  type="text"
-                                  value={customer.showroom || ""}
-                                  onChange={(e) =>
-                                    setCustomers((prev) =>
-                                      prev.map((c) =>
-                                        c.id === customer.id
-                                          ? { ...c, showroom: e.target.value }
-                                          : c
-                                      )
-                                    )
-                                  }
-                                  className="mt-1 w-full px-3 py-2 border border-slate-300 rounded-lg bg-white text-slate-900 text-sm"
-                                />
+                                <div className="mt-1 w-full px-3 py-2 border border-slate-300 rounded-lg bg-slate-50 text-slate-900 text-sm">
+                                  {customer.showroom || "-"}
+                                </div>
                               </div>
                             </div>
                             <div className="mt-6 flex justify-end gap-2">

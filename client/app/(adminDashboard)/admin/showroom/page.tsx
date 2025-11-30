@@ -1,7 +1,7 @@
 ﻿'use client';
 
 import React, { useState, useMemo, useEffect } from 'react';
-import { Activity, TrendingUp, Users, Clock } from 'lucide-react';
+import { Activity, TrendingUp, Users, Clock, Plus, X } from 'lucide-react';
 import Toast from '@/components/Toast';
 
 interface ShowroomActivity {
@@ -43,6 +43,9 @@ export default function ShowroomActivityPage() {
   const [toastMessage, setToastMessage] = useState('');
   const [showToast, setShowToast] = useState(false);
   const [totalCustomers, setTotalCustomers] = useState<number>(0);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [newShowroomName, setNewShowroomName] = useState('');
+  const [isSavingShowroom, setIsSavingShowroom] = useState(false);
 
   useEffect(() => {
     const load = async () => {
@@ -144,9 +147,19 @@ export default function ShowroomActivityPage() {
     <div className="min-h-screen p-8 bg-white">
       <div className="max-w-7xl mx-auto">
         { }
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">শোরুম কার্যক্রম</h1>
-          <p className="text-gray-600">শোরুমের পারফরম্যান্স ও ভিজিটর মেট্রিক্স মনিটর করুন</p>
+        <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">শোরুম কার্যক্রম</h1>
+            <p className="text-gray-600">শোরুমের পারফরম্যান্স ও ভিজিটর মেট্রিক্স মনিটর করুন</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => { setNewShowroomName(''); setIsModalOpen(true); }}
+            className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-gray-900 text-white text-sm font-semibold hover:bg-gray-800 shadow-sm"
+          >
+            <Plus size={18} />
+            শোরুম যোগ করুন
+          </button>
         </div>
 
         { }
@@ -352,6 +365,96 @@ export default function ShowroomActivityPage() {
       </div>
 
       { }
+
+      {isModalOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+          onClick={() => !isSavingShowroom && setIsModalOpen(false)}
+        >
+          <div
+            className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md mx-auto p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={() => !isSavingShowroom && setIsModalOpen(false)}
+              className="absolute top-4 right-4 p-1.5 rounded-full hover:bg-gray-100 text-gray-500"
+              aria-label="Close"
+            >
+              <X size={18} />
+            </button>
+            <h2 className="text-xl font-bold text-gray-900 mb-1">নতুন শোরুম যোগ করুন</h2>
+            <p className="text-sm text-gray-600 mb-5">শোরুমের নাম লিখে সেভ করুন।</p>
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault();
+                const name = newShowroomName.trim();
+                if (!name) {
+                  setToastMessage('অনুগ্রহ করে শোরুমের নাম লিখুন');
+                  setShowToast(true);
+                  return;
+                }
+                try {
+                  setIsSavingShowroom(true);
+                  const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+                  if (!token) throw new Error('অনুগ্রহ করে লগইন করুন');
+                  const res = await fetch(`${baseUrl}/api/user/showrooms`, {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                      Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({ name }),
+                  });
+                  if (!res.ok) {
+                    const txt = await res.text();
+                    throw new Error(txt || 'শোরুম যোগ করতে ব্যর্থ হয়েছে');
+                  }
+                  setToastMessage(`"${name}" শোরুম সফলভাবে যোগ হয়েছে!`);
+                  setShowToast(true);
+                  setIsModalOpen(false);
+                  setNewShowroomName('');
+                } catch (err: any) {
+                  setToastMessage(err?.message || 'শোরুম যোগ করতে সমস্যা হয়েছে');
+                  setShowToast(true);
+                } finally {
+                  setIsSavingShowroom(false);
+                }
+              }}
+              className="space-y-4 mt-2"
+            >
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">শোরুমের নাম</label>
+                <input
+                  type="text"
+                  value={newShowroomName}
+                  onChange={(e) => setNewShowroomName(e.target.value)}
+                  placeholder="যেমন, ডাউনটাউন শোরুম"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 text-black"
+                />
+              </div>
+              <div className="flex gap-3 pt-4">
+                <button
+                  type="button"
+                  disabled={isSavingShowroom}
+                  onClick={() => setIsModalOpen(false)}
+                  className="flex-1 px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-900 rounded-lg transition font-medium disabled:opacity-60"
+                >
+                  বাতিল
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSavingShowroom}
+                  className="flex-1 px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white rounded-lg transition font-medium disabled:opacity-60"
+                >
+                  {isSavingShowroom ? 'সেভ হচ্ছে...' : 'শোরুম সেভ করুন'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       <Toast
         message={toastMessage}
         show={showToast}

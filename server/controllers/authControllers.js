@@ -52,7 +52,14 @@ export const login = async (req, res) => {
     try { res.cookie("token", token, COOKIE_OPTS); } catch { }
     return res.status(200).json({
       token,
-      user: { id: user._id.toString(), name: user.username, email: user.email, role: normRole, status: user.status || "Active" },
+      user: {
+        id: user._id.toString(),
+        name: user.username,
+        email: user.email,
+        role: normRole,
+        status: user.status || "Active",
+        showroomName: user.showroomName || "",
+      },
     });
   } catch (e) {
     return res.status(500).json({ message: "Server error" });
@@ -67,14 +74,21 @@ export const logout = async (req, res) => {
 export const me = async (req, res) => {
   try {
     const userId = req.user?.id;
-    const user = await Admin.findById(userId).select("username email role status");
+    const user = await Admin.findById(userId).select("username email role status showroomName");
     if (!user) {
       console.log("User not found for ID:", userId);
       return res.status(401).json({ message: "Not user" });
     }
     if (user.status === "Suspend") return res.status(403).json({ message: "Account suspended" });
     return res.status(200).json({
-      user: { id: user._id.toString(), name: user.username, email: user.email, role: user.role, status: user.status || "Active" },
+      user: {
+        id: user._id.toString(),
+        name: user.username,
+        email: user.email,
+        role: user.role,
+        status: user.status || "Active",
+        showroomName: user.showroomName || "",
+      },
     });
   } catch (e) {
     return res.status(500).json({ message: "Server error" });

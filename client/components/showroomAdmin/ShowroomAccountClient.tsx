@@ -38,7 +38,6 @@ export default function ShowroomAccountClient({ initialTodayEntries }: ShowroomA
   const [showToast, setShowToast] = useState(false);
   const [formData, setFormData] = useState({ name: "", phone: "", interest: "" });
   const [revealed, setRevealed] = useState<Record<string, boolean>>({});
-  const [showrooms, setShowrooms] = useState<string[]>([]);
   const [selectedShowroom, setSelectedShowroom] = useState<string>("");
   const [oaAccuracy, setOaAccuracy] = useState<number>(0);
   const [oaAdminCount, setOaAdminCount] = useState<number>(0);
@@ -220,19 +219,28 @@ export default function ShowroomAccountClient({ initialTodayEntries }: ShowroomA
 
   }, []);
 
-  // Load showrooms for dropdown
+  // Determine logged-in showroom admin's showroomName and lock filtering to that
   React.useEffect(() => {
-    const loadShowrooms = async () => {
+    const loadCurrentShowroom = async () => {
       try {
-        const res = await fetch(`${baseUrl}/api/user/showrooms-public`);
+        const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+        if (!token) return;
+        const res = await fetch(`${baseUrl}/api/user/me`, {
+          headers: { Authorization: `Bearer ${token}` },
+          cache: 'no-store',
+        });
         if (!res.ok) return;
         const js = await res.json();
-        const names: string[] = Array.isArray(js) ? js.map((s: any) => s.name) : (js.showrooms || []).map((s: any) => s.name);
-        setShowrooms(names);
-        // keep selectedShowroom as empty to represent 'All Showrooms' by default
-      } catch { }
+        const showroomName = (js?.user?.showroomName || "").toString();
+        const role = (js?.user?.role || "").toString().toLowerCase();
+        if (showroomName && role === 'showroom') {
+          setSelectedShowroom(showroomName);
+        }
+      } catch {
+        // ignore errors; dashboard will just show unfiltered data
+      }
     };
-    loadShowrooms();
+    loadCurrentShowroom();
   }, [baseUrl]);
 
   const filteredEntries = useMemo(() => {
@@ -345,13 +353,13 @@ export default function ShowroomAccountClient({ initialTodayEntries }: ShowroomA
         </div>
 
         <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6 mb-6">
-          <label className="block text-sm font-bold text-slate-900 mb-3">শোরুম নির্বাচন করুন</label>
-          <select value={selectedShowroom} onChange={(e) => setSelectedShowroom(e.target.value)} className="w-full md:w-64 px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900 bg-white text-slate-900 font-medium">
-            <option value="">সব শোরুম</option>
-            {showrooms.map((name) => (
-              <option key={name} value={name}>{name}</option>
-            ))}
-          </select>
+          <p className="text-sm font-bold text-slate-900 mb-1">আপনার শোরুম</p>
+          <p className="text-base font-semibold text-slate-800">
+            {selectedShowroom || 'শোরুম তথ্য পাওয়া যায়নি'}
+          </p>
+          <p className="text-xs text-slate-500 mt-2">
+            এই ড্যাশবোর্ডের সব ডেটা আপনার শোরুম অনুযায়ী দেখানো হচ্ছে।
+          </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-10">
@@ -490,8 +498,8 @@ export default function ShowroomAccountClient({ initialTodayEntries }: ShowroomA
 
         <tbody>
           {remindersDue.map((r) => {
-            const reminderDate = r.rememberNote || "";
-            const noteText = r.notes || r.randomCustomer || r.quotation || "";
+            const reminderDate = r.date || "";
+            const noteText = r.rememberNote || r.notes || r.randomCustomer || r.quotation || "";
 
             return (
               <tr

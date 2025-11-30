@@ -50,12 +50,12 @@ export const requireAuth = async (req, res, next) => {
     if (!token) return res.status(401).json({ message: "No token" });
 
     const decoded = jwt.verify(token, JWT_SECRET);
-    const user = await Admin.findById(decoded.id).select("username email role status");
+    const user = await Admin.findById(decoded.id).select("username email role status showroomName");
 
     if (!user) return res.status(401).json({ message: "User not found" });
     if (user.status === "Suspend") return res.status(403).json({ message: "Account suspended" });
 
-    req.user = { id: user._id, role: user.role };
+    req.user = { id: user._id, role: user.role, showroomName: user.showroomName || "" };
     next();
   } catch (e) {
 

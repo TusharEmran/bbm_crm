@@ -176,6 +176,54 @@ export default function AddCustomerPage() {
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [submittedData, setSubmittedData] = useState<FormData | null>(null);
 
+  const reminderNoteTemplates: { id: string; label: string; text: string }[] = [
+    {
+      id: 'call-today',
+      label: 'আজকে ফোনে ফলোআপ করতে হবে',
+      text: 'আজকে কাস্টমারের সাথে ফোনে ফলোআপ করতে হবে।',
+    },
+    {
+      id: 'call-tomorrow',
+      label: 'আগামীকাল ফোনে ফলোআপ',
+      text: 'আগামীকাল কাস্টমারের সাথে ফোনে ফলোআপ করার জন্য রিমাইন্ডার।',
+    },
+    {
+      id: 'call-7-days',
+      label: '৭ দিনের মধ্যে আবার যোগাযোগ',
+      text: '৭ দিনের মধ্যে কাস্টমারের সাথে আবার যোগাযোগ করতে হবে।',
+    },
+    {
+      id: 'visit-reminder',
+      label: 'শোরুম ভিজিটের জন্য মনে করিয়ে দিন',
+      text: 'কাস্টমারকে শোরুম ভিজিটের জন্য মনে করিয়ে দেয়ার রিমাইন্ডার।',
+    },
+    {
+      id: 'payment-followup',
+      label: 'পেমেন্ট সংক্রান্ত ফলোআপ',
+      text: 'পেমেন্ট/অ্যাডভান্স সংক্রান্ত ফলোআপের জন্য রিমাইন্ডার।',
+    },
+    {
+      id: 'send-quotation',
+      label: 'কাস্টমারকে কোটেশন পাঠানোর রিমাইন্ডার',
+      text: 'কাস্টমারকে কোটেশন ইমেইল/মেসেজে পাঠানোর জন্য রিমাইন্ডার।',
+    },
+    {
+      id: 'confirm-order',
+      label: 'অর্ডার কনফার্ম করার জন্য ফলোআপ',
+      text: 'কাস্টমারের কাছ থেকে অর্ডার কনফার্ম করার জন্য আবার যোগাযোগ করতে হবে।',
+    },
+    {
+      id: 'after-delivery-call',
+      label: 'ডেলিভারির পর ফিডব্যাক কল',
+      text: 'পণ্যের ডেলিভারির পর কাস্টমারের ফিডব্যাক নেয়ার জন্য কল করার রিমাইন্ডার।',
+    },
+    {
+      id: 'general-checkin',
+      label: 'সাধারণ কাস্টমার চেক-ইন',
+      text: 'কাস্টমারের সাথে সাধারণভাবে কথা বলে আপডেট নেয়ার জন্য রিমাইন্ডার।',
+    },
+  ];
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -254,11 +302,34 @@ export default function AddCustomerPage() {
         const data = await res.json();
         const items: string[] = (data.showrooms || []).map((s: any) => s.name || s);
         setShowrooms(items);
-        setFormData((prev) => ({ ...prev, showroomBranch: prev.showroomBranch || items[0] || '' }));
       } catch { }
     };
     loadShowrooms();
   }, []);
+
+  // Lock showroomBranch to the logged-in showroom admin's showroomName
+  useEffect(() => {
+    const loadCurrentShowroom = async () => {
+      try {
+        const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+        if (!token) return;
+        const res = await fetch(`${baseUrl}/api/user/me`, {
+          headers: { Authorization: `Bearer ${token}` },
+          cache: 'no-store',
+        });
+        if (!res.ok) return;
+        const js = await res.json();
+        const showroomName = (js?.user?.showroomName || '').toString();
+        const role = (js?.user?.role || '').toString().toLowerCase();
+        if (showroomName && role === 'showroom') {
+          setFormData((prev) => ({ ...prev, showroomBranch: showroomName }));
+        }
+      } catch {
+        // ignore; showroomBranch will remain whatever was previously set
+      }
+    };
+    loadCurrentShowroom();
+  }, [baseUrl]);
 
   useEffect(() => {
     const phone = formData.phoneNumber.trim();
@@ -796,7 +867,33 @@ export default function AddCustomerPage() {
                           />
                         </div>
                         <div>
-                          <label className="text-sm font-bold text-slate-900 mb-3 block">রিমাইন্ডার নোট লিখুন</label>
+                          <label className="text-sm font-bold text-slate-900 mb-1 block">রিমাইন্ডার নোট লিখুন</label>
+                          <div className="mb-2 flex flex-col md:flex-row gap-3 items-stretch md:items-center">
+                            <span className="text-md text-black text-slate-600">প্রি-সেট নোট নির্বাচন করুন:</span>
+                            <select
+                              className="w-full md:w-auto px-4 py-2.5 border border-slate-300 rounded-lg bg-white text-slate-900 text-sm font-medium shadow-sm"
+                              defaultValue=""
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                if (!val) return;
+                                const tpl = reminderNoteTemplates.find((t) => t.id === val);
+                                if (!tpl) return;
+                                setFormData((prev) => ({
+                                  ...prev,
+                                  rememberText: prev.rememberText
+                                    ? `${prev.rememberText}\n---\n${tpl.text}`
+                                    : tpl.text,
+                                }));
+                              }}
+                            >
+                              <option value="">একটি প্রি-সেট নোট নির্বাচন করুন</option>
+                              {reminderNoteTemplates.map((t) => (
+                                <option key={t.id} value={t.id}>
+                                  {t.label}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
                           <textarea
                             name="rememberText"
                             value={formData.rememberText || ''}
@@ -857,22 +954,14 @@ export default function AddCustomerPage() {
                   <Building2 size={18} className="text-cyan-600" />
                   শোরুম শাখা
                 </label>
-                <select
-                  name="showroomBranch"
-                  value={formData.showroomBranch}
-                  onChange={handleInputChange}
-                  className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 transition bg-white text-slate-900 font-medium ${formErrors.showroomBranch
-                    ? 'border-red-500 bg-red-50'
+                <div
+                  className={`w-full px-4 py-3 border rounded-lg bg-slate-50 text-slate-900 font-medium ${formErrors.showroomBranch
+                    ? 'border-red-500'
                     : 'border-slate-200'
                     }`}
                 >
-                  <option value="" disabled>একটি শোরুম নির্বাচন করুন</option>
-                  {showrooms.map((showroom) => (
-                    <option key={showroom} value={showroom}>
-                      {showroom}
-                    </option>
-                  ))}
-                </select>
+                  {formData.showroomBranch || 'শোরুম তথ্য পাওয়া যায়নি'}
+                </div>
                 {formErrors.showroomBranch && (
                   <p className="text-red-600 text-xs mt-2 flex items-center gap-1">
                     <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
